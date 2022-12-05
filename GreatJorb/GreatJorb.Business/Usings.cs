@@ -1,0 +1,12 @@
+﻿global using GreatJorb.Business.Extensions;
+global using GreatJorb.Business.Models;
+global using GreatJorb.Business.Services;
+global using GreatJorb.Business.Services.BrowserAutomation;
+global using MediatR;
+global using Microsoft.Extensions.Configuration;
+global using PuppeteerSharp;
+global using PuppeteerSharp.Input;
+global using System.Runtime.Versioning;
+global using System.Security.Cryptography;
+global using System.Text;
+global using System.Text.RegularExpressions;

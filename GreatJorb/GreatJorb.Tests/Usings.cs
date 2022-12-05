@@ -1,0 +1,13 @@
+global using GreatJorb.Business.Features;
+global using GreatJorb.Business.Models;
+global using GreatJorb.Business.Services;
+global using GreatJorb.Business.Services.BrowserAutomation;
+global using GreatJorb.Business.Services.JobPostingExtractors;
+global using GreatJorb.Business.Services.WebSiteNavigators;
+global using MediatR;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using NUnit.Framework;
+global using System;
+global using System.Threading.Tasks;
