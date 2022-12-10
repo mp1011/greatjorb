@@ -14,11 +14,8 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int PageNumber = 0, int? PageSize = null)
+    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int? PageSize = null)
     {
-        if (PageNumber > 0)
-            throw new NotImplementedException();
-
         var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
 
         if (PageSize != null)

@@ -3,6 +3,15 @@
 public static class StringExtensions
 {
 
+    public static int? TryParseIntOrDefault(this string text)
+    {
+        int result;
+        if (int.TryParse(text, out result))
+            return result;
+        else
+            return null;
+    }
+
     public static T TryParseEnum<T>(this string text, T defaultValue)
         where T: struct, Enum
     {

@@ -6,5 +6,7 @@ public interface IWebSiteNavigator
     Task<IElementHandle?> GetLoginElement(IPage page);
     Task<IElementHandle?> GetPasswordElement(IPage page);
     Task<IElementHandle?> GetLoginButton(IPage page);
-    Task<IPage> GotoJobsListPage(IPage page, string query);
+    Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber);
+
+    Task WaitUntilLoggedIn(IPage page, CancellationToken cancellationToken);
 }

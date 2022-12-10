@@ -13,5 +13,17 @@
                 return await handleError(e);
             }
         }
+
+        public static async Task<T?> DefaultIfError<T>(this Task<T> task)
+        {
+            try
+            {
+                return await task;
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
     }
 }

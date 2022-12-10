@@ -2,8 +2,9 @@
 
 public class SearchJobsQueryTests
 {
-    [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
-    public async Task CanSearchJobs(string name, string url, string query)
+    [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 1)]
+    [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 2)]
+    public async Task CanSearchJobs(string name, string url, string query, int numberOfPages)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
@@ -16,7 +17,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, query));
+            new SearchJobsQuery(loggedInPage.Data, query, numberOfPages));
 
         Assert.IsNotEmpty(searchResult);
         Assert.IsTrue(searchResult.All(p => p.Url != null)); 
@@ -36,7 +37,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, query, PageSize:1));
+            new SearchJobsQuery(loggedInPage.Data, query, NumberOfPages:1));
 
         Assert.IsTrue(searchResult.Any(p => p.Company != null));
         Assert.IsTrue(searchResult.Any(p => p.DescriptionHtml != null));
@@ -61,7 +62,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, query));
+            new SearchJobsQuery(loggedInPage.Data, query, NumberOfPages: 1));
 
         Assert.IsTrue(searchResult.Any(p => p.SalaryMin != null));
         Assert.IsTrue(searchResult.Any(p => p.SalaryMax != null));

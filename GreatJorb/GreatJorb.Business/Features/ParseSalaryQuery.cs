@@ -25,9 +25,6 @@
                 if (request.Text.Contains("/hr"))
                     salaryType = SalaryType.Hourly;
 
-                decimal? min = null;
-                decimal? max = null;
-
                 if (currencies.Length == 1)
                 {
                     return Task.FromResult(new Result(

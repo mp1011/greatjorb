@@ -44,6 +44,14 @@ public static class PuppeteerExtensions
             .Replace("\n","")
             .Trim();
     }
+
+    public static async Task<int?> TryGetNumberAsync(this IElementHandle element)
+    {
+        var text = await element.GetInnerText();
+        return text.TryParseIntOrDefault();
+    }
+
+
     public static async Task<string> GetInnerHTML(this Task<IElementHandle> elementTask)
     {
         var element = await elementTask;

@@ -38,6 +38,8 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
 
             await page.WaitForNavigationFromAsync(loginPageUrl);
 
+            await navigator.WaitUntilLoggedIn(page, cancellationToken);
+
             return new Result<WebPage>(page.Url != loginPageUrl, new WebPage(request.Site,page));
         }
     }
