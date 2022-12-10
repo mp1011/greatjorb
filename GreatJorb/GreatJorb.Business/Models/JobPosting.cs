@@ -9,8 +9,9 @@ public class JobPosting
     public JobType JobType { get; set; }
     public WorkplaceType WorkplaceType { get; set; }
     public SalaryType SalaryType { get; set; }
-    public int? SalaryMin { get; set; }
-    public int? SalaryMax { get; set; }
+    public JobLevel JobLevel { get; set; }
+    public decimal? SalaryMin { get; set; }
+    public decimal? SalaryMax { get; set; }
     public string? DescriptionHtml { get; set; }
 
     public string[] MiscProperties { get; set; } = Array.Empty<string>();

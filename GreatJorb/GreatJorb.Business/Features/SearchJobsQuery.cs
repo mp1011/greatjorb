@@ -1,6 +1,7 @@
 ﻿namespace GreatJorb.Business.Features;
 
-public record SearchJobsQuery(WebPage WebPage, string Query) : IRequest<JobPosting[]>
+public record SearchJobsQuery(WebPage WebPage, string Query, int PageNumber = 0, int? PageSize = null) 
+    : IRequest<JobPosting[]>
 {
 
     public class Handler : IRequestHandler<SearchJobsQuery, JobPosting[]>
@@ -25,7 +26,13 @@ public record SearchJobsQuery(WebPage WebPage, string Query) : IRequest<JobPosti
                 return Array.Empty<JobPosting>();
 
             IPage page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Query);
-            return await extractor.ExtractJobsFromPage(page);
+            return await extractor
+                .ExtractJobsFromPage(page, request.PageNumber, request.PageSize)
+                .HandleError(error =>
+                {
+                    //log error or something
+                    return Task.FromResult(Array.Empty<JobPosting>());
+                });
         }
     }
 }

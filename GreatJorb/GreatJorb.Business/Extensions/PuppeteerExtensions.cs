@@ -166,6 +166,12 @@ public static class PuppeteerExtensions
         return null;
     }
 
+    public static async Task<string> GetInnerTextAsync(this IPage page, string selector)
+    {
+        var element = await page.QuerySelectorAsync(selector);
+        return await element.GetInnerText();
+    }
+
     public static async Task<string[]> GetInnerTextAsync(this Task<IElementHandle[]> elementsTask)
     {
         var elements = await elementsTask;
@@ -189,7 +195,8 @@ public static class PuppeteerExtensions
 
         try
         {
-            return await element.EvaluateFunctionAsync<string>("e=>e.innerText", element);
+            var text = await element.EvaluateFunctionAsync<string>("e=>e.innerText", element);
+            return text.Trim();
         }
         catch
         {
