@@ -6,8 +6,12 @@ public interface ISettingsService
     string GetSitePassword(WebSite site);
     void SetSiteUserName(WebSite site, string value);
     void SetSitePassword(WebSite site, string value);
-}
 
+    int MaxNavigationRetries { get; }
+    TimeSpan WaitAfterFailedNavigate { get; }
+    TimeSpan MinTimeBetweenRequests { get; }
+    public bool UseHeadlessBrowser { get; }
+}
 
 [SupportedOSPlatform("windows")]
 public class SettingsService : ISettingsService
@@ -27,6 +31,17 @@ public class SettingsService : ISettingsService
 
     public void SetSitePassword(WebSite site, string value) => SetSecureText($"{site.Name}.Password", value);
 
+    public bool UseHeadlessBrowser => bool.Parse(_configuration[nameof(UseHeadlessBrowser)] ?? "false");
+
+    public int MaxNavigationRetries => _configuration[nameof(MaxNavigationRetries)].TryParseIntOrDefault().GetValueOrDefault();
+
+    public TimeSpan WaitAfterFailedNavigate => GetTimeConfig(nameof(WaitAfterFailedNavigate), 15000);
+
+    public TimeSpan MinTimeBetweenRequests =>GetTimeConfig(nameof(MinTimeBetweenRequests), 5);
+
+    private TimeSpan GetTimeConfig(string key, int defaultMS) =>
+        TimeSpan.FromMilliseconds(_configuration[key].TryParseInt(defaultMS));
+    
 
     //fixed random number to assist with encryption. Not required to be perfectly secret.
     private byte[] GetEntropy(string key)

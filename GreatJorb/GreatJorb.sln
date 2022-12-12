@@ -4,9 +4,9 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreatJorb.UI", "GreatJorb.UI\GreatJorb.UI.csproj", "{724B33CC-FB62-446A-A564-477107037982}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreatJorb.Business", "GreatJorb.Business\GreatJorb.Business.csproj", "{1668BC56-8763-4246-B7C3-C69E8E7E7061}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreatJorb.Business", "GreatJorb.Business\GreatJorb.Business.csproj", "{1668BC56-8763-4246-B7C3-C69E8E7E7061}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GreatJorb.Tests", "GreatJorb.Tests\GreatJorb.Tests.csproj", "{655733F8-1696-4E8E-9547-1D3C183B0FC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreatJorb.Tests", "GreatJorb.Tests\GreatJorb.Tests.csproj", "{655733F8-1696-4E8E-9547-1D3C183B0FC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -2,6 +2,13 @@
 
 public class BrowserProvider
 {
+    private readonly ISettingsService _settingsService;
+
+    public BrowserProvider(ISettingsService settingsService)
+    {
+        _settingsService = settingsService;
+    }
+
     private IBrowser? _browser;
 
     public async Task<IBrowser> GetBrowser()
@@ -31,7 +38,7 @@ public class BrowserProvider
         {
             ExecutablePath = revisionInfo.ExecutablePath,
             Devtools = false,
-            Headless = false,
+            Headless = _settingsService.UseHeadlessBrowser,
             Args = new string[] { "--disable-notifications" }
         });
     }

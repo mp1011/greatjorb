@@ -26,6 +26,7 @@
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$(TargetFramework.Contains('-windows'))">10.0.17763.0</TargetPlatformMinVersion>
+		<UserSecretsId>96ecad18-288e-43a5-ad09-41b3f8361ccd</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -48,8 +49,15 @@
 
 	<ItemGroup>
 	  <PackageReference Include="MediatR" Version="11.1.0" />
+	  <PackageReference Include="MediatR.Courier" Version="5.0.0" />
+	  <PackageReference Include="MediatR.Courier.DependencyInjection" Version="5.0.0" />
 	  <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\GreatJorb.Business\GreatJorb.Business.csproj" />
 	</ItemGroup>
 
 </Project>

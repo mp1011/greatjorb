@@ -2,14 +2,44 @@
 
 public static class StringExtensions
 {
-
-    public static int? TryParseIntOrDefault(this string text)
+    public static string UrlEncode(this string? text)
     {
+        if (text == null)
+            return string.Empty;
+
+        return HttpUtility.UrlEncode(text);
+    }
+
+    public static string HtmlEncode(this string? text)
+    {
+        if (text == null)
+            return string.Empty;
+
+        return HttpUtility.HtmlEncode(text);
+    }
+
+    public static int? TryParseIntOrDefault(this string? text)
+    {
+        if (text == null)
+            return null;
+
         int result;
         if (int.TryParse(text, out result))
             return result;
         else
             return null;
+    }
+
+    public static int TryParseInt(this string? text, int defaultReturn)
+    {
+        if (text == null)
+            return defaultReturn;
+
+        int result;
+        if (int.TryParse(text, out result))
+            return result;
+        else
+            return defaultReturn;
     }
 
     public static T TryParseEnum<T>(this string text, T defaultValue)

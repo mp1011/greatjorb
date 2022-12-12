@@ -1,6 +1,4 @@
-﻿using GreatJorb.Business.Features;
-
-namespace GreatJorb.Business.Services.JobPostingExtractors;
+﻿namespace GreatJorb.Business.Services.JobPostingExtractors;
 
 public class LinkedInJobPostingExtractor : IJobPostingExtractor
 {
@@ -39,11 +37,15 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
     private async Task<JobPosting> ExtractPostingHeaders(IElementHandle jobCard)
     {
+        string url = await jobCard
+                .QuerySelectorAsync("a.job-card-container__link")
+                .GetAttribute("href");
+
+        url = $"https://linkedin.com/{url}";
+
         return new JobPosting
         {
-            Url = await jobCard
-                .QuerySelectorAsync("a.job-card-container__link")
-                .GetAttribute("href"),
+            Url = url,
             Title = await jobCard.GetTextAsync(".job-card-list__title"),
             Company = await jobCard.GetTextAsync(".job-card-container__company-name"),
            
@@ -58,7 +60,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
     private async Task<JobPosting> ExtractPostingDetails(IPage page, JobPosting posting)
     {
-        await page.GoToAsync($"https://linkedin.com/{posting.Url}");
+        await page.GoToAsync(posting.Url);
 
         await page.WaitForSelectorAsync(".jobs-unified-top-card__job-insight");
 
@@ -108,6 +110,8 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         posting.MiscProperties = metaData
             .Union(insights)
             .ToArray();
+
+        await _mediator.Publish(new JobPostingRead(posting));
 
         return posting;       
     }
