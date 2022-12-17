@@ -1,7 +1,34 @@
-﻿@if (Job != null)
+﻿
+@if (Job != null)
 {
-    <h3>@Job.Company</h3>
-    <a href="@Job.Url">@Job.Title</a>
-    <p>@Job.SalaryMin</p>
-    <p>@Job.SalaryMax</p>
+    <div class="card" style="width:70%">
+      <div class="card-body">
+        <h5 class="card-title">
+            <a href="@Job.Url">@Job.Title</a>
+            
+            @if(Job.SalaryMax.HasValue && Job.SalaryMin.HasValue)
+            {
+                <span>@Job.SalaryMin.ToShortMoney()</span>
+                <span>-</span>
+                    <span>@Job.SalaryMax.ToShortMoney()</span>
+            }
+            else if(Job.SalaryMin.HasValue)
+            {                    
+                <span>@Job.SalaryMin.ToShortMoney()</span>
+                <span>+</span>
+            }
+            else if(Job.SalaryMax.HasValue)
+            {                    
+                <span>@Job.SalaryMax.ToShortMoney()</span>
+            }
+
+        </h5>
+        <h4>@Job.Company</h4>   
+        <p class="card-text">
+            <span class="badge rounded-pill @WorkplaceTypeCss">@Job.WorkplaceType</span>
+            <span class="badge rounded-pill @JobTypeCss">@Job.JobType</span>
+            <span class="badge rounded-pill @JobLevelCss">@Job.JobLevel</span>
+         </p>
+      </div>
+    </div>
 }

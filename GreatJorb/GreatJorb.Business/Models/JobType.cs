@@ -1,9 +1,10 @@
 ﻿namespace GreatJorb.Business.Models;
 
+[Flags]
 public enum JobType
 {
-    Unknown,
-    Contract,
-    PartTime,
-    FullTime
+    Unknown = 0,
+    Contract = 1,
+    PartTime = 2,
+    FullTime = 4
 }

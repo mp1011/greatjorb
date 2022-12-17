@@ -1,0 +1,16 @@
+﻿@typeparam T
+
+<div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+
+    @foreach(var option in Options)
+    {
+        <input type="checkbox" class="btn-check" id="picker_@option" autocomplete="off" 
+            checked="@IsChecked(option)"  
+            @onclick="async ()=> await ToggleChecked(option)"
+        
+        >
+        <label class="btn btn-outline-primary" for="picker_@option">@option</label>    
+    }    
+
+</div>
+

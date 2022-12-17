@@ -92,4 +92,13 @@ public static class StringExtensions
         var text = await task;
         return text.TryParseEnumAdvanced(default(T));
     }
+
+    public static string ToShortMoney(this decimal? d)
+    {
+        if (d == null)
+            return string.Empty;
+
+        d = d / 1000;
+        return $"${d.Value.ToString("0.0")}k";
+    }
 }

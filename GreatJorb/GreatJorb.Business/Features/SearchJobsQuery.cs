@@ -1,10 +1,10 @@
 ﻿namespace GreatJorb.Business.Features;
 
-public record SearchJobsQuery(WebPage WebPage, string Query, int NumberOfPages) 
-    : IRequest<JobPosting[]>
+public record SearchJobsQuery(WebPage WebPage, JobFilter Filter, int NumberOfPages) 
+    : IRequest<JobPostingSearchResult>
 {
 
-    public class Handler : IRequestHandler<SearchJobsQuery, JobPosting[]>
+    public class Handler : IRequestHandler<SearchJobsQuery, JobPostingSearchResult>
     {
         private readonly IMediator _mediator;
         public Handler(IMediator mediator)
@@ -12,24 +12,24 @@ public record SearchJobsQuery(WebPage WebPage, string Query, int NumberOfPages)
             _mediator = mediator;
         }
 
-        public async Task<JobPosting[]> Handle(SearchJobsQuery request, CancellationToken cancellationToken)
+        public async Task<JobPostingSearchResult> Handle(SearchJobsQuery request, CancellationToken cancellationToken)
         {
             if (request.WebPage == null || request.WebPage.Page == null)
-                return Array.Empty<JobPosting>();
+                return JobPostingSearchResult.Empty;
 
             IWebSiteNavigator? navigator = await _mediator.Send(new GetNavigatorQuery(request.WebPage.Site));
             if (navigator == null)
-                return Array.Empty<JobPosting>();
+                return JobPostingSearchResult.Empty;
 
             IJobPostingExtractor? extractor = await _mediator.Send(new GetExtractorQuery(request.WebPage.Site));
             if (extractor == null)
-                return Array.Empty<JobPosting>();
+                return JobPostingSearchResult.Empty;
 
             List<JobPosting> results = new();
 
             for (int pageNumber = 1; pageNumber <= request.NumberOfPages; pageNumber++)
             {
-                IPage page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Query, pageNumber);
+                IPage page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, pageNumber);
 
                 results.AddRange(await extractor
                    .ExtractJobsFromPage(page)
@@ -39,8 +39,14 @@ public record SearchJobsQuery(WebPage WebPage, string Query, int NumberOfPages)
                        return Task.FromResult(Array.Empty<JobPosting>());
                    }));
             }
-          
-            return results.ToArray();
+
+            JobPosting[] matchesFilter = Array.Empty<JobPosting>(), doesNotMatchFilter = Array.Empty<JobPosting>();
+
+            results.SplitByCondition(p => request.Filter.IsMatch(p), ref matchesFilter, ref doesNotMatchFilter);
+
+            return new JobPostingSearchResult(matchesFilter, doesNotMatchFilter);          
         }
+
+       
     }
 }

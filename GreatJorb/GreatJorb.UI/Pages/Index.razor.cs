@@ -9,13 +9,30 @@ public partial class Index : IDisposable
     public ICourier Courier { get; set; }
 
     public List<JobPosting> Postings { get; } = new();
+    public List<JobPosting> NonMatchingPostings { get; } = new();
 
     public List<BrowserPageChanged> Notifications { get; } = new();
+
+    private JobFilter _currentFilter = new JobFilter();
 
     protected override void OnInitialized()
     {
         Courier.Subscribe<BrowserPageChanged>(OnNavigation);
         Courier.Subscribe<JobPostingRead>(OnJobPostingRead);
+
+        Postings.Add(new JobPosting
+        {
+            Company = "Test Company",
+            JobLevel = JobLevel.SeniorLevel,
+            JobType = JobType.FullTime,
+            SalaryMin = 100000,
+            SalaryMax = 150000,
+            Title = "Test Job",
+            Url = "https://www.google.com",
+            SalaryType = SalaryType.Annual,
+            Location = "New York, NY",
+            WorkplaceType = WorkplaceType.Remote
+        });
     }
 
     public void Dispose()
@@ -25,11 +42,11 @@ public partial class Index : IDisposable
         Mediator.Send(new DisposeBrowserCommand());
     }
 
-    public async Task DoMagicStuff()
+    public async Task PerformSearch(JobFilter filter)
     {
+        _currentFilter = filter;
         var loginResult = await Mediator.Send(new LoginQuery(new WebSite("LinkedIn", "https://www.linkedin.com/")));
-
-        await Mediator.Send(new SearchJobsQuery(loginResult.Data, "c#", 5));
+        await Mediator.Send(new SearchJobsQuery(loginResult.Data, filter, 5));
     }
 
     public async Task OnJobPostingRead(JobPostingRead notification)
@@ -38,7 +55,11 @@ public partial class Index : IDisposable
         {
             if (!Postings.Any(p => p.Url == notification.Job.Url))
             {
-                Postings.Add(notification.Job);
+                if (_currentFilter.IsMatch(notification.Job))
+                    Postings.Add(notification.Job);
+                else
+                    NonMatchingPostings.Add(notification.Job);
+
                 StateHasChanged();
             }
         });

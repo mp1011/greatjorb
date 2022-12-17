@@ -1,0 +1,11 @@
+﻿<input type="text" class="form-control" placeholder="Search Text" aria-label="Search Text" @bind="@Filter.Query">
+
+<div class="input-group mb-3">
+  <span class="input-group-text">$</span>
+  <input type="number" @bind="SalaryK" class="form-control" aria-label="Salary">
+  <span class="input-group-text">K</span>
+</div>
+
+<WorkplaceTypePicker SelectionChanged="p => Filter.WorkplaceTypeFilter = p" />
+
+<button type="button" class="btn btn-primary" @onclick="SearchButtonClicked">Search</button>
