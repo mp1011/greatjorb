@@ -12,7 +12,8 @@ public class TestServiceProvider : IDisposable
     public static TestServiceProvider CreateServiceProvider(
         bool includeConfiguration=false,
         bool includeMediator=false,
-        bool includePuppeteer=false)
+        bool includePuppeteer=false,
+        bool includeDataContext=false)
     {
         var builder = Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration(c =>
@@ -35,7 +36,11 @@ public class TestServiceProvider : IDisposable
 
                    sc.AddSingleton<IWebSiteNavigator, LinkedInNavigator>();
                    sc.AddSingleton<IJobPostingExtractor, LinkedInJobPostingExtractor>();
-
+               }
+               
+               if(includeDataContext)
+               {
+                   sc.AddSingleton<LocalDataContextProvider>();
                }
            });
 
@@ -56,5 +61,7 @@ public class TestServiceProvider : IDisposable
     public ISettingsService SettingsService => _serviceProvider.GetRequiredService<ISettingsService>();
 
     public IConfiguration Configuration => _serviceProvider.GetRequiredService<IConfiguration>();
+
+    public LocalDataContextProvider LocalDataContextProvider => _serviceProvider.GetRequiredService<LocalDataContextProvider>();
 
 }

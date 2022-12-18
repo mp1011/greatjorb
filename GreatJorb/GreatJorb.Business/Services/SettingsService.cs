@@ -7,6 +7,8 @@ public interface ISettingsService
     void SetSiteUserName(WebSite site, string value);
     void SetSitePassword(WebSite site, string value);
 
+    string LocalStoragePath { get; set; }
+
     int MaxNavigationRetries { get; }
     TimeSpan WaitAfterFailedNavigate { get; }
     TimeSpan MinTimeBetweenRequests { get; }
@@ -21,6 +23,12 @@ public class SettingsService : ISettingsService
     public SettingsService(IConfiguration configuration)
     {
         _configuration = configuration;
+    }
+
+    public string LocalStoragePath
+    {
+        get => _configuration[nameof(LocalStoragePath)] ?? "";
+        set => _configuration[nameof(LocalStoragePath)] = value;
     }
 
     public string GetSiteUserName(WebSite site) => GetSecureText($"{site.Name}.UserName");

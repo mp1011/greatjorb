@@ -20,7 +20,6 @@ public class SearchJobsQueryTests
             new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), numberOfPages));
 
         Assert.IsNotEmpty(searchResult.MatchesFilter);
-        Assert.IsTrue(searchResult.MatchesFilter.All(p => p.Url != null)); 
     }
 
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 70000, WorkplaceType.OnSite)]
@@ -89,13 +88,6 @@ public class SearchJobsQueryTests
         }
     }
 
-    [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 1)]
-    public async Task JobSearchCanReadFromCachedData(string name, string url, string query, int numberOfPages)
-    {
-        throw new NotImplementedException();
-    }
-
-
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
     public async Task SearchJobsDoesNotReturnDuplicates(string name, string url, string query)
     {
@@ -114,7 +106,7 @@ public class SearchJobsQueryTests
 
         string[] distinctUrls = searchResult
             .MatchesFilter
-            .Select(p => p.Url ?? "")
+            .Select(p => p.Uri.PathAndQuery)
             .Distinct()
             .ToArray();
 

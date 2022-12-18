@@ -1,8 +1,10 @@
 ﻿namespace GreatJorb.Business.Models;
 
-public class JobPosting
-{ 
-    public string? Url { get; set; }
+public class JobPosting : ILocalStorable
+{
+    public string StorageKey => Uri.GetLeftPart(UriPartial.Path);
+
+    public Uri Uri { get; set; } = new Uri("https://none");
     public string? Title { get; set; }
     public string? Company { get; set; }
     public string? Location { get; set; }
@@ -15,5 +17,14 @@ public class JobPosting
     public string? DescriptionHtml { get; set; }
 
     public string[] MiscProperties { get; set; } = Array.Empty<string>();
+
+    public JobPosting(string url)
+    {
+        Uri = new Uri(url);
+    }
+
+    public JobPosting()
+    {
+    }
 }
  

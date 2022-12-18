@@ -4,6 +4,7 @@ global using GreatJorb.Business.Models;
 global using GreatJorb.Business.Services;
 global using GreatJorb.Business.Services.BrowserAutomation;
 global using GreatJorb.Business.Services.JobPostingExtractors;
+global using GreatJorb.Business.Services.LocalStore;
 global using GreatJorb.Business.Services.WebSiteNavigators;
 global using MediatR;
 global using Microsoft.Extensions.Configuration;

@@ -20,7 +20,7 @@ public partial class Index : IDisposable
         Courier.Subscribe<BrowserPageChanged>(OnNavigation);
         Courier.Subscribe<JobPostingRead>(OnJobPostingRead);
 
-        Postings.Add(new JobPosting
+        Postings.Add(new JobPosting("https://www.google.com")
         {
             Company = "Test Company",
             JobLevel = JobLevel.SeniorLevel,
@@ -28,7 +28,6 @@ public partial class Index : IDisposable
             SalaryMin = 100000,
             SalaryMax = 150000,
             Title = "Test Job",
-            Url = "https://www.google.com",
             SalaryType = SalaryType.Annual,
             Location = "New York, NY",
             WorkplaceType = WorkplaceType.Remote
@@ -53,7 +52,7 @@ public partial class Index : IDisposable
     {
         await InvokeAsync(() =>
         {
-            if (!Postings.Any(p => p.Url == notification.Job.Url))
+            if (!Postings.Any(p => p.StorageKey == notification.Job.StorageKey))
             {
                 if (_currentFilter.IsMatch(notification.Job))
                     Postings.Add(notification.Job);

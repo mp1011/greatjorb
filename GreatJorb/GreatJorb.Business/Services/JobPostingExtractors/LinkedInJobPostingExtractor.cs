@@ -43,9 +43,8 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
         url = $"https://linkedin.com/{url}";
 
-        return new JobPosting
+        return new JobPosting(url)
         {
-            Url = url,
             Title = await jobCard.GetTextAsync(".job-card-list__title"),
             Company = await jobCard.GetTextAsync(".job-card-container__company-name"),
            
@@ -60,7 +59,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
     private async Task<JobPosting> ExtractPostingDetails(IPage page, JobPosting posting)
     {
-        await page.GoToAsync(posting.Url);
+        await page.GoToAsync(posting.Uri.PathAndQuery);
 
         await page.WaitForSelectorAsync(".jobs-unified-top-card__job-insight");
 
