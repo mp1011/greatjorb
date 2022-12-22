@@ -14,6 +14,7 @@ public partial class Index : IDisposable
     public List<BrowserPageChanged> Notifications { get; } = new();
 
     private JobFilter _currentFilter = new JobFilter();
+    private CancellationTokenSource? _cancellationTokenSource;
 
     protected override void OnInitialized()
     {
@@ -43,14 +44,34 @@ public partial class Index : IDisposable
 
     public async Task PerformSearch(JobFilter filter)
     {
+        if(_cancellationTokenSource != null)
+        {
+            _cancellationTokenSource.Cancel();
+        }
+
+        _cancellationTokenSource = new CancellationTokenSource();
+
+        Postings.Clear();
+        NonMatchingPostings.Clear();
+
+        WebSite site = new WebSite("LinkedIn", "https://www.linkedin.com/");
         _currentFilter = filter;
-        var loginResult = await Mediator.Send(new LoginQuery(new WebSite("LinkedIn", "https://www.linkedin.com/")));
-        await Mediator.Send(new SearchJobsQuery(loginResult.Data, filter, 5));
+        var loginResult = await Mediator.Send(new LoginQuery(site));
+
+        var cacheResult = await Mediator.Send(new SearchJobsFromCacheQuery(site, filter));
+        Postings.AddRange(cacheResult.MatchesFilter);
+        NonMatchingPostings.AddRange(cacheResult.DoesNotMatchFilter);
+
+        StateHasChanged();
+        
+        await Mediator
+            .Send(new SearchJobsQuery(loginResult.Data, filter, 5), _cancellationTokenSource.Token)
+            .IgnoreCancellationException();
     }
 
     public async Task OnJobPostingRead(JobPostingRead notification)
     {
-        await InvokeAsync(() =>
+        await InvokeAsync(async () =>
         {
             if (!Postings.Any(p => p.StorageKey == notification.Job.StorageKey))
             {
@@ -58,6 +79,8 @@ public partial class Index : IDisposable
                     Postings.Add(notification.Job);
                 else
                     NonMatchingPostings.Add(notification.Job);
+
+                await Mediator.Send(new AddJobResultToCacheCommand(notification.Site, notification.Job));
 
                 StateHasChanged();
             }

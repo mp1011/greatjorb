@@ -29,15 +29,19 @@ public record SearchJobsQuery(WebPage WebPage, JobFilter Filter, int NumberOfPag
 
             for (int pageNumber = 1; pageNumber <= request.NumberOfPages; pageNumber++)
             {
-                IPage page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, pageNumber);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                IPage? page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, pageNumber, cancellationToken);
+
+                page = await navigator.ApplyFilters(page, request.Filter, cancellationToken)
+                    .NotifyError(page, _mediator);
+
+                if (page == null)
+                    break;
 
                 results.AddRange(await extractor
-                   .ExtractJobsFromPage(page)
-                   .HandleError(error =>
-                   {
-                        //log error or something
-                       return Task.FromResult(Array.Empty<JobPosting>());
-                   }));
+                   .ExtractJobsFromPage(page, request.WebPage.Site, cancellationToken)
+                   .NotifyError(page, _mediator, Array.Empty<JobPosting>()));
             }
 
             JobPosting[] matchesFilter = Array.Empty<JobPosting>(), doesNotMatchFilter = Array.Empty<JobPosting>();

@@ -43,7 +43,7 @@ public class SearchJobsQueryTests
         };
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, filter, 2));
+            new SearchJobsQuery(loggedInPage.Data, filter, 1));
 
 
         Assert.IsNotEmpty(searchResult.MatchesFilter);

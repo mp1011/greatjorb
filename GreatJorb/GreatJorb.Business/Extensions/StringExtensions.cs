@@ -2,6 +2,23 @@
 
 public static class StringExtensions
 {
+    public static bool IsWildcardMatch(this string text, string pattern)
+    {
+        var parts = pattern.Split('*', StringSplitOptions.RemoveEmptyEntries);
+         
+        var regex = string.Join(")(.*)(", parts);
+
+        regex = $"({regex})";
+
+        if (pattern.StartsWith("*"))
+            regex = $"(.*){regex}";
+
+        if (pattern.EndsWith("*"))
+            regex = $"{regex}(.*)";
+
+        return Regex.IsMatch(text, regex, RegexOptions.IgnoreCase);
+    }
+
     public static string UrlEncode(this string? text)
     {
         if (text == null)
@@ -100,5 +117,10 @@ public static class StringExtensions
 
         d = d / 1000;
         return $"${d.Value.ToString("0.0")}k";
+    }
+
+    public static string ResolvePathVariables(this string s)
+    {
+        return s.Replace("%AppData%", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
     }
 }

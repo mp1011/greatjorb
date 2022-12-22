@@ -1,6 +1,4 @@
-﻿using GreatJorb.Business.Exceptions;
-
-namespace GreatJorb.Business.Services.WebSiteNavigators;
+﻿namespace GreatJorb.Business.Services.WebSiteNavigators;
 
 public class LinkedInNavigator : IWebSiteNavigator
 {
@@ -13,16 +11,51 @@ public class LinkedInNavigator : IWebSiteNavigator
 
     public string WebsiteName => "LinkedIn";
 
-    public async Task<IElementHandle?> GetLoginButton(IPage page) =>
+    public async Task<IPage> ApplyFilters(IPage page, JobFilter filter, CancellationToken cancellationToken)
+    {
+        await page
+            .GetElementByInnerText("button", "All filters", cancellationToken)
+            .ClickAsync();
+
+        //how can we know that the results are loaded?
+        await Task.Delay(2000);
+
+        foreach(var workplaceTypeLabel in GetLabelsFor(filter.WorkplaceTypeFilter))
+        {
+            await page
+                .GetElementLabelledBy(workplaceTypeLabel, cancellationToken)
+                .ClickAsync();
+        }
+
+        await page
+            .GetElementByInnerText("button", "show*results", cancellationToken, wildCardMatch: true)
+            .ClickAsync();
+
+        return page;
+    }
+
+    public IEnumerable<string> GetLabelsFor(WorkplaceType workplaceType)
+    {
+        if (workplaceType.HasFlag(WorkplaceType.OnSite))
+            yield return "On-Site";
+
+        if (workplaceType.HasFlag(WorkplaceType.Remote))
+            yield return "Remote";
+
+        if (workplaceType.HasFlag(WorkplaceType.Hybrid))
+            yield return "Hybrid";
+    }
+
+    public async Task<IElementHandle?> GetLoginButton(IPage page, CancellationToken cancellationToken) =>
         await page.QuerySelectorAsync(".sign-in-form__submit-button");
 
-    public async Task<IElementHandle?> GetLoginElement(IPage page) =>
-        await page.GetElementLabelledBy("Email or phone number");
+    public async Task<IElementHandle?> GetLoginElement(IPage page, CancellationToken cancellationToken) =>
+        await page.GetElementLabelledBy("Email or phone number", cancellationToken);
 
-    public async Task<IElementHandle?> GetPasswordElement(IPage page) =>
-        await page.GetElementLabelledBy("Password");
+    public async Task<IElementHandle?> GetPasswordElement(IPage page, CancellationToken cancellationToken) =>
+        await page.GetElementLabelledBy("Password", cancellationToken);
 
-    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber)
+    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
     {
         await page.GoToAsync($"https://www.linkedin.com/jobs/search/?keywords={query.UrlEncode()}");
         //await page.GoToAsync("https://www.linkedin.com/jobs/search");
@@ -37,6 +70,8 @@ public class LinkedInNavigator : IWebSiteNavigator
 
             foreach (var element in pagerElements)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var elementPageNum = await element.TryGetNumberAsync();
                 if (elementPageNum.HasValue && elementPageNum.Value == pageNumber)
                 {

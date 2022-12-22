@@ -20,7 +20,7 @@ public class LocalDataContext : IDisposable
 
     public LocalDataContext(ISettingsService settingsService)
     {
-        _liteDatabase = new LiteDatabase(settingsService.LocalStoragePath);
+        _liteDatabase = new LiteDatabase(settingsService.LocalStoragePath.ResolvePathVariables());
     }
 
     public async Task Store<T>(T item)

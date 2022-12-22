@@ -2,6 +2,38 @@
 
 public static class PuppeteerExtensions
 {
+    private static TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
+
+    public static async Task<IElementHandle?> GetElementByInnerText(this IPage page, 
+        string selector, 
+        string innerText, 
+        CancellationToken cancellationToken, 
+        bool wildCardMatch=false)
+    {
+        DateTime begin = DateTime.Now;
+
+        while (begin.TimeSince() <= DefaultTimeout)
+        {
+            var elements = await page
+                .QuerySelectorAllAsync(selector)
+                .VisibleOnly();
+
+            foreach (var item in elements)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                string elementText = await item.GetInnerText();
+                elementText = elementText.Trim();
+
+                if (wildCardMatch && elementText.IsWildcardMatch(innerText))
+                    return item;
+                else if (elementText.Equals(innerText, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+        }
+
+        return null;
+    }
 
     public static async Task WaitForNavigationFromAsync(this IPage page, string originalUrl)
     {
@@ -92,24 +124,32 @@ public static class PuppeteerExtensions
         return inputElement;
     }
 
-    public static async Task<IElementHandle?> GetElementLabelledBy(this IPage page, string label)
+    public static async Task<IElementHandle?> GetElementLabelledBy(this IPage page, string label, CancellationToken cancellationToken)
     {
-        var ariaLabelled = await page
-            .QuerySelectorAllAsync($"[aria-label='{label}']:not([aria-hidden='true'])")
-            .VisibleOnly();
+        while(true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
-        if (ariaLabelled != null && ariaLabelled.Length == 1)
-            return ariaLabelled[0];
+            var ariaLabelled = await page
+                .QuerySelectorAllAsync($"[aria-label='{label}']:not([aria-hidden='true'])")
+                .VisibleOnly();
 
-        var labelHandle = await page.GetLabel(label);
-        if (labelHandle == null)
-            return null;
+            if (ariaLabelled != null && ariaLabelled.Length == 1)
+                return ariaLabelled[0];
 
-        var labelFor = await labelHandle.GetAttribute("for");
+            var labelHandle = await page.GetLabel(label);
+            if (labelHandle == null)
+                continue;
 
-        var inputElement = await page.QuerySelectorAsync($"#{labelFor}");
+            var labelFor = await labelHandle.GetAttribute("for");
 
-        return inputElement;
+            var inputElement = await page.QuerySelectorAllAsync($"#{labelFor}")
+                .FirstVisibleOrDefault();
+
+            if(inputElement != null)
+                return inputElement;
+        }
+
     }
 
     public static async Task<IElementHandle[]> VisibleOnly(this Task<IElementHandle[]> elementsTask)
@@ -124,6 +164,19 @@ public static class PuppeteerExtensions
                 visibleElements.Add(element);
         }
         return visibleElements.ToArray();
+    }
+
+    public static async Task<IElementHandle?> FirstVisibleOrDefault(this Task<IElementHandle[]> elementsTask)
+    {
+        var elements = await elementsTask;
+        foreach (var element in elements)
+        {
+            var visible = await element.CheckVisible();
+            if (visible)
+                return element;
+        }
+
+        return null;
     }
 
     public static async Task<bool> CheckVisible(this IElementHandle element)
@@ -166,9 +219,13 @@ public static class PuppeteerExtensions
 
         foreach (var labelHandle in labelHandles)
         {
-            string content = await labelHandle.GetInnerHTML(page);
-            if (content.Trim().Equals(label))
-                return labelHandle;
+            string innerText = await labelHandle.GetInnerText();
+
+            foreach(var line in innerText.Split('\n').Where(p=>p.Length != 0))
+            {
+                if (line.Trim().Equals(label, StringComparison.OrdinalIgnoreCase))
+                    return labelHandle;
+            }
         }
 
         return null;

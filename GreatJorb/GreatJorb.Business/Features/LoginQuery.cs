@@ -25,15 +25,15 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
             string loginPageUrl = page.Url;
 
             await navigator
-                .GetLoginElement(page)
+                .GetLoginElement(page, cancellationToken)
                 .SetText(page,_settingsService.GetSiteUserName(request.Site));
 
             await navigator
-                .GetPasswordElement(page)
+                .GetPasswordElement(page, cancellationToken)
                 .SetText(page, _settingsService.GetSitePassword(request.Site));
 
             await navigator
-                .GetLoginButton(page)
+                .GetLoginButton(page, cancellationToken)
                 .ClickAsync();
 
             await page.WaitForNavigationFromAsync(loginPageUrl);

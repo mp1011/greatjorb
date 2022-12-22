@@ -1,7 +1,4 @@
-﻿using MediatR.Courier.DependencyInjection;
-using Microsoft.Maui.LifecycleEvents;
-
-namespace GreatJorb.UI;
+﻿namespace GreatJorb.UI;
 
 public static class MauiProgram
 {
@@ -37,6 +34,8 @@ public static class MauiProgram
 		builder.Services.AddSingleton<BrowserProvider>();
 		builder.Services.AddSingleton<IWebSiteNavigator, LinkedInNavigator>();
 		builder.Services.AddSingleton<IJobPostingExtractor, LinkedInJobPostingExtractor>();
+
+		builder.Services.AddSingleton<LocalDataContextProvider>();
 
 		var config = new ConfigurationBuilder()
 				.AddUserSecrets(typeof(MauiProgram).Assembly)

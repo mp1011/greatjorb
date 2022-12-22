@@ -4,7 +4,7 @@
     <div class="card" style="width:70%">
       <div class="card-body">
         <h5 class="card-title">
-            <a href="@Job.Uri.PathAndQuery">@Job.Title</a>
+            <a href="@Job.Uri.ToString()">@Job.Title</a>
             
             @if(Job.SalaryMax.HasValue && Job.SalaryMin.HasValue)
             {

@@ -1,4 +1,6 @@
-﻿namespace GreatJorb.Tests.Services
+﻿using System.Threading;
+
+namespace GreatJorb.Tests.Services
 {
     public class NavigationTests
     {
@@ -22,7 +24,7 @@
                 return;
             }
 
-            await navigator.GotoJobsListPage(loggedInPage.Data.Page, query, 2);
+            await navigator.GotoJobsListPage(loggedInPage.Data.Page, query, 2, new CancellationToken());
 
             //unsure how to verify this but at least check we didn't crash
         }

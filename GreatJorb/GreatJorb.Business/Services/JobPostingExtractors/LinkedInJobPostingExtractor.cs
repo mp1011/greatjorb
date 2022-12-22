@@ -12,7 +12,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int? PageSize = null)
+    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, WebSite site, CancellationToken cancellationToken, int? PageSize = null)
     {
         var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
 
@@ -29,7 +29,8 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         List<JobPosting> postingDetails = new();
         foreach(var header in postingHeaders)
         {
-            postingDetails.Add(await ExtractPostingDetails(page, header));
+            cancellationToken.ThrowIfCancellationRequested();
+            postingDetails.Add(await ExtractPostingDetails(page, site, header));
         }
 
         return postingDetails.ToArray();
@@ -57,9 +58,9 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         };
     }
 
-    private async Task<JobPosting> ExtractPostingDetails(IPage page, JobPosting posting)
+    private async Task<JobPosting> ExtractPostingDetails(IPage page, WebSite site, JobPosting posting)
     {
-        await page.GoToAsync(posting.Uri.PathAndQuery);
+        await page.GoToAsync(posting.Uri.ToString());
 
         await page.WaitForSelectorAsync(".jobs-unified-top-card__job-insight");
 
@@ -110,7 +111,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
             .Union(insights)
             .ToArray();
 
-        await _mediator.Publish(new JobPostingRead(posting));
+        await _mediator.Publish(new JobPostingRead(posting, site));
 
         return posting;       
     }
