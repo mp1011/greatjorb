@@ -18,6 +18,8 @@ public class JobPosting : ILocalStorable
 
     public string[] MiscProperties { get; set; } = Array.Empty<string>();
 
+    public string[] KeywordLines { get; set; } = Array.Empty<string>();
+
     public JobPosting(string url)
     {
         Uri = new Uri(url);

@@ -1,4 +1,6 @@
-﻿namespace GreatJorb.Tests.Features;
+﻿using System.Threading;
+
+namespace GreatJorb.Tests.Features;
 
 public class SearchJobsQueryTests
 {
@@ -19,7 +21,10 @@ public class SearchJobsQueryTests
         var searchResult = await serviceProvider.Mediator.Send(
             new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), numberOfPages));
 
-        Assert.IsNotEmpty(searchResult.MatchesFilter);
+        Assert.IsNotEmpty(searchResult);
+        Assert.IsTrue(searchResult
+            .SelectMany(p => p.FilterMatches)
+            .Any(p => p.Level == FilterMatchLevel.PositiveMatch));
     }
 
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 70000, WorkplaceType.OnSite)]
@@ -46,11 +51,15 @@ public class SearchJobsQueryTests
             new SearchJobsQuery(loggedInPage.Data, filter, 1));
 
 
-        Assert.IsNotEmpty(searchResult.MatchesFilter);
-        Assert.IsNotEmpty(searchResult.DoesNotMatchFilter);
+        Assert.IsNotEmpty(searchResult);
 
-        Assert.True(searchResult.MatchesFilter.All(p => p.SalaryMin >= salaryMin && workplaceTypeFilter.HasFlag(p.WorkplaceType)));
-        Assert.False(searchResult.DoesNotMatchFilter.Any(p => p.SalaryMin >= salaryMin && workplaceTypeFilter.HasFlag(p.WorkplaceType)));
+        Assert.IsTrue(searchResult
+            .SelectMany(p => p.FilterMatches)
+            .Any(p => p.Field == nameof(JobFilter.Salary) && p.Level == FilterMatchLevel.PositiveMatch));
+
+        Assert.IsTrue(searchResult
+             .SelectMany(p => p.FilterMatches)
+             .Any(p => p.Field == nameof(JobFilter.WorkplaceTypeFilter) && p.Level == FilterMatchLevel.PositiveMatch));
     }
 
 
@@ -71,20 +80,51 @@ public class SearchJobsQueryTests
         var searchResult = await serviceProvider.Mediator.Send(
             new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), numberOfPages));
 
-        foreach (var result in searchResult.MatchesFilter)
+        bool noMatches = true;
+
+        foreach (var result in searchResult)
         {
-            if (result.DescriptionHtml == null)
+            if (!result.FilterMatches.Any(p => p.Field == nameof(JobFilter.Query) && p.Level == FilterMatchLevel.PositiveMatch))
+                continue;
+            
+            if (result.Job.DescriptionHtml == null)
             {
                 Assert.Fail("Description was empty");
                 break;
             }
 
-            if(!result.DescriptionHtml.Contains(query, StringComparison.CurrentCultureIgnoreCase)
-                && !result.DescriptionHtml.Contains(query.HtmlEncode(), StringComparison.CurrentCultureIgnoreCase))
+            if(!result.Job.DescriptionHtml.Contains(query, StringComparison.CurrentCultureIgnoreCase)
+                && !result.Job.DescriptionHtml.Contains(query.HtmlEncode(), StringComparison.CurrentCultureIgnoreCase))
             {
                 Assert.Fail("Description did not contain keyword");
                 break;
             }
+
+            noMatches = false;
+        }
+
+        Assert.IsFalse(noMatches);
+    }
+
+    [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
+    public async Task CanExtractLinesWithKeyword(string name, string url, string query)
+    {
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
+            includeConfiguration: true,
+            includeMediator: true,
+            includePuppeteer: true);
+
+        var webSite = new WebSite(name, url);
+
+        var loggedInPage = await serviceProvider.Mediator.Send(
+            new LoginQuery(webSite));
+
+        var searchResult = await serviceProvider.Mediator.Send(
+            new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), 1));
+
+        foreach (var result in searchResult)
+        {
+            Assert.IsNotEmpty(result.Job.KeywordLines);
         }
     }
 
@@ -105,12 +145,11 @@ public class SearchJobsQueryTests
             new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), 3));
 
         string[] distinctUrls = searchResult
-            .MatchesFilter
-            .Select(p => p.Uri.PathAndQuery)
+            .Select(p => p.Job.Uri.PathAndQuery)
             .Distinct()
             .ToArray();
 
-        Assert.AreEqual(distinctUrls.Length, searchResult.MatchesFilter.Length);
+        Assert.AreEqual(distinctUrls.Length, searchResult.Length);
     }
 
 
@@ -130,13 +169,13 @@ public class SearchJobsQueryTests
         var searchResult = await serviceProvider.Mediator.Send(
             new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), NumberOfPages:1));
 
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.Company != null));
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.DescriptionHtml != null));
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.Location != null));
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.Title != null));
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.JobType != JobType.Unknown));
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.JobLevel != JobLevel.Unknown));
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.WorkplaceType != WorkplaceType.Unknown));
+        Assert.IsTrue(searchResult.Select(p=>p.Job).Any(p => p.Company != null));
+        Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.DescriptionHtml != null));
+        Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.Location != null));
+        Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.Title != null));
+        Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.JobType != JobType.Unknown));
+        Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.JobLevel != JobLevel.Unknown));
+        Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.WorkplaceType != WorkplaceType.Unknown));
     }
 
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
@@ -155,7 +194,7 @@ public class SearchJobsQueryTests
         var searchResult = await serviceProvider.Mediator.Send(
             new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), NumberOfPages: 1));
 
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.SalaryMin != null));
-        Assert.IsTrue(searchResult.MatchesFilter.Any(p => p.SalaryMax != null));
+        Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.SalaryMin != null));
+        Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.SalaryMax != null));
     }
 }

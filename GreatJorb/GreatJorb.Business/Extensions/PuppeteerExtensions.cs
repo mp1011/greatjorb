@@ -273,7 +273,7 @@ public static class PuppeteerExtensions
     {
         if (element == null)
             return string.Empty;
-
+        
         try
         {
             return await page.EvaluateFunctionAsync<string>("e=>e.innerHTML", element);

@@ -19,24 +19,6 @@ public class JobFilter
         Query = query;
     }
 
-    public bool IsMatch(JobPosting posting)
-    {
-        if (JobLevelFilter != JobLevel.Unknown && !JobLevelFilter.HasFlag(posting.JobLevel))
-            return false;
 
-        if (WorkplaceTypeFilter != WorkplaceType.Unknown && !WorkplaceTypeFilter.HasFlag(posting.WorkplaceType))
-            return false;
-
-        if (SalaryTypeFilter != SalaryType.Unknown && !SalaryTypeFilter.HasFlag(posting.SalaryType))
-            return false;
-
-        if (JobTypeFilter != JobType.Unknown && !JobTypeFilter.HasFlag(posting.JobType))
-            return false;
-
-        if (Salary.HasValue && posting.SalaryMax.GetValueOrDefault() < Salary)
-            return false;
-
-        return true;
-    }
 
 }

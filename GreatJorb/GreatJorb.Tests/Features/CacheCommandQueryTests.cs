@@ -26,8 +26,8 @@ public class CacheCommandQueryTests
         var retrieved = await serviceProvider.Mediator.Send(
             new SearchJobsFromCacheQuery(site, new JobFilter(fakeJobPosting.DescriptionHtml)));
 
-        Assert.AreEqual(1, retrieved.MatchesFilter.Length);
-        Assert.AreEqual(fakeJobPosting.DescriptionHtml, retrieved.MatchesFilter[0].DescriptionHtml);
+        Assert.AreEqual(1, retrieved.Length);
+        Assert.AreEqual(fakeJobPosting.DescriptionHtml, retrieved[0].Job.DescriptionHtml);
 
         var cachedAgain = await serviceProvider.Mediator.Send(
           new AddJobResultToCacheCommand(site, fakeJobPosting));
@@ -37,7 +37,7 @@ public class CacheCommandQueryTests
         var retrievedAgain = await serviceProvider.Mediator.Send(
          new SearchJobsFromCacheQuery(site, new JobFilter(fakeJobPosting.DescriptionHtml)));
 
-        Assert.AreEqual(1, retrievedAgain.MatchesFilter.Length);
+        Assert.AreEqual(1, retrievedAgain.Length);
 
     }
 }

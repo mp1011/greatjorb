@@ -26,4 +26,14 @@
     <ProjectReference Include="..\GreatJorb.Business\GreatJorb.Business.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestData\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestData\samplehtml.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

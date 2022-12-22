@@ -21,14 +21,49 @@
             {                    
                 <span>@Job.SalaryMax.ToShortMoney()</span>
             }
-
         </h5>
-        <h4>@Job.Company</h4>   
-        <p class="card-text">
-            <span class="badge rounded-pill @WorkplaceTypeCss">@Job.WorkplaceType</span>
-            <span class="badge rounded-pill @JobTypeCss">@Job.JobType</span>
-            <span class="badge rounded-pill @JobLevelCss">@Job.JobLevel</span>
-         </p>
+        <h4>@Job.Company</h4>  
+        
+        <div class="d-flex justify-content-between align-items-stretch">
+
+            <div class="flex-grow-1">
+                 <p class="card-text">
+                    <span class="badge rounded-pill @WorkplaceTypeCss">@Job.WorkplaceType</span>
+                    <span class="badge rounded-pill @JobTypeCss">@Job.JobType</span>
+                    <span class="badge rounded-pill @JobLevelCss">@Job.JobLevel</span>
+                </p>
+                <ul>
+                    @foreach(var line in Job.KeywordLines)
+                    {
+                        <li>@line</li>
+                    }
+                </ul>
+            </div>
+
+            <div class="w-25">
+
+                <div class="d-flex flex-column">
+                    @foreach(var filterMatch in JobResult.FilterMatches)
+                    {
+                        if(filterMatch.Level == FilterMatchLevel.Unknown)
+                        {
+                            <span class="badge rounded-pill bg-warning text-dark">@filterMatch.Description</span>
+                        }
+                        else if(filterMatch.Level == FilterMatchLevel.PositiveMatch)
+                        {
+                            <span class="badge rounded-pill bg-success">@filterMatch.Description</span>
+                        }
+                        else 
+                        {
+                            <span class="badge rounded-pill bg-danger">@filterMatch.Description</span>
+                        }
+                    }
+                </div>
+
+            </div>
+        </div>
+
+       
       </div>
     </div>
 }

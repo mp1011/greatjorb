@@ -8,8 +8,7 @@ public partial class Index : IDisposable
     [Inject]
     public ICourier Courier { get; set; }
 
-    public List<JobPosting> Postings { get; } = new();
-    public List<JobPosting> NonMatchingPostings { get; } = new();
+    public List<JobPostingSearchResult> Postings { get; } = new();
 
     public List<BrowserPageChanged> Notifications { get; } = new();
 
@@ -20,19 +19,6 @@ public partial class Index : IDisposable
     {
         Courier.Subscribe<BrowserPageChanged>(OnNavigation);
         Courier.Subscribe<JobPostingRead>(OnJobPostingRead);
-
-        Postings.Add(new JobPosting("https://www.google.com")
-        {
-            Company = "Test Company",
-            JobLevel = JobLevel.SeniorLevel,
-            JobType = JobType.FullTime,
-            SalaryMin = 100000,
-            SalaryMax = 150000,
-            Title = "Test Job",
-            SalaryType = SalaryType.Annual,
-            Location = "New York, NY",
-            WorkplaceType = WorkplaceType.Remote
-        });
     }
 
     public void Dispose()
@@ -52,15 +38,13 @@ public partial class Index : IDisposable
         _cancellationTokenSource = new CancellationTokenSource();
 
         Postings.Clear();
-        NonMatchingPostings.Clear();
 
         WebSite site = new WebSite("LinkedIn", "https://www.linkedin.com/");
         _currentFilter = filter;
         var loginResult = await Mediator.Send(new LoginQuery(site));
 
         var cacheResult = await Mediator.Send(new SearchJobsFromCacheQuery(site, filter));
-        Postings.AddRange(cacheResult.MatchesFilter);
-        NonMatchingPostings.AddRange(cacheResult.DoesNotMatchFilter);
+        Postings.AddRange(cacheResult);
 
         StateHasChanged();
         
@@ -73,12 +57,11 @@ public partial class Index : IDisposable
     {
         await InvokeAsync(async () =>
         {
-            if (!Postings.Any(p => p.StorageKey == notification.Job.StorageKey))
+            if (!Postings.Any(p => p.Job.StorageKey == notification.Job.StorageKey))
             {
-                if (_currentFilter.IsMatch(notification.Job))
-                    Postings.Add(notification.Job);
-                else
-                    NonMatchingPostings.Add(notification.Job);
+                Postings.Add(new JobPostingSearchResult(
+                    notification.Job,
+                    await Mediator.Send(new MatchJobFilterQuery(notification.Job, _currentFilter))));
 
                 await Mediator.Send(new AddJobResultToCacheCommand(notification.Site, notification.Job));
 
