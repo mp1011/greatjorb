@@ -47,9 +47,12 @@ public record SearchJobsQuery(WebPage WebPage, JobFilter Filter, int NumberOfPag
             List<JobPostingSearchResult> results = new();
             foreach(var job in jobs)
             {
+                string[] keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter.Query, job.DescriptionHtml));
+
                 results.Add(new JobPostingSearchResult(
                     job,
-                    await _mediator.Send(new MatchJobFilterQuery(job, request.Filter))));
+                    await _mediator.Send(new MatchJobFilterQuery(job, keywordLines.Any(), request.Filter)),
+                    keywordLines));
             }
 
             return results.ToArray();

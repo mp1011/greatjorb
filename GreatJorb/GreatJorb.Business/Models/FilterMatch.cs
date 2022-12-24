@@ -7,5 +7,5 @@ public enum FilterMatchLevel
     NegativeMatch,     
 }
 
-public record FilterMatch(FilterMatchLevel Level, string Field, string Description);
+public record FilterMatch(FilterMatchLevel Level, string Field);
 

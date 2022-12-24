@@ -107,9 +107,6 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
         posting.DescriptionHtml = description;
 
-
-        posting.KeywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(filter.Query, description));
-
         posting.MiscProperties = metaData
             .Union(insights)
             .ToArray();

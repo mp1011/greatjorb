@@ -2,33 +2,67 @@
 {
     public partial class JobResultPreview
     {
+        public record JobBadge(string Text, bool? IsMatch, bool NotPartOfFilter);
+
         [Parameter]
         public JobPostingSearchResult JobResult { get; set; }
 
         public JobPosting Job => JobResult.Job;
 
-        public string JobLevelCss => JobResult.Job.JobLevel switch
+      
+        public IEnumerable<JobBadge> GetBadges()
         {
-            JobLevel.Unknown => "d-none",
-            JobLevel.SeniorLevel => "bg-success",
-            JobLevel.MidSeniorLevel => "bg-warning text-dark",
-            _ => "bg-danger"
-        };
+            var workplaceTypeBadge = GetBadge(nameof(JobFilter.WorkplaceTypeFilter), "Workplace Type", JobResult.Job.WorkplaceType, p => p == WorkplaceType.Unknown);
+            if (workplaceTypeBadge != null)
+                yield return workplaceTypeBadge;
 
-        public string WorkplaceTypeCss => JobResult.Job.WorkplaceType switch
-        {
-            WorkplaceType.Unknown => "d-none",
-            WorkplaceType.Remote => "bg-success",
-            WorkplaceType.Hybrid => "bg-warning text-dark",
-            _ => "bg-danger"
-        };
+            var salaryTypeBadge = GetBadge(nameof(JobFilter.SalaryTypeFilter), "Salary Type", JobResult.Job.SalaryType, p => p == SalaryType.Unknown);
+            if (salaryTypeBadge != null)
+                yield return salaryTypeBadge;
 
-        public string JobTypeCss => JobResult.Job.JobType switch
+            var jobLevelBadge = GetBadge(nameof(JobFilter.JobLevelFilter), "Job Level", JobResult.Job.JobLevel, p => p == JobLevel.Unknown);
+            if (jobLevelBadge != null)
+                yield return jobLevelBadge;
+
+            var jobTypeBadge = GetBadge(nameof(JobFilter.JobTypeFilter), "Job Type", JobResult.Job.JobType, p => p == JobType.Unknown);
+            if (jobTypeBadge != null)
+                yield return jobTypeBadge;
+
+            var salaryFilter = JobResult.FilterMatches.FirstOrDefault(p => p.Field == nameof(JobFilter.Salary));
+            if(salaryFilter != null)
+            {
+                yield return salaryFilter.Level switch
+                {
+                    FilterMatchLevel.PositiveMatch => new JobBadge("Salary Matches Filter", true, false),
+                    FilterMatchLevel.NegativeMatch => new JobBadge("Salary Does Not Match Filter", IsMatch: false, NotPartOfFilter: false),
+                    _ => new JobBadge("Salary not Provided", IsMatch: null, NotPartOfFilter: false),
+                };
+            }
+
+            if (!JobResult.KeywordLines.Any())                
+                yield return new JobBadge("Description does not contain keywords", false, false);
+        }
+
+        private JobBadge GetBadge<T>(string fieldName, string friendlyFieldName, T value, Func<T,bool> isEmpty)
         {
-            JobType.Unknown => "d-none",
-            JobType.FullTime => "bg-success",
-            JobType.Contract => "bg-warning text-dark",
-            _ => "bg-danger"
-        };
+            var filter = JobResult.FilterMatches.FirstOrDefault(p => p.Field == fieldName);
+
+            string text = (isEmpty(value)) ? $"{friendlyFieldName} not provided" : value.ToString();
+
+            if(filter == null)
+            {
+                if (isEmpty(value))
+                    return null;
+                else 
+                    return new JobBadge(text, false, true);
+            }
+
+            return filter.Level switch
+            {
+                FilterMatchLevel.PositiveMatch => new JobBadge(text, true, false),
+                FilterMatchLevel.NegativeMatch => new JobBadge(text, false, false),
+                _ => new JobBadge(text, null, false),
+            };
+        }
     }
 }

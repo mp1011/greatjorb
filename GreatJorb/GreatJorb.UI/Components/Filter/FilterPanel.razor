@@ -8,4 +8,10 @@
 
 <WorkplaceTypePicker SelectionChanged="p => Filter.WorkplaceTypeFilter = p" />
 
+<SalaryTypePicker SelectionChanged="p => Filter.SalaryTypeFilter = p" />
+
+<JobTypePicker SelectionChanged="p => Filter.JobTypeFilter = p" />
+
+<JobLevelPicker SelectionChanged="p => Filter.JobLevelFilter = p" />
+
 <button type="button" class="btn btn-primary" @onclick="SearchButtonClicked">Search</button>

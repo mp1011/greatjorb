@@ -124,7 +124,7 @@ public class SearchJobsQueryTests
 
         foreach (var result in searchResult)
         {
-            Assert.IsNotEmpty(result.Job.KeywordLines);
+            Assert.IsNotEmpty(result.KeywordLines);
         }
     }
 

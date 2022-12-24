@@ -57,16 +57,19 @@ public partial class Index : IDisposable
     {
         await InvokeAsync(async () =>
         {
-            if (!Postings.Any(p => p.Job.StorageKey == notification.Job.StorageKey))
-            {
-                Postings.Add(new JobPostingSearchResult(
-                    notification.Job,
-                    await Mediator.Send(new MatchJobFilterQuery(notification.Job, _currentFilter))));
+            if (Postings.Any(p => p.Job.StorageKey == notification.Job.StorageKey))
+                return;
 
-                await Mediator.Send(new AddJobResultToCacheCommand(notification.Site, notification.Job));
+            var keywordLines = await Mediator.Send(new ExtractKeywordLinesQuery(_currentFilter.Query, notification.Job.DescriptionHtml));
 
-                StateHasChanged();
-            }
+            Postings.Add(new JobPostingSearchResult(
+                notification.Job,
+                await Mediator.Send(new MatchJobFilterQuery(notification.Job, keywordLines.Any(), _currentFilter)),
+                keywordLines));
+
+            await Mediator.Send(new AddJobResultToCacheCommand(notification.Site, notification.Job));
+
+            StateHasChanged();            
         });
     }
 
