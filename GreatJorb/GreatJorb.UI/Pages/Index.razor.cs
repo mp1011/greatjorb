@@ -67,6 +67,8 @@ public partial class Index : IDisposable
                 await Mediator.Send(new MatchJobFilterQuery(notification.Job, keywordLines.Any(), _currentFilter)),
                 keywordLines));
 
+            Postings.Sort();
+
             await Mediator.Send(new AddJobResultToCacheCommand(notification.Site, notification.Job));
 
             StateHasChanged();            

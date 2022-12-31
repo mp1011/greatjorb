@@ -9,7 +9,7 @@
             @onclick="async ()=> await ToggleChecked(option)"
         
         >
-        <label class="btn btn-outline-primary" for="picker_@option">@option</label>    
+        <label class="btn btn-outline-primary" for="picker_@option">@option.GetDisplayName()</label>    
     }    
 
 </div>

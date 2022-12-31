@@ -1,12 +1,19 @@
-﻿namespace GreatJorb.Business.Models
+﻿namespace GreatJorb.Business.Models;
+
+[Flags]
+public enum JobLevel
 {
-    [Flags]
-    public enum JobLevel
-    {
-        Unknown = 0,
-        EntryLevel = 1,
-        MidLevel = 2,
-        MidSeniorLevel = 4,
-        SeniorLevel = 8
-    }
+    Unknown = 0,
+
+    [Display(Name="Entry Level")]
+    EntryLevel = 1,
+
+    [Display(Name = "Mid Level")]
+    MidLevel = 2,
+
+    [Display(Name = "Mid-Senior Level")]
+    MidSeniorLevel = 4,
+
+    [Display(Name = "Senior Level")]
+    SeniorLevel = 8
 }

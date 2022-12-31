@@ -10,10 +10,6 @@
 
         <div class="d-flex flex-row align-items-stretch h-100">
             
-            <div style="width: 30%; overflow-y:auto;">
-                <BrowserMessagesPanel Notifications="Notifications" />
-            </div>
-
             <div class="flex-grow-1" style="width:200px; overflow-y:auto;">
                 @foreach(var job in Postings)
                 {
@@ -21,6 +17,10 @@
                 }
             </div>
 
+            <div style="width: 30%; overflow-y:auto;">
+                <BrowserMessagesPanel Notifications="Notifications" />
+            </div>
+           
         </div>
 
     </div>

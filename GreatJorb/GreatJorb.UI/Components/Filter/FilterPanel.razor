@@ -1,17 +1,32 @@
-﻿<input type="text" class="form-control" placeholder="Search Text" aria-label="Search Text" @bind="@Filter.Query">
+﻿<div class="m-2">
 
-<div class="input-group mb-3">
-  <span class="input-group-text">$</span>
-  <input type="number" @bind="SalaryK" class="form-control" aria-label="Salary">
-  <span class="input-group-text">K</span>
+    <div class="row align-items-start">
+
+        <div class="col-6">
+            <input type="text" class="form-control w-100 mw-100" style="width:200px" placeholder="Search Text" aria-label="Enter Search Terms" @bind="@Filter.Query">
+        </div>
+
+        <div class="col-2">
+            <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <input type="number" @bind="SalaryK" class="form-control" aria-label="Salary">
+                <span class="input-group-text">K</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+
+        <WorkplaceTypePicker SelectionChanged="p => Filter.WorkplaceTypeFilter = p" />
+
+        <SalaryTypePicker SelectionChanged="p => Filter.SalaryTypeFilter = p" />
+
+        <JobTypePicker SelectionChanged="p => Filter.JobTypeFilter = p" />
+
+        <JobLevelPicker SelectionChanged="p => Filter.JobLevelFilter = p" />
+
+        <button type="button" class="btn btn-primary" @onclick="SearchButtonClicked">Search</button>
+
+    </div>
+
 </div>
-
-<WorkplaceTypePicker SelectionChanged="p => Filter.WorkplaceTypeFilter = p" />
-
-<SalaryTypePicker SelectionChanged="p => Filter.SalaryTypeFilter = p" />
-
-<JobTypePicker SelectionChanged="p => Filter.JobTypeFilter = p" />
-
-<JobLevelPicker SelectionChanged="p => Filter.JobLevelFilter = p" />
-
-<button type="button" class="btn btn-primary" @onclick="SearchButtonClicked">Search</button>

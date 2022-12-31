@@ -1,24 +1,13 @@
 ﻿@if(Notifications != null)
 {
-    <ul class="text-wrap text-break">
+    <ul class="list-group" style="text-overflow: ellipsis; white-space: nowrap; overflow:hidden">
      
         @foreach(var message in Notifications)
         {
-            <li>
-                @if(message.Action ==  BrowserAction.Navigate)
-                {
-                    <span class="badge bg-info">
-                        <p>Navigated</p>
-                    </span>
-                }
-                else if(message.Action == BrowserAction.FailedNavigationRetrying)
-                {
-                    <span class="badge bg-danger">Failed navigation, retrying</span>
-                }
-                else if(message.Action ==  BrowserAction.FailedNavigationRetrying)
-                {
-                    <span class="badge bg-danger">Fatal Error</span>
-                }
+            <li class="list-group-item">
+                <span class="badge @GetCss(message)">
+                    <p>@message</p>
+                </span>               
             </li>
         }
     </ul>
