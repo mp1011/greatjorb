@@ -123,4 +123,6 @@ public static class StringExtensions
     {
         return s.Replace("%AppData%", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
     }
+
+    public static bool IsNullOrEmpty(this string s) => String.IsNullOrEmpty(s);
 }

@@ -24,7 +24,10 @@ public class TestServiceProvider : IDisposable
            {
                 #pragma warning disable CA1416
                 if (includeConfiguration)
-                    sc.AddSingleton<ISettingsService, SettingsService>();
+                {
+                    sc.AddSingleton<SettingsService>();
+                    sc.AddSingleton<ISettingsService, TestSettingsService>();
+                }               
                 #pragma warning restore CA1416
 
                if (includeMediator)
@@ -35,10 +38,13 @@ public class TestServiceProvider : IDisposable
                    sc.AddSingleton<BrowserProvider>();
 
                    sc.AddSingleton<IWebSiteNavigator, LinkedInNavigator>();
+                   sc.AddSingleton<IWebSiteNavigator, GoogleJobsNavigator>();
+
                    sc.AddSingleton<IJobPostingExtractor, LinkedInJobPostingExtractor>();
+                   sc.AddSingleton<IJobPostingExtractor, GoogleJobsExtractor>();
                }
-               
-               if(includeDataContext)
+
+               if (includeDataContext)
                {
                    sc.AddSingleton<LocalDataContextProvider>();
                }

@@ -6,6 +6,7 @@ public class SearchJobsQueryTests
 {
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 1)]
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 2)]
+    [TestCase("Google Jobs", "https://www.google.com/", "c#", 1)]
     public async Task CanSearchJobs(string name, string url, string query, int numberOfPages)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(

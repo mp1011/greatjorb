@@ -3,6 +3,8 @@
 public class LoginQueryTests
 {
     [TestCase("LinkedIn", "https://www.linkedin.com/", "https://www.linkedin.com/feed")]
+    [TestCase("Google Jobs", "https://www.google.com", "https://www.google.com")]
+
     public async Task CanLoginToWebsite(string name, string url, string loggedInUrl)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(

@@ -85,6 +85,15 @@ public class LinkedInNavigator : IWebSiteNavigator
         return page;
     }
 
+    public async Task<bool> IsLoginRequired(IPage page)
+    {
+        var signedInElement = await page.WaitForSelectorAsync("img.global-nav__me-photo",
+                new WaitForSelectorOptions { Timeout = 1000 })
+                .DefaultIfError();
+
+        return signedInElement == null;
+    }
+
     public async Task WaitUntilLoggedIn(IPage page, CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)

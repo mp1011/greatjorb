@@ -3,6 +3,8 @@
 public interface IWebSiteNavigator
 {
     string WebsiteName { get; }
+
+    Task<bool> IsLoginRequired(IPage page);
     Task<IElementHandle?> GetLoginElement(IPage page, CancellationToken cancellationToken);
     Task<IElementHandle?> GetPasswordElement(IPage page, CancellationToken cancellationToken);
     Task<IElementHandle?> GetLoginButton(IPage page, CancellationToken cancellationToken);

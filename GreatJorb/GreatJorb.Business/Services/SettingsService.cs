@@ -85,5 +85,24 @@ public class SettingsService : ISettingsService
 
         var encryptedText = Convert.ToBase64String(encrypyted);
         _configuration[key] = encryptedText;
+
+#if DEBUG
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo();
+            psi.WorkingDirectory = Environment.CurrentDirectory.Substring(0, Environment.CurrentDirectory.IndexOf("\\bin"));
+            psi.FileName = "dotnet";
+            psi.Arguments = $"user-secrets set \"{key}\" \"{encryptedText}\"";
+            
+            System.Diagnostics.Process
+                .Start(psi)
+                !.WaitForExit();
+        }
+        catch(Exception e)
+        {
+            throw;
+        }
+#endif
+
     }
 }

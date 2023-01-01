@@ -83,9 +83,11 @@ public static class PuppeteerExtensions
         return text.TryParseIntOrDefault();
     }
 
-
-    public static async Task<string> GetInnerHTML(this Task<IElementHandle> elementTask)
+    public static async Task<string> GetInnerHTML(this Task<IElementHandle?> elementTask)
     {
+        if (elementTask == null)
+            return String.Empty;
+
         var element = await elementTask;
         if (element == null)
             return String.Empty;
@@ -253,7 +255,7 @@ public static class PuppeteerExtensions
         return text.ToArray();
     }
 
-    private static async Task<string> GetInnerText(this IElementHandle? element)
+    public static async Task<string> GetInnerText(this IElementHandle? element)
     {
         if (element == null)
             return string.Empty;
@@ -307,6 +309,46 @@ public static class PuppeteerExtensions
         {
             return string.Empty;
         }
+    }
+
+    public static async Task<IElementHandle?> EvaluateFunctionReturnElementAsync(this IElementHandle element, IPage page, string jsFunction)
+    {
+        var elementId = await element.EvaluateFunctionAsync<string>(@"e => { 
+                var element = " + jsFunction + @";
+                if(!element)
+                    return '';
+
+                if(!element.id)
+                {
+                    element.id = '" + "dummy" + Guid.NewGuid().ToString() + @"';
+                }
+
+                return element.id;
+            }");
+
+        if (elementId.IsNullOrEmpty())
+            return null;
+
+        return await page.QuerySelectorAsync("#" + elementId);
+    }
+
+
+    public static async Task<IElementHandle?> NextElementAsync(this IElementHandle element, IPage page, CancellationToken cancellationToken)
+    {
+
+        var nextSibling = await element.EvaluateFunctionReturnElementAsync(page, "e.nextElementSibling"); 
+
+
+        if(nextSibling == null)
+        {
+            var parent = await element.EvaluateFunctionReturnElementAsync(page,"e.parentElement");
+            if (parent == null)
+                return null;
+
+            return await parent.NextElementAsync(page, cancellationToken);
+        }
+
+        return nextSibling;
     }
 
 }
