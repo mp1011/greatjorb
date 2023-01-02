@@ -1,0 +1,33 @@
+﻿<div jscontroller="GCSbhd" jsaction="rcuQ6b:npT2md"><style>.n9iHLc{text-transform:uppercase}.WbZuDe{display:none}.config-text-expandable .WbZuDe{display:inline}.UiMktc{display:inline}.config-text-expandable .UiMktc{display:none}.CdXzFe{cursor:pointer}.j4kHIf{color:#1a0dab;font-size:14px;margin-top:18px}.config-text-expandable .CdXzFe{display:none}.cVLgvc{vertical-align:middle}.tbKN6d{vertical-align:middle}.Wc7XP{margin-left:8px}</style><span class="HBvzbc" style="line-height:1.5em">I am recruiting urgently for a detailed-oriented C# Developer for my client, a leading company located on Long Island, NY. This is a Full-time Hybrid Role 3 on --- 2 off. Salary range is 100K to 105K depending on experience. The role comes with excellent benefits. Text Bob Cadet at 516-410-0657 to obtain an e-mail address where you can immediately send your updated WORD resume after thoroughly<span class="UiMktc">...</span><span class="WbZuDe"> reviewing the specs. Please make sure you have the skills, and your resume reflects that. You need to have at least 3 years paid corporate experience as an IT Specialist. This is not an entry-level position. You must be legally authorized to work in the USA.
+
+The ideal candidate will possess knowledge of Microsoft .Net frameworks, C#.Net, MS SQL and/or mySQL, JavaScript, HTML and jQuery, as well as other software and web development methodologies. This position will involve creating new applications, maintaining, and enhancing existing applications. A successful candidate will be responsible for specification gathering, developing, testing, maintaining, documenting, and supporting existing and future applications. Candidate with experience in EDI and/or SAP Business One SDK development is a plus.
+Responsibilities:
+
+• Maintain existing web based/desktop applications
+• Design and develop new web-based applications primarily in c#.Net and asp.Net
+• Working with less technical users of the business to gather requirements
+• Looking for ways to improve/enhance existing code
+• Provide ad Hoc reporting to business users
+• Interfacing with the company’s EDI provider to integrate and maintain current and future trading partner’s connections and document mappings
+• Work on building additional reporting functionality to enhance Reliance’s ERP system (SAP Business One)
+Qualifications:
+
+• BS degree in Computer Science or related field
+• 2 – 5 years in web/desktop application development with .Net framework (c# and asp.Net)
+• Object-Oriented Development
+• Database Development including schema and stored procedure using MS SQL Server and/or mySQL
+• Ability to work independently and take direction
+• Strong analytical (trouble shooting) and problem-solving skills
+
+Benefits:
+
+• Competitive compensation package; salary commensurate with experience.
+• 80% Premium Coverage for Medical, Dental, &amp; Vision for you and your dependents.
+• Employer Paid Employee Life Insurance and Long-Term Disability Plan.
+• Dependent and Health Care Flexible Spending Accounts &amp; other supplemental benefits available.
+• 401(k) savings plan with company match.
+• Paid Time Off.
+
+Requirements
+
+ASP.NET, .NET, .NET Framework, C# - Sharp, SQL - Structured Query Language, SQL Queries</span></span><div class="CdXzFe j4kHIf" data-li="" data-t="config-text-expandable" role="button" tabindex="0" jsaction="c0XUbe;gvA4Rc:c0XUbe" data-ved="0ahUKEwiF-Pe-1qf8AhUsFFkFHXzRD-sQl5ACCMoJ"><div class="jJP9Pc"><div><g-expandable-content jscontroller="Ah7cLd" jsaction=";rcuQ6b:npT2md" jsshadow="" aria-hidden="false" data-ead="1" data-eb="1" data-mt="0" data-npd="1"><span jsname="zXitYb" jsslot=""><div class="atHusc"><g-inline-expansion-bar class="UKFtUe u2sJ0e AvEv1e hfoBFd wdcVy" jscontroller="vJ1l0" aria-expanded="false" aria-labelledby="_eSuyY8XXG6yo5NoP_KK_2A4_8" role="button" tabindex="0" jsaction="yELBLe;rcuQ6b:npT2md"><div jsname="mKTrKf"><div jsname="GTrWA" class="lA0GG OSrXXb" id="_eSuyY8XXG6yo5NoP_KK_2A4_8">Show full description</div><span class="xrIqbe AB4Wff xTWltf z1asCe QFl0Ff"><svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path></svg></span></div><div jsname="f3VNIf" class="TJMQHf"><div jsname="r2H3vf" class="TJMQHf lA0GG OSrXXb" id="_eSuyY8XXG6yo5NoP_KK_2A4_9">Collapse</div><span class="xrIqbe AB4Wff xTWltf z1asCe PFI26e"><svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"></path></svg></span></div></g-inline-expansion-bar></div></span></g-expandable-content></div></div></div></div>

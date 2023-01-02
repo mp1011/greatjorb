@@ -50,6 +50,18 @@
             }
         }
 
+        public static async Task<T> IgnoreCancellationException<T>(this Task<T> task, T defaultReturn)
+        {
+            try
+            {
+                return await task;
+            }
+            catch (TaskCanceledException)
+            {
+                return defaultReturn;
+            }
+        }
+
         public static async Task<T?> NotifyError<T>(this Task<T> task, IPage page, IMediator mediator)
         {
             try

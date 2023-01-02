@@ -49,6 +49,22 @@ public class GoogleJobsNavigator : IWebSiteNavigator
 
         await page.WaitForNavigationFromAsync(url);
 
+        var jobCards = await page.QuerySelectorAllAsync("li.iFjolb");
+
+        while(--pageNumber > 0)
+        {
+            await jobCards.Last().ClickAsync();
+
+            var newJobCards = await TaskHelper.RepeatUntilCondition(
+                createTask: () => page.QuerySelectorAllAsync("li.iFjolb"),
+                condition: p => p.Length > jobCards.Length);
+
+            if (newJobCards == null)
+                break;
+
+            jobCards = newJobCards;
+        }
+
         return page;
 
     }

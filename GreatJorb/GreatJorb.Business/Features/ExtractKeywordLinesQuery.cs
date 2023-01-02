@@ -18,8 +18,32 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
                 .Union(pTags)
                 .Where(p => p.InnerText.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase))
                 .Select(p => CleanUpLine(p.InnerText))
+                .Union(ExtractBullets(request.Html, request.Keyword))
                 .Distinct()
                 .ToArray());
+        }
+
+        private IEnumerable<string> ExtractBullets(string html, string keyword)
+        {
+            char bullet = '•';
+
+            int index = -1;
+            while(index < html.Length)
+            {
+                index = html.IndexOf(bullet, index+1);
+                if (index == -1)
+                    break;
+
+                int endIndex = html.IndexOf("\r\n", index);
+                if (endIndex == -1)
+                    endIndex = html.Length;
+
+                var line = html.Substring(index + 1, (endIndex - index)-1).Trim();
+                if (line.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                    yield return line;
+
+                index = endIndex;
+            }
         }
 
         private string CleanUpLine(string line)

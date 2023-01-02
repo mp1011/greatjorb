@@ -4,12 +4,14 @@ namespace GreatJorb.Tests.Features
 {
     public class ExtractKeywordLinesQueryTests
     {
-        [TestCase("c#")]
-        public async Task TestExtractKeywordLinesQuery(string query)
+        [TestCase("samplehtml.txt", "c#")]
+        [TestCase("samplehtml_bullets.txt", "c#")]
+
+        public async Task TestExtractKeywordLinesQuery(string file, string query)
         {
             var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);
 
-            var html = File.ReadAllText(TestContext.CurrentContext.TestDirectory + @"\TestData\samplehtml.txt");
+            var html = File.ReadAllText(TestContext.CurrentContext.TestDirectory + @$"\TestData\{file}");
 
             var result = await serviceProvider.Mediator.Send(new ExtractKeywordLinesQuery(query, html));
 

@@ -12,7 +12,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
+    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int pageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
     {
         var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
 
@@ -111,7 +111,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
             .Union(insights)
             .ToArray();
 
-        await _mediator.Publish(new JobPostingRead(posting, site));
+        await _mediator.Publish(new JobPostingRead(posting, site, FromCache: false));
 
         return posting;       
     }

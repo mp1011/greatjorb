@@ -1,13 +1,13 @@
-﻿using System.Threading;
-
-namespace GreatJorb.Tests.Features;
+﻿namespace GreatJorb.Tests.Features;
 
 public class SearchJobsQueryTests
 {
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 1)]
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 2)]
     [TestCase("Google Jobs", "https://www.google.com/", "c#", 1)]
-    public async Task CanSearchJobs(string name, string url, string query, int numberOfPages)
+    [TestCase("Google Jobs", "https://www.google.com/", "c#", 2)]
+    [TestCase("Google Jobs", "https://www.google.com/", "c#", 3)]
+    public async Task CanSearchJobs(string name, string url, string query, int pageNumber)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
@@ -20,7 +20,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), numberOfPages));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), pageNumber));
 
         Assert.IsNotEmpty(searchResult);
         Assert.IsTrue(searchResult
@@ -49,7 +49,7 @@ public class SearchJobsQueryTests
         };
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, filter, 1));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, filter, 1));
 
 
         Assert.IsNotEmpty(searchResult);
@@ -79,7 +79,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), numberOfPages));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), numberOfPages));
 
         bool noMatches = true;
 
@@ -121,7 +121,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), 1));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 1));
 
         foreach (var result in searchResult)
         {
@@ -143,7 +143,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), 3));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 3));
 
         string[] distinctUrls = searchResult
             .Select(p => p.Job.Uri.PathAndQuery)
@@ -168,7 +168,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), NumberOfPages:1));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), PageNumber:1));
 
         Assert.IsTrue(searchResult.Select(p=>p.Job).Any(p => p.Company != null));
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.DescriptionHtml != null));
@@ -193,7 +193,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsQuery(loggedInPage.Data, new JobFilter(query), NumberOfPages: 1));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), PageNumber: 1));
 
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.SalaryMin != null));
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.SalaryMax != null));

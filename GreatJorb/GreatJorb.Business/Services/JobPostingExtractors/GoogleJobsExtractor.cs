@@ -4,11 +4,15 @@ public class GoogleJobsExtractor : IJobPostingExtractor
 {
     public string WebsiteName => "Google Jobs";
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
+    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int pageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
     {
         List<JobPosting> jobs = new();
 
         var jobHeaders = await page.QuerySelectorAllAsync("li.iFjolb");
+
+        jobHeaders = jobHeaders
+            .Skip((pageNumber - 1) * 10)
+            .ToArray();
 
         foreach(var jobHeader in jobHeaders)
         {

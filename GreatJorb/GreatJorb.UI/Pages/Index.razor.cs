@@ -30,7 +30,7 @@ public partial class Index : IDisposable
 
     public async Task PerformSearch(JobFilter filter)
     {
-        if(_cancellationTokenSource != null)
+        if (_cancellationTokenSource != null)
         {
             _cancellationTokenSource.Cancel();
         }
@@ -39,18 +39,9 @@ public partial class Index : IDisposable
 
         Postings.Clear();
 
-        WebSite site = new WebSite("LinkedIn", "https://www.linkedin.com/");
-        _currentFilter = filter;
-        var loginResult = await Mediator.Send(new LoginQuery(site));
-
-        var cacheResult = await Mediator.Send(new SearchJobsFromCacheQuery(site, filter));
-        Postings.AddRange(cacheResult);
+        await Mediator.Send(new SearchJobsFromMultipleSitesQuery(filter, 10), _cancellationTokenSource.Token);
 
         StateHasChanged();
-        
-        await Mediator
-            .Send(new SearchJobsQuery(loginResult.Data, filter, 5), _cancellationTokenSource.Token)
-            .IgnoreCancellationException();
     }
 
     public async Task OnJobPostingRead(JobPostingRead notification)
@@ -69,7 +60,8 @@ public partial class Index : IDisposable
 
             Postings.Sort();
 
-            await Mediator.Send(new AddJobResultToCacheCommand(notification.Site, notification.Job));
+            if(!notification.FromCache)
+                await Mediator.Send(new AddJobResultToCacheCommand(notification.Site, notification.Job));
 
             StateHasChanged();            
         });

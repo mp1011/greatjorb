@@ -14,3 +14,8 @@ public class SalaryTypePicker : FlagPicker<SalaryType>
 public class JobLevelPicker : FlagPicker<JobLevel>
 {
 }
+
+public class SitePicker : FlagPicker<Site>
+{
+
+}

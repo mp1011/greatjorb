@@ -338,7 +338,6 @@ public static class PuppeteerExtensions
 
         var nextSibling = await element.EvaluateFunctionReturnElementAsync(page, "e.nextElementSibling"); 
 
-
         if(nextSibling == null)
         {
             var parent = await element.EvaluateFunctionReturnElementAsync(page,"e.parentElement");

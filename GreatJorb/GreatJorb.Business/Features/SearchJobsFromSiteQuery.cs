@@ -1,10 +1,10 @@
 ﻿namespace GreatJorb.Business.Features;
 
-public record SearchJobsQuery(WebPage WebPage, JobFilter Filter, int NumberOfPages) 
+public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int PageNumber) 
     : IRequest<JobPostingSearchResult[]>
 {
 
-    public class Handler : IRequestHandler<SearchJobsQuery, JobPostingSearchResult[]>
+    public class Handler : IRequestHandler<SearchJobsFromSiteQuery, JobPostingSearchResult[]>
     {
         private readonly IMediator _mediator;
         public Handler(IMediator mediator)
@@ -12,7 +12,7 @@ public record SearchJobsQuery(WebPage WebPage, JobFilter Filter, int NumberOfPag
             _mediator = mediator;
         }
 
-        public async Task<JobPostingSearchResult[]> Handle(SearchJobsQuery request, CancellationToken cancellationToken)
+        public async Task<JobPostingSearchResult[]> Handle(SearchJobsFromSiteQuery request, CancellationToken cancellationToken)
         {
             if (request.WebPage == null || request.WebPage.Page == null)
                 return Array.Empty<JobPostingSearchResult>();
@@ -26,23 +26,18 @@ public record SearchJobsQuery(WebPage WebPage, JobFilter Filter, int NumberOfPag
                 return Array.Empty<JobPostingSearchResult>();
 
             List<JobPosting> jobs = new();
+        
+            cancellationToken.ThrowIfCancellationRequested();
 
-            for (int pageNumber = 1; pageNumber <= request.NumberOfPages; pageNumber++)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
+            IPage? page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, request.PageNumber, cancellationToken);
 
-                IPage? page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, pageNumber, cancellationToken);
+            page = await navigator.ApplyFilters(page, request.Filter, cancellationToken)
+                .NotifyError(page, _mediator);
 
-                page = await navigator.ApplyFilters(page, request.Filter, cancellationToken)
-                    .NotifyError(page, _mediator);
-
-                if (page == null)
-                    break;
-
-                jobs.AddRange(await extractor
-                   .ExtractJobsFromPage(page, request.WebPage.Site, cancellationToken, request.Filter)
-                   .NotifyError(page, _mediator, Array.Empty<JobPosting>()));
-            }
+            jobs.AddRange(await extractor
+                .ExtractJobsFromPage(page, request.PageNumber, request.WebPage.Site, cancellationToken, request.Filter)
+                .NotifyError(page, _mediator, Array.Empty<JobPosting>()));
+            
 
             List<JobPostingSearchResult> results = new();
             foreach(var job in jobs)
@@ -54,6 +49,8 @@ public record SearchJobsQuery(WebPage WebPage, JobFilter Filter, int NumberOfPag
                     await _mediator.Send(new MatchJobFilterQuery(job, keywordLines.Any(), request.Filter)),
                     keywordLines));
             }
+
+            await page.CloseAsync();
 
             return results.ToArray();
         }
