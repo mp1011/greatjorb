@@ -16,9 +16,7 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
 
         public async Task<Result<WebPage>> Handle(LoginQuery request, CancellationToken cancellationToken)
         {
-            string userName = _settingsService.GetSiteUserName(request.Site);
-            string password = _settingsService.GetSitePassword(request.Site);
-
+            
             IPage page = await _mediator.Send(new BrowseToPageQuery(request.Site.Url));
 
             IWebSiteNavigator? navigator = await _mediator.Send(new GetNavigatorQuery(request.Site));
@@ -31,6 +29,9 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
             {
                 return new Result<WebPage>(true, new WebPage(request.Site, page));
             }
+
+            string userName = _settingsService.GetSiteUserName(request.Site);
+            string password = _settingsService.GetSitePassword(request.Site);
 
             await navigator
                 .GetLoginElement(page, cancellationToken)

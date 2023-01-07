@@ -3,7 +3,7 @@
 <div class="d-flex flex-column h-100">
 
     <div>
-        <FilterPanel SearchRequested="PerformSearch" />
+        <FilterPanel Filter="CurrentFilter" SearchRequested="PerformSearch" />
     </div>
 
     <div class="flex-fill" style="max-height:100%; overflow:hidden;">
@@ -11,6 +11,9 @@
         <div class="d-flex flex-row align-items-stretch h-100">
             
             <div class="flex-grow-1" style="width:200px; overflow-y:auto;">
+
+                <JobResultStats Postings="Postings" />
+
                 @foreach(var job in Postings)
                 {
                     <JobResultPreview JobResult="job" />

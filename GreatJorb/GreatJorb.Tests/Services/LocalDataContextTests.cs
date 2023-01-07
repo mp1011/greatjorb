@@ -13,7 +13,8 @@ public class LocalDataContextTests
     {
         var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
-            includeDataContext: true);
+            includeDataContext: true,
+            includeMediator: true);
 
         string guid = Guid.NewGuid().ToString();
 

@@ -14,13 +14,15 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
             var liTags = html.DocumentNode.Descendants("li");
             var pTags = html.DocumentNode.Descendants("p");
 
-            return Task.FromResult(liTags
+            var keywordLines = liTags
                 .Union(pTags)
                 .Where(p => p.InnerText.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase))
                 .Select(p => CleanUpLine(p.InnerText))
                 .Union(ExtractBullets(request.Html, request.Keyword))
                 .Distinct()
-                .ToArray());
+                .ToArray();
+
+            return Task.FromResult(keywordLines);
         }
 
         private IEnumerable<string> ExtractBullets(string html, string keyword)
@@ -34,13 +36,13 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
                 if (index == -1)
                     break;
 
-                int endIndex = html.IndexOf("\r\n", index);
+                int endIndex = html.IndexOf("\n", index);
                 if (endIndex == -1)
                     endIndex = html.Length;
 
                 var line = html.Substring(index + 1, (endIndex - index)-1).Trim();
                 if (line.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                    yield return line;
+                    yield return line.Trim();
 
                 index = endIndex;
             }

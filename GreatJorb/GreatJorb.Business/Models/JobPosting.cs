@@ -2,7 +2,7 @@
 
 public class JobPosting : ILocalStorable
 {
-    public string StorageKey => Uri.GetLeftPart(UriPartial.Path);
+    public string StorageKey { get; set; }
 
     public Uri Uri { get; set; } = new Uri("https://none");
     public string? Title { get; set; }

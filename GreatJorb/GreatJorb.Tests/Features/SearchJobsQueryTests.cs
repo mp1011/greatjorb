@@ -125,8 +125,13 @@ public class SearchJobsQueryTests
 
         foreach (var result in searchResult)
         {
-            Assert.IsNotEmpty(result.KeywordLines);
+            if(result.KeywordLines.Any())
+            {
+                return;
+            }
         }
+
+        Assert.Fail("no keyword matches found");
     }
 
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]

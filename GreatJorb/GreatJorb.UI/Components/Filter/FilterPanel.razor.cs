@@ -2,8 +2,6 @@
 
 public partial class FilterPanel
 {
-    public JobFilter Filter { get; } = new();
-
     public decimal? SalaryK
     {
         get
@@ -23,6 +21,9 @@ public partial class FilterPanel
 
     [Parameter]
     public EventCallback<JobFilter> SearchRequested { get; set; }
+
+    [Parameter]
+    public JobFilter Filter { get; set; }
 
     public async Task SearchButtonClicked()
     {

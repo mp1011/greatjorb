@@ -27,6 +27,7 @@ public record SearchJobsFromSiteCachedQuery(WebSite Site, JobFilter Filter) : IR
 
                 var result = new JobPostingSearchResult(
                     Job: job,
+                    Site: request.Site,
                     FilterMatches: await _mediator.Send(new MatchJobFilterQuery(job, keywordLines.Any(), request.Filter)),
                     KeywordLines: keywordLines);
 

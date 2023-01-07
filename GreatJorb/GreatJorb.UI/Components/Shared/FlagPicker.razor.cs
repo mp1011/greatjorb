@@ -5,6 +5,7 @@ public partial class FlagPicker<T>
 {
     public T[] Options { get; set; } = Array.Empty<T>();
 
+    [Parameter]
     public T CurrentSelection { get; set; } = default;
 
     [Parameter]

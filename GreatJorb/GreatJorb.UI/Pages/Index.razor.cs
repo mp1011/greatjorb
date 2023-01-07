@@ -12,7 +12,8 @@ public partial class Index : IDisposable
 
     public List<BrowserPageChanged> Notifications { get; } = new();
 
-    private JobFilter _currentFilter = new JobFilter();
+    public JobFilter CurrentFilter { get; set; } = new JobFilter();
+
     private CancellationTokenSource? _cancellationTokenSource;
 
     protected override void OnInitialized()
@@ -28,8 +29,24 @@ public partial class Index : IDisposable
         Mediator.Send(new DisposeBrowserCommand());
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        var filterHistory = await Mediator.Send(new LoadFiltersFromCacheQuery());
+        if (filterHistory.Any())
+        {
+            CurrentFilter = filterHistory
+                .OrderByDescending(p => p.Date)
+                .First()
+                .Filter;
+
+            StateHasChanged();
+        }
+    }
+
     public async Task PerformSearch(JobFilter filter)
     {
+        CurrentFilter = filter;
+
         if (_cancellationTokenSource != null)
         {
             _cancellationTokenSource.Cancel();
@@ -39,6 +56,7 @@ public partial class Index : IDisposable
 
         Postings.Clear();
 
+        await Mediator.Send(new AddFilterToCacheCommand(filter));
         await Mediator.Send(new SearchJobsFromMultipleSitesQuery(filter, 10), _cancellationTokenSource.Token);
 
         StateHasChanged();
@@ -51,11 +69,12 @@ public partial class Index : IDisposable
             if (Postings.Any(p => p.Job.StorageKey == notification.Job.StorageKey))
                 return;
 
-            var keywordLines = await Mediator.Send(new ExtractKeywordLinesQuery(_currentFilter.Query, notification.Job.DescriptionHtml));
+            var keywordLines = await Mediator.Send(new ExtractKeywordLinesQuery(CurrentFilter.Query, notification.Job.DescriptionHtml));
 
             Postings.Add(new JobPostingSearchResult(
                 notification.Job,
-                await Mediator.Send(new MatchJobFilterQuery(notification.Job, keywordLines.Any(), _currentFilter)),
+                notification.Site,                 
+                await Mediator.Send(new MatchJobFilterQuery(notification.Job, keywordLines.Any(), CurrentFilter)),
                 keywordLines));
 
             Postings.Sort();

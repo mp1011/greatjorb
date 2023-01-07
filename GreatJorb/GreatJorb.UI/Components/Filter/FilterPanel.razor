@@ -2,20 +2,29 @@
 
     <div class="d-flex justify-content-between mb-2">
 
-        <WorkplaceTypePicker SelectionChanged="p => Filter.WorkplaceTypeFilter = p" />
+        <WorkplaceTypePicker 
+            CurrentSelection="Filter.WorkplaceTypeFilter" 
+            SelectionChanged="p => Filter.WorkplaceTypeFilter = p" />
 
-        <SalaryTypePicker SelectionChanged="p => Filter.SalaryTypeFilter = p" />
+        <SalaryTypePicker 
+            CurrentSelection="Filter.SalaryTypeFilter"
+            SelectionChanged="p => Filter.SalaryTypeFilter = p" />
 
-        <JobTypePicker SelectionChanged="p => Filter.JobTypeFilter = p" />
+        <JobTypePicker 
+            CurrentSelection="Filter.JobTypeFilter"
+            SelectionChanged="p => Filter.JobTypeFilter = p" />
 
-        <JobLevelPicker SelectionChanged="p => Filter.JobLevelFilter = p" />
+        <JobLevelPicker 
+            CurrentSelection="Filter.JobLevelFilter"
+            SelectionChanged="p => Filter.JobLevelFilter = p" />
 
     </div>
 
       <div class="row align-items-start">
 
         <div class="col-6">
-            <input type="text" class="form-control w-100 mw-100" style="width:200px" placeholder="Search Text" aria-label="Enter Search Terms" @bind="@Filter.Query">
+            <input type="text" class="form-control w-100 mw-100" style="width:200px" placeholder="Search Text" aria-label="Enter Search Terms" 
+            @bind="@Filter.Query">
         </div>
 
         <div class="col-2">
@@ -27,7 +36,9 @@
         </div>
 
         <div class="col-2">
-            <SitePicker SelectionChanged="p => Filter.Sites = p" />
+            <SitePicker 
+                CurrentSelection="Filter.Sites"
+                SelectionChanged="p => Filter.Sites = p" />
         </div>
 
         <div class="col-2">            

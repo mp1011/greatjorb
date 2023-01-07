@@ -44,10 +44,11 @@
         }
 
         private JobBadge GetBadge<T>(string fieldName, string friendlyFieldName, T value, Func<T,bool> isEmpty)
+            where T:Enum
         {
             var filter = JobResult.FilterMatches.FirstOrDefault(p => p.Field == fieldName);
 
-            string text = (isEmpty(value)) ? $"{friendlyFieldName} not provided" : value.ToString();
+            string text = (isEmpty(value)) ? $"{friendlyFieldName} not provided" : value.GetDisplayName();
 
             if(filter == null)
             {

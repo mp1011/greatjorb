@@ -2,6 +2,25 @@
 
 public class CacheCommandQueryTests
 {
+    [Test]
+    public async Task CanSaveFilterToCache()
+    {
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
+            includeConfiguration: true,
+            includeMediator: true,
+            includePuppeteer: false,
+            includeDataContext: true);
+
+        var jobFilter = new JobFilter { Query = Guid.NewGuid().ToString() };
+
+        await serviceProvider.Mediator.Send(new AddFilterToCacheCommand(jobFilter));
+
+        var cached = await serviceProvider.Mediator.Send(new LoadFiltersFromCacheQuery());
+        Assert.IsNotNull(cached);
+        Assert.IsNotEmpty(cached);
+
+        Assert.AreEqual(jobFilter.Query, cached.OrderByDescending(p => p.Date).First().Filter.Query);
+    }
 
     [Test]
     public async Task CanCacheDataAndRetrieveIt()

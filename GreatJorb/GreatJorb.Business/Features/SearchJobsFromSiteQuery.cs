@@ -46,6 +46,7 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int Pag
 
                 results.Add(new JobPostingSearchResult(
                     job,
+                    Site: request.WebPage.Site,
                     await _mediator.Send(new MatchJobFilterQuery(job, keywordLines.Any(), request.Filter)),
                     keywordLines));
             }

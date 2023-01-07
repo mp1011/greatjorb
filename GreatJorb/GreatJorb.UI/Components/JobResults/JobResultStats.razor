@@ -1,0 +1,6 @@
+﻿<CounterBadge Count="Postings.Count" Label="Total" />
+
+@foreach(var site in Sites)
+{
+    <CounterBadge Count="GetCountForSite(site)" Label="@site.Name" />
+}

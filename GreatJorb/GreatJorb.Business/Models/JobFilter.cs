@@ -1,7 +1,9 @@
 ﻿namespace GreatJorb.Business.Models;
 
-public class JobFilter
+public class JobFilter : ILocalStorable
 {
+    public Guid Id { get; set; }
+
     public string Query { get; set; } = "";
 
     public decimal? Salary { get; set; }
@@ -14,13 +16,19 @@ public class JobFilter
     public WorkplaceType WorkplaceTypeFilter { get; set; } = WorkplaceType.Unknown;
     public JobLevel JobLevelFilter { get; set; } = JobLevel.Unknown;
 
+    public string StorageKey => Id.ToString();
+
     public JobFilter() { }
 
     public JobFilter(string query)
     {
         Query = query;
     }
-
-
-
 }
+
+public record JobFilterCacheHeader(Guid Id, DateTime Date) : ILocalStorable
+{
+    public string StorageKey => Id.ToString();
+}
+
+public record JobFilterCacheResult(DateTime Date, JobFilter Filter);

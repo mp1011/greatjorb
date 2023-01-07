@@ -4,6 +4,31 @@ public static class PuppeteerExtensions
 {
     private static TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
 
+
+    public static async Task<string[]> ExtractTextFromLeafNodes(this IElementHandle element, string selector)
+    {
+        var elements = await element
+            .QuerySelectorAllAsync(selector)
+            .VisibleOnly();
+
+        List<string> lines = new();
+
+        foreach(var childElement in elements)
+        {
+            var innerHtml = await childElement.GetInnerHTML();
+            if (innerHtml.Contains("<") && innerHtml.Contains(">"))
+                continue;
+
+            var innerText = await childElement.GetInnerText();
+            if (innerText.IsNullOrEmpty())
+                continue;
+
+            lines.Add(innerText);
+        }
+
+        return lines.ToArray();
+    }
+
     public static async Task<IElementHandle?> GetElementByInnerText(this IPage page, 
         string selector, 
         string innerText, 
@@ -183,6 +208,10 @@ public static class PuppeteerExtensions
 
     public static async Task<bool> CheckVisible(this IElementHandle element)
     {
+        var ariaHidden = await element.GetAttribute("aria-hidden");
+        if (ariaHidden != null && ariaHidden.Equals("true", StringComparison.OrdinalIgnoreCase))
+            return false;
+
         var boundingBox = await element.BoundingBoxAsync();
         return boundingBox != null && boundingBox.Height > 0;
     }
