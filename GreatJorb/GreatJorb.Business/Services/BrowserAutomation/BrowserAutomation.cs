@@ -68,7 +68,7 @@ public class BrowserAutomation : IPage
         _page = page;
     }
 
-    public async Task<IResponse> GoToAsync(string url, int? timeout = null, WaitUntilNavigation[] waitUntil = null)
+    public async Task<IResponse> GoToAsync(string url, int? timeout = null, WaitUntilNavigation[]? waitUntil = null)
     {
         return await _page
             .GoToAsync(url, timeout, waitUntil)
@@ -404,12 +404,12 @@ public class BrowserAutomation : IPage
         return _page.BringToFrontAsync();
     }
 
-    public Task ClickAsync(string selector, ClickOptions options = null)
+    public Task ClickAsync(string selector, ClickOptions? options = null)
     {
         return _page.ClickAsync(selector, options);
     }
 
-    public Task CloseAsync(PageCloseOptions options = null)
+    public Task CloseAsync(PageCloseOptions? options = null)
     {
         return _page.CloseAsync(options);
     }
@@ -439,7 +439,7 @@ public class BrowserAutomation : IPage
         return _page.EmulateCPUThrottlingAsync(factor);
     }
 
-    public Task EmulateIdleStateAsync(EmulateIdleOverrides idleOverrides = null)
+    public Task EmulateIdleStateAsync(EmulateIdleOverrides? idleOverrides = null)
     {
         return _page.EmulateIdleStateAsync(idleOverrides);
     }
@@ -559,12 +559,12 @@ public class BrowserAutomation : IPage
         return _page.GetTitleAsync();
     }
 
-    public Task<IResponse> GoBackAsync(NavigationOptions options = null)
+    public Task<IResponse> GoBackAsync(NavigationOptions? options = null)
     {
         return _page.GoBackAsync(options);
     }
 
-    public Task<IResponse> GoForwardAsync(NavigationOptions options = null)
+    public Task<IResponse> GoForwardAsync(NavigationOptions? options = null)
     {
         return _page.GoForwardAsync(options);
     }
@@ -629,7 +629,7 @@ public class BrowserAutomation : IPage
         return _page.QuerySelectorAsync(selector);
     }
 
-    public Task<IResponse> ReloadAsync(int? timeout = null, WaitUntilNavigation[] waitUntil = null)
+    public Task<IResponse> ReloadAsync(int? timeout = null, WaitUntilNavigation[]? waitUntil = null)
     {
         return _page.ReloadAsync(timeout, waitUntil);
     }
@@ -699,7 +699,7 @@ public class BrowserAutomation : IPage
         return _page.SetCacheEnabledAsync(enabled);
     }
 
-    public Task SetContentAsync(string html, NavigationOptions options = null)
+    public Task SetContentAsync(string html, NavigationOptions? options = null)
     {
         return _page.SetContentAsync(html, options);
     }
@@ -739,7 +739,7 @@ public class BrowserAutomation : IPage
         return _page.SetRequestInterceptionAsync(value);
     }
 
-    public Task SetUserAgentAsync(string userAgent, UserAgentMetadata userAgentData = null)
+    public Task SetUserAgentAsync(string userAgent, UserAgentMetadata? userAgentData = null)
     {
         return _page.SetUserAgentAsync(userAgent, userAgentData);
     }
@@ -754,32 +754,32 @@ public class BrowserAutomation : IPage
         return _page.TapAsync(selector);
     }
 
-    public Task TypeAsync(string selector, string text, TypeOptions options = null)
+    public Task TypeAsync(string selector, string text, TypeOptions? options = null)
     {
         return _page.TypeAsync(selector, text, options);
     }
 
-    public Task<IJSHandle> WaitForExpressionAsync(string script, WaitForFunctionOptions options = null)
+    public Task<IJSHandle> WaitForExpressionAsync(string script, WaitForFunctionOptions? options = null)
     {
         return _page.WaitForExpressionAsync(script, options);
     }
 
-    public Task<FileChooser> WaitForFileChooserAsync(WaitForFileChooserOptions options = null)
+    public Task<FileChooser> WaitForFileChooserAsync(WaitForFileChooserOptions? options = null)
     {
         return _page.WaitForFileChooserAsync(options);
     }
 
-    public Task<IFrame> WaitForFrameAsync(string url, WaitForOptions options = null)
+    public Task<IFrame> WaitForFrameAsync(string url, WaitForOptions? options = null)
     {
         return _page.WaitForFrameAsync(url, options);
     }
 
-    public Task<IFrame> WaitForFrameAsync(Func<IFrame, bool> predicate, WaitForOptions options = null)
+    public Task<IFrame> WaitForFrameAsync(Func<IFrame, bool> predicate, WaitForOptions? options = null)
     {
         return _page.WaitForFrameAsync(predicate, options);
     }
 
-    public Task<IJSHandle> WaitForFunctionAsync(string script, WaitForFunctionOptions options = null, params object[] args)
+    public Task<IJSHandle> WaitForFunctionAsync(string script, WaitForFunctionOptions? options = null, params object[] args)
     {
         return _page.WaitForFunctionAsync(script, options, args);
     }
@@ -789,42 +789,42 @@ public class BrowserAutomation : IPage
         return _page.WaitForFunctionAsync(script, args);
     }
 
-    public Task<IResponse> WaitForNavigationAsync(NavigationOptions options = null)
+    public Task<IResponse> WaitForNavigationAsync(NavigationOptions? options = null)
     {
         return _page.WaitForNavigationAsync(options);
     }
 
-    public Task WaitForNetworkIdleAsync(WaitForNetworkIdleOptions options = null)
+    public Task WaitForNetworkIdleAsync(WaitForNetworkIdleOptions? options = null)
     {
         return _page.WaitForNetworkIdleAsync(options);
     }
 
-    public Task<PuppeteerSharp.IRequest> WaitForRequestAsync(Func<PuppeteerSharp.IRequest, bool> predicate, WaitForOptions options = null)
+    public Task<PuppeteerSharp.IRequest> WaitForRequestAsync(Func<PuppeteerSharp.IRequest, bool> predicate, WaitForOptions? options = null)
     {
         return _page.WaitForRequestAsync(predicate, options);
     }
 
-    public Task<PuppeteerSharp.IRequest> WaitForRequestAsync(string url, WaitForOptions options = null)
+    public Task<PuppeteerSharp.IRequest> WaitForRequestAsync(string url, WaitForOptions? options = null)
     {
         return _page.WaitForRequestAsync(url, options);
     }
 
-    public Task<IResponse> WaitForResponseAsync(Func<IResponse, bool> predicate, WaitForOptions options = null)
+    public Task<IResponse> WaitForResponseAsync(Func<IResponse, bool> predicate, WaitForOptions? options = null)
     {
         return _page.WaitForResponseAsync(predicate, options);
     }
 
-    public Task<IResponse> WaitForResponseAsync(Func<IResponse, Task<bool>> predicate, WaitForOptions options = null)
+    public Task<IResponse> WaitForResponseAsync(Func<IResponse, Task<bool>> predicate, WaitForOptions? options = null)
     {
         return _page.WaitForResponseAsync(predicate, options);
     }
 
-    public Task<IResponse> WaitForResponseAsync(string url, WaitForOptions options = null)
+    public Task<IResponse> WaitForResponseAsync(string url, WaitForOptions? options = null)
     {
         return _page.WaitForResponseAsync(url, options);
     }
 
-    public Task<IElementHandle> WaitForSelectorAsync(string selector, WaitForSelectorOptions options = null)
+    public Task<IElementHandle> WaitForSelectorAsync(string selector, WaitForSelectorOptions? options = null)
     {
         return _page.WaitForSelectorAsync(selector, options);
     }
@@ -834,7 +834,7 @@ public class BrowserAutomation : IPage
         return _page.WaitForTimeoutAsync(milliseconds);
     }
 
-    public Task<IElementHandle> WaitForXPathAsync(string xpath, WaitForSelectorOptions options = null)
+    public Task<IElementHandle> WaitForXPathAsync(string xpath, WaitForSelectorOptions? options = null)
     {
         return _page.WaitForXPathAsync(xpath, options);
     }

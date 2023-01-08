@@ -45,7 +45,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<LocalDataContextProvider>();
 
 		var config = new ConfigurationBuilder()
-				.AddUserSecrets(typeof(MauiProgram).Assembly)
+				.AddJsonFile("appsettings.json")				
 				.Build();
 
 		builder.Configuration.AddConfiguration(config);

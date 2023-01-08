@@ -42,7 +42,7 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int Pag
             List<JobPostingSearchResult> results = new();
             foreach(var job in jobs)
             {
-                string[] keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter.Query, job.DescriptionHtml));
+                string[] keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter.Query, job.DescriptionHtml ?? ""));
 
                 results.Add(new JobPostingSearchResult(
                     job,

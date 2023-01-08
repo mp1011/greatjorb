@@ -11,34 +11,58 @@ public record TryParsePropertyFromTextQuery(string Text) : IRequest<TextParseRes
         {
             _specialMatches["contractor"] = CreateResult(nameof(JobPosting.JobType), JobType.Contract);
             _specialMatches["work from home"] = CreateResult(nameof(JobPosting.WorkplaceType), WorkplaceType.Remote);
+            _specialMatches["remote-eligible"] = CreateResult(nameof(JobPosting.WorkplaceType), WorkplaceType.Remote);
+
         }
 
         public Task<TextParseResult[]> Handle(TryParsePropertyFromTextQuery request, CancellationToken cancellationToken)
         {
             List<TextParseResult> results = new();
 
-            var maybeJobType = request.Text.TryParseEnumAdvanced(JobType.Unknown);
+            foreach(var textToSearch in GetTextToSearch(request.Text))
+            {
+                results.AddRange(TryParseText(textToSearch));
+            }
+            
+            return Task.FromResult(results.ToArray());
+        }
+
+        private IEnumerable<string> GetTextToSearch(string requestText)
+        {
+            yield return requestText;
+
+            var textInParens = Regex.Match(requestText, @"\(([^\)]+)\)", RegexOptions.IgnoreCase);
+
+            if (textInParens.Success)
+            {
+                yield return textInParens.Groups[1].Value;
+            }
+        }
+
+        private IEnumerable<TextParseResult> TryParseText(string text)
+        {
+            var maybeJobType = text.TryParseEnumAdvanced(JobType.Unknown);
             if (maybeJobType != JobType.Unknown)
-                results.Add(CreateResult(request, nameof(JobPosting.JobType), maybeJobType));
+                yield return CreateResult(text, nameof(JobPosting.JobType), maybeJobType);
 
-            var maybeWorkplaceType = request.Text.TryParseEnumAdvanced(WorkplaceType.Unknown);
+            var maybeWorkplaceType = text.TryParseEnumAdvanced(WorkplaceType.Unknown);
             if (maybeWorkplaceType != WorkplaceType.Unknown)
-                results.Add(CreateResult(request, nameof(JobPosting.WorkplaceType), maybeWorkplaceType));
+                yield return CreateResult(text, nameof(JobPosting.WorkplaceType), maybeWorkplaceType);
 
-            var maybeSalaryType = request.Text.TryParseEnumAdvanced(SalaryType.Unknown);
+            var maybeSalaryType = text.TryParseEnumAdvanced(SalaryType.Unknown);
             if (maybeSalaryType != SalaryType.Unknown)
-                results.Add(CreateResult(request, nameof(JobPosting.SalaryType), maybeSalaryType));
+                yield return CreateResult(text, nameof(JobPosting.SalaryType), maybeSalaryType);
 
-            var maybeJobLevel = request.Text.TryParseEnumAdvanced(JobLevel.Unknown);
+            var maybeJobLevel = text.TryParseEnumAdvanced(JobLevel.Unknown);
             if (maybeJobLevel != JobLevel.Unknown)
-                results.Add(CreateResult(request, nameof(JobPosting.JobLevel), maybeJobLevel));
+                yield return CreateResult(text, nameof(JobPosting.JobLevel), maybeJobLevel);
 
-            var specialMatch = _specialMatches.GetValueOrDefault(request.Text.ToLower().Trim());
-            if(specialMatch != null)
-                results.Add(new TextParseResult(request.Text, specialMatch.JobInfoProperty, specialMatch.ParsedValue));
+            var specialMatch = _specialMatches.GetValueOrDefault(text.ToLower().Trim());
+            if (specialMatch != null)
+                yield return new TextParseResult(text, specialMatch.JobInfoProperty, specialMatch.ParsedValue);
 
 
-            var maybeSalary = Regex.Match(request.Text, @"(\$?)(\d+)(K?)(\sto\s|-|–|—)(\$?)(\d+)K(.*)", RegexOptions.IgnoreCase);
+            var maybeSalary = Regex.Match(text, @"(\$?)(\d+)(K?)(\sto\s|-|–|—)(\$?)(\d+)K(.*)", RegexOptions.IgnoreCase);
 
             if (maybeSalary.Success)
             {
@@ -51,22 +75,20 @@ public record TryParsePropertyFromTextQuery(string Text) : IRequest<TextParseRes
                 string type = maybeSalary.Groups[3].Value;
 
                 if (type.Contains("year"))
-                    results.Add(CreateResult(request, nameof(JobPosting.SalaryType), SalaryType.Annual));
+                    yield return CreateResult(text, nameof(JobPosting.SalaryType), SalaryType.Annual);
 
                 if (values[0] > 0)
-                    results.Add(CreateResult(request, nameof(JobPosting.SalaryMin), values[0] * 1000.0m));
+                    yield return CreateResult(text, nameof(JobPosting.SalaryMin), values[0] * 1000.0m);
 
                 if (values[1] > 0)
-                    results.Add(CreateResult(request, nameof(JobPosting.SalaryMax), values[1] * 1000.0m));
+                    yield return CreateResult(text, nameof(JobPosting.SalaryMax), values[1] * 1000.0m);
             }
-
-
-            return Task.FromResult(results.ToArray());
         }
 
-        private TextParseResult CreateResult(TryParsePropertyFromTextQuery request, string propertyName, object value)
+
+        private TextParseResult CreateResult(string text, string propertyName, object value)
         {
-            return new TextParseResult(request.Text, typeof(JobPosting).GetProperty(propertyName)!, value);
+            return new TextParseResult(text, typeof(JobPosting).GetProperty(propertyName)!, value);
         }
 
         private TextParseResult CreateResult(string propertyName, object value)

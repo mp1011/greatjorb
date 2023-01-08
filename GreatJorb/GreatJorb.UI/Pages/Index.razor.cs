@@ -8,6 +8,12 @@ public partial class Index : IDisposable
     [Inject]
     public ICourier Courier { get; set; }
 
+    [Inject]
+    public ISecureSettingsService SecureSettingsService { get; set; }
+
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+
     public List<JobPostingSearchResult> Postings { get; } = new();
 
     public List<BrowserPageChanged> Notifications { get; } = new();
@@ -43,14 +49,34 @@ public partial class Index : IDisposable
         }
     }
 
-    public async Task PerformSearch(JobFilter filter)
+    private async Task PromptForCredentialsIfNeeded()
     {
+        var sites = await Mediator.Send(new GetSitesQuery(CurrentFilter.Sites));
+
+        foreach(var site in sites)
+        {
+            if (!site.RequiresCredentials)
+                continue;
+
+            var userName = await SecureSettingsService.GetSiteUserName(site);
+            var pwd = await SecureSettingsService.GetSitePassword(site);
+            if(userName.IsNullOrEmpty() || pwd.IsNullOrEmpty())
+            {
+                await JsRuntime.ShowModal("CredentialsModal");
+            }
+        }
+    }
+
+    public async Task PerformSearch(JobFilter filter)
+    {      
         CurrentFilter = filter;
 
         if (_cancellationTokenSource != null)
         {
             _cancellationTokenSource.Cancel();
         }
+
+        await PromptForCredentialsIfNeeded();
 
         _cancellationTokenSource = new CancellationTokenSource();
 

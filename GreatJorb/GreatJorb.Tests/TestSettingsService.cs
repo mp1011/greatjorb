@@ -138,7 +138,7 @@ public class TestSettingsService : ISecureSettingsService
                 .Start(psi)
                 !.WaitForExit();
         }
-        catch (Exception e)
+        catch 
         {
             throw;
         }

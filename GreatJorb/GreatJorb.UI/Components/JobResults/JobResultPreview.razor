@@ -3,25 +3,38 @@
 {
     <div class="card" style="width:70%">
       <div class="card-body">
-        <h5 class="card-title">
-            <a href="@Job.Uri.ToString()">@Job.Title</a>
+        
+          <div class="card-title d-flex">
+               <h5 class="card-title">
+                    <a 
+                        href="@Job.Uri.ToString()"
+                        title="@Job.Uri.ToString()">
+                        @Job.Title
+                    </a>
             
-            @if(Job.SalaryMax.HasValue && Job.SalaryMin.HasValue)
-            {
-                <span>@Job.SalaryMin.ToShortMoney()</span>
-                <span>-</span>
-                    <span>@Job.SalaryMax.ToShortMoney()</span>
-            }
-            else if(Job.SalaryMin.HasValue)
-            {                    
-                <span>@Job.SalaryMin.ToShortMoney()</span>
-                <span>+</span>
-            }
-            else if(Job.SalaryMax.HasValue)
-            {                    
-                <span>@Job.SalaryMax.ToShortMoney()</span>
-            }
-        </h5>
+                    @if(Job.SalaryMax.HasValue && Job.SalaryMin.HasValue)
+                    {
+                        <span>@Job.SalaryMin.ToShortMoney()</span>
+                        <span>-</span>
+                            <span>@Job.SalaryMax.ToShortMoney()</span>
+                    }
+                    else if(Job.SalaryMin.HasValue)
+                    {                    
+                        <span>@Job.SalaryMin.ToShortMoney()</span>
+                        <span>+</span>
+                    }
+                    else if(Job.SalaryMax.HasValue)
+                    {                    
+                        <span>@Job.SalaryMax.ToShortMoney()</span>
+                    }
+                </h5>
+                
+                <div  class="ms-auto me-2 align-middle">
+                    <span class="badge bg-info">@JobResult.Site.Name</span>
+                </div>
+                
+          </div>
+       
         <h4>@Job.Company</h4>  
         
             <p class="card-text">

@@ -111,6 +111,8 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
             .Union(insights)
             .ToArray();
 
+        await _mediator.Send(new SetPropertiesFromTextCommand(posting, posting.Title ?? ""));
+
         await _mediator.Publish(new JobPostingRead(posting, site, FromCache: false));
 
         return posting;       

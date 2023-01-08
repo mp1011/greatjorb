@@ -11,7 +11,8 @@ public class TryParsePropertyFromTextQueryTests
     [TestCase("Remote", nameof(JobPosting.WorkplaceType), WorkplaceType.Remote)]
     [TestCase("Work from Home", nameof(JobPosting.WorkplaceType), WorkplaceType.Remote)]
     [TestCase("work from home", nameof(JobPosting.WorkplaceType), WorkplaceType.Remote)]
-
+    [TestCase("Senior Software Engineer, Backend (Remote-Eligible)", nameof(JobPosting.WorkplaceType), WorkplaceType.Remote)]
+    [TestCase("Senior Software Engineer, Backend (Remote)", nameof(JobPosting.WorkplaceType), WorkplaceType.Remote)]
     public async Task CanParseProperty(string text, string expectedProperty, object expectedValue)
     {
         var serviceProvider = TestServiceProvider
