@@ -41,7 +41,11 @@
                 SelectionChanged="p => Filter.Sites = p" />
         </div>
 
-        <div class="col-2">            
+        <div class="col-1">
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#CredentialsModal">...</button>
+        </div>
+
+        <div class="col-1">            
             <button type="button" class="btn btn-primary" @onclick="SearchButtonClicked">Search</button>
         </div>
     </div>

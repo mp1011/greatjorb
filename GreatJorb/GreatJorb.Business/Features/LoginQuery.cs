@@ -6,9 +6,9 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
     class Handler : IRequestHandler<LoginQuery, Result<WebPage>>
     {
         private readonly IMediator _mediator;
-        private readonly ISettingsService _settingsService;
+        private readonly ISecureSettingsService _settingsService;
 
-        public Handler(IMediator mediator, ISettingsService settingsService)
+        public Handler(IMediator mediator, ISecureSettingsService settingsService)
         {
             _mediator = mediator;
             _settingsService = settingsService;
@@ -30,8 +30,11 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
                 return new Result<WebPage>(true, new WebPage(request.Site, page));
             }
 
-            string userName = _settingsService.GetSiteUserName(request.Site);
-            string password = _settingsService.GetSitePassword(request.Site);
+            string? userName = await _settingsService.GetSiteUserName(request.Site);
+            string? password = await _settingsService.GetSitePassword(request.Site);
+
+            if (userName == null || password == null)
+                throw new Exception($"Credentials for {request.Site} not found");
 
             await navigator
                 .GetLoginElement(page, cancellationToken)

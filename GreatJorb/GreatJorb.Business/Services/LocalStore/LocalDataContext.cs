@@ -1,4 +1,6 @@
-﻿namespace GreatJorb.Business.Services.LocalStore;
+﻿using GreatJorb.Business.Services.Settings;
+
+namespace GreatJorb.Business.Services.LocalStore;
 
 public class LocalDataContextProvider
 {
@@ -27,7 +29,10 @@ public class LocalDataContext : IDisposable
         where T:ILocalStorable
     {
         using var contextLock = await ContextLock.AcquireAsync();
-        _liteDatabase.GetCollection<T>().Insert(item);
+
+        var collection = _liteDatabase.GetCollection<T>();
+        collection.DeleteMany(p => p.StorageKey == item.StorageKey);
+        collection.Insert(item);
     }
 
     public async Task<T?> Retrieve<T>(string key)

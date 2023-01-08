@@ -1,9 +1,9 @@
-﻿
+﻿namespace GreatJorb.Tests.Services;
 
-namespace GreatJorb.Tests.Services;
-
+[Category(TestType.UnitTest)]
 internal class JobPostingExtractorTests
 {
+
     [TestCase("TestData/google.html")]
     public async Task CanExtractInfoFromGoogleJob(string samplePage)
     {

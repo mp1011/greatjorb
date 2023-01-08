@@ -1,4 +1,6 @@
-﻿namespace GreatJorb.UI;
+﻿using GreatJorb.Business.Services.Settings;
+
+namespace GreatJorb.UI;
 
 public static class MauiProgram
 {
@@ -26,6 +28,7 @@ public static class MauiProgram
 
 #pragma warning disable CA1416
 		builder.Services.AddSingleton<ISettingsService, SettingsService>();
+		builder.Services.AddSingleton<ISecureSettingsService, LiteDbSettingsService>();
 #pragma warning restore CA1416
 
 		builder.Services.AddMediatR(typeof(LoginQuery));

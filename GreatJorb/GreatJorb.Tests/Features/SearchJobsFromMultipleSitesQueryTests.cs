@@ -1,5 +1,6 @@
 ﻿namespace GreatJorb.Tests.Features;
 
+[Category(TestType.WebTest)]
 public class SearchJobsFromMultipleSitesQueryTests
 {
     [Test]

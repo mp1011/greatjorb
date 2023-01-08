@@ -44,9 +44,8 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
         url = $"https://linkedin.com/{url}";
 
-        return new JobPosting(url)
+        return new JobPosting(url, new Uri(url).GetLeftPart(UriPartial.Path))
         {
-            StorageKey = new Uri(url).GetLeftPart(UriPartial.Path),
             Title = await jobCard.GetTextAsync(".job-card-list__title"),
             Company = await jobCard.GetTextAsync(".job-card-container__company-name"),
            

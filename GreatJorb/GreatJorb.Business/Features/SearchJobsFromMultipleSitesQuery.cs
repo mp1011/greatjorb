@@ -13,7 +13,7 @@ public record class SearchJobsFromMultipleSitesQuery(JobFilter Filter, int NumPa
 
         public async Task<JobPostingSearchResult[]> Handle(SearchJobsFromMultipleSitesQuery request, CancellationToken cancellationToken)
         {
-            var sites = GetSites(request.Filter.Sites);
+            var sites = await _mediator.Send(new GetSitesQuery(request.Filter.Sites));
 
             List<JobPostingSearchResult> results = new();
 
@@ -47,17 +47,6 @@ public record class SearchJobsFromMultipleSitesQuery(JobFilter Filter, int NumPa
                 .IgnoreCancellationException(Array.Empty<JobPostingSearchResult>());
         }
 
-        private IEnumerable<WebSite> GetSites(Site sites)
-        {
-            if(sites.HasFlag(Site.LinkedIn))
-            {
-                yield return new WebSite("LinkedIn", "https://www.linkedin.com/");
-            }
-
-            if (sites.HasFlag(Site.GoogleJobs))
-            {
-                yield return new WebSite("Google Jobs", "https://www.google.com/");
-            }
-        }
+        
     }
 }

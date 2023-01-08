@@ -1,5 +1,6 @@
 ﻿namespace GreatJorb.Tests.Features;
 
+[Category(TestType.UnitTest)]
 public class SetPropertyFromTextCommandTests
 {
     [Test]

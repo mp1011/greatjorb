@@ -39,7 +39,7 @@ public class GoogleJobsExtractor : IJobPostingExtractor
     private async Task<JobPosting> ExtractJob(IElementHandle element, WebSite site, IPage page, CancellationToken cancellationToken)
     {
         var lines = await element
-            .ExtractTextFromLeafNodes("div");
+            .ExtractTextFromLeafNodes("div,span");
        
         var jobPosting =  new JobPosting
         {

@@ -1,5 +1,6 @@
 ﻿namespace GreatJorb.Tests.Services;
 
+[Category(TestType.UnitTest)]
 public class LocalDataContextTests
 {
     public class TestModel : ILocalStorable

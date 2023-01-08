@@ -87,5 +87,7 @@
                 return errorReturn;
             }
         }
+
+        public static Task<T> AsTaskResult<T>(this T value) => Task.FromResult(value);
     }
 }

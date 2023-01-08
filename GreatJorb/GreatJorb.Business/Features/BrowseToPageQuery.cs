@@ -1,4 +1,6 @@
-﻿namespace GreatJorb.Business.Features;
+﻿using GreatJorb.Business.Services.Settings;
+
+namespace GreatJorb.Business.Features;
 
 public record class BrowseToPageQuery(string Url) : IRequest<IPage>
 {

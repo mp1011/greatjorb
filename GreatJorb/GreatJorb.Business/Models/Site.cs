@@ -6,5 +6,5 @@ public enum Site
     LinkedIn = 1,
 
     [Display(Name = "Google Jobs")]
-    GoogleJobs = 2
+    GoogleJobs = 2,
 }

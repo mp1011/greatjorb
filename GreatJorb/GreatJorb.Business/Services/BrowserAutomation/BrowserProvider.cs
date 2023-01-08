@@ -1,4 +1,6 @@
-﻿namespace GreatJorb.Business.Services.BrowserAutomation;
+﻿using GreatJorb.Business.Services.Settings;
+
+namespace GreatJorb.Business.Services.BrowserAutomation;
 
 public class BrowserProvider
 {

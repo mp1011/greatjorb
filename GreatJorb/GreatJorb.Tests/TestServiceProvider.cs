@@ -1,4 +1,6 @@
-﻿namespace GreatJorb.Tests;
+﻿using GreatJorb.Business.Services.Settings;
+
+namespace GreatJorb.Tests;
 
 public class TestServiceProvider : IDisposable
 {
@@ -46,6 +48,10 @@ public class TestServiceProvider : IDisposable
 
                if (includeDataContext)
                {
+                   if(File.Exists("test.db"))
+                   {
+                       File.Delete("test.db");
+                   }
                    sc.AddSingleton<LocalDataContextProvider>();
                }
            });

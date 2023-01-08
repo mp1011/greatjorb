@@ -332,6 +332,9 @@ public static class PuppeteerExtensions
         try
         {
             var result = await element.EvaluateFunctionAsync($"e => e.getAttribute('{attribute}')");
+            if (result == null)
+                return String.Empty;
+
             return result.ToString();
         }
         catch

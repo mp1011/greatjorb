@@ -18,12 +18,13 @@ public class JobPosting : ILocalStorable
 
     public string[] MiscProperties { get; set; } = Array.Empty<string>();
 
-    public JobPosting(string url)
+    public JobPosting(string url, string storageKey)
     {
         Uri = new Uri(url);
+        StorageKey = storageKey;
     }
 
-    public JobPosting()
+    public JobPosting() : this("https://none", "https://none")
     {
     }
 }

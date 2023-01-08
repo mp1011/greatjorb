@@ -1,5 +1,6 @@
 ﻿namespace GreatJorb.Tests.Features;
 
+[Category(TestType.UnitTest)]
 public class CacheCommandQueryTests
 {
     [Test]
@@ -31,12 +32,12 @@ public class CacheCommandQueryTests
          includePuppeteer: false,
          includeDataContext: true);
 
-        var fakeJobPosting = new JobPosting("https://www.google.com/FakeResult")
+        var fakeJobPosting = new JobPosting("https://www.google.com/FakeResult", "https://www.google.com/FakeResult")
         {
             DescriptionHtml = Guid.NewGuid().ToString(),
         };
 
-        var site = new WebSite("Test", "https://www.google.com");
+        var site = new WebSite("Test", "https://www.google.com",false);
 
         var cached = await serviceProvider.Mediator.Send(
             new AddJobResultToCacheCommand(site, fakeJobPosting));

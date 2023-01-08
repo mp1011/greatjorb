@@ -1,5 +1,6 @@
 ﻿namespace GreatJorb.Tests.Features;
 
+[Category(TestType.WebTest)]
 public class LoginQueryTests
 {
     [TestCase("LinkedIn", "https://www.linkedin.com/", "https://www.linkedin.com/feed")]

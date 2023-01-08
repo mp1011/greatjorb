@@ -1,18 +1,20 @@
-﻿using PuppeteerSharp;
-using System.IO;
+﻿using GreatJorb.Business.Services.Settings;
+using PuppeteerSharp;
 
 namespace GreatJorb.Tests;
 
 [SupportedOSPlatform("windows")]
-public class TestSettingsService : ISettingsService
+public class TestSettingsService : ISecureSettingsService
 {
     private readonly SettingsService _settingsService;
     private readonly IMediator _mediator;
+    private readonly IConfiguration _configuration;
 
-    public TestSettingsService(SettingsService settingsService, IMediator mediator)
+    public TestSettingsService(SettingsService settingsService, IConfiguration configuration, IMediator mediator)
     {
         _settingsService = settingsService;
         _mediator = mediator;
+        _configuration = configuration;
     }
 
     public string LocalStoragePath
@@ -28,12 +30,6 @@ public class TestSettingsService : ISettingsService
     public TimeSpan MinTimeBetweenRequests => _settingsService.MinTimeBetweenRequests;
 
     public bool UseHeadlessBrowser => _settingsService.UseHeadlessBrowser;
-
-    private string PromptUser(string prompt)
-    {
-        var task = Task.Run(async () => await PromptUserAsync(prompt));
-        return task.Result;
-    }
 
     private async Task<string> PromptUserAsync(string prompt)
     {
@@ -80,31 +76,74 @@ public class TestSettingsService : ISettingsService
         return text ?? "";
     }
 
-    public string GetSitePassword(WebSite site)
+    public async Task<string?> GetSitePassword(WebSite site)
     {
-        var pwd = _settingsService.GetSitePassword(site);
-        if(pwd.IsNullOrEmpty())
+        var pwd = await GetSecureText($"{site.Name}.Password");
+        if (pwd.IsNullOrEmpty())
         {
-            pwd = PromptUser("Enter Password for " + site.Name);
-            _settingsService.SetSitePassword(site, pwd);
+            pwd = await PromptUserAsync("Enter Password for " + site.Name);
+            await SetSitePassword(site, pwd);
         }
 
         return pwd;
     }
 
-    public string GetSiteUserName(WebSite site)
+    public async Task<string?> GetSiteUserName(WebSite site)
     {
-        var user = _settingsService.GetSiteUserName(site);
+        var user = await GetSecureText($"{site.Name}.UserName");
         if (user.IsNullOrEmpty())
         {
-            user = PromptUser("Enter Username for " + site.Name);
-            _settingsService.SetSiteUserName(site, user);
+            user = await PromptUserAsync("Enter Username for " + site.Name);
+            await SetSiteUserName(site, user);
         }
 
         return user;
     }
 
-    public void SetSitePassword(WebSite site, string value) => _settingsService.SetSitePassword(site, value);
+    public async Task SetSitePassword(WebSite site, string value) => await SetSecureText($"{site.Name}.Password", value);
 
-    public void SetSiteUserName(WebSite site, string value) => _settingsService.SetSiteUserName(site, value);
+    public async Task SetSiteUserName(WebSite site, string value) => await SetSecureText($"{site.Name}.UserName", value);
+
+
+    private Task<string> GetSecureText(string key)
+    {
+        if (key == null)
+            return string.Empty.AsTaskResult();
+
+        try
+        {
+            return SecureSettingsHelper
+                .ReadSecureText(key, _configuration[key]!)
+                .AsTaskResult();
+        }
+        catch
+        {
+            return string.Empty.AsTaskResult();
+        }
+    }
+
+    private Task SetSecureText(string key, string value)
+    {
+        var encryptedText = SecureSettingsHelper.EncryptText(key, value);
+
+#if DEBUG
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo();
+            psi.WorkingDirectory = Environment.CurrentDirectory.Substring(0, Environment.CurrentDirectory.IndexOf("\\bin"));
+            psi.FileName = "dotnet";
+            psi.Arguments = $"user-secrets set \"{key}\" \"{encryptedText}\"";
+
+            System.Diagnostics.Process
+                .Start(psi)
+                !.WaitForExit();
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+#endif
+
+        return Task.CompletedTask;
+    }
 }

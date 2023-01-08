@@ -1,4 +1,4 @@
 ﻿namespace GreatJorb.Business.Models
 {
-    public record class WebSite(string Name, string Url);
+    public record class WebSite(string Name, string Url, bool RequiresCredentials=true);
 }
