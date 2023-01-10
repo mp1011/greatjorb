@@ -31,6 +31,9 @@ public class LinkedInNavigator : IWebSiteNavigator
             .GetElementByInnerText("button", "show*results", cancellationToken, wildCardMatch: true)
             .ClickAsync();
 
+        //need a better way to wait for results
+        await Task.Delay(2000);
+
         return page;
     }
 

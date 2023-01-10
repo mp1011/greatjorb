@@ -323,6 +323,14 @@ public static class PuppeteerExtensions
         return await element.GetAttribute(attribute);
 
     }
+    public static async Task<bool?> GetBooleanAttribute(this IElementHandle? element, string attribute)
+    {
+        var attributeValue = await element.GetAttribute(attribute);
+        if (attributeValue.IsNullOrEmpty())
+            return null;
+
+        return attributeValue.Equals("true", StringComparison.OrdinalIgnoreCase);
+    }
 
     public static async Task<string> GetAttribute(this IElementHandle? element, string attribute)
     {
@@ -382,4 +390,17 @@ public static class PuppeteerExtensions
         return nextSibling;
     }
 
+    public static async Task<IElementHandle?> ParentElementAsync(this IElementHandle element, IPage page, CancellationToken cancellationToken)
+    {
+        return await element.EvaluateFunctionReturnElementAsync(page, "e.parentElement");
+    }
+
+    public static async Task<IElementHandle?> ParentElementAsync(this Task<IElementHandle?> elementTask, IPage page, CancellationToken cancellationToken)
+    {
+        var element = await elementTask;
+        if (element == null)
+            return null;
+
+        return await element.EvaluateFunctionReturnElementAsync(page, "e.parentElement");
+    }
 }

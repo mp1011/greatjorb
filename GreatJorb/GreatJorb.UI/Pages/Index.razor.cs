@@ -92,8 +92,7 @@ public partial class Index : IDisposable
     {
         await InvokeAsync(async () =>
         {
-            if (Postings.Any(p => p.Job.StorageKey == notification.Job.StorageKey))
-                return;
+            Postings.RemoveAll(p => p.Job.StorageKey == notification.Job.StorageKey);
 
             var keywordLines = await Mediator.Send(new ExtractKeywordLinesQuery(CurrentFilter.Query, notification.Job.DescriptionHtml));
 

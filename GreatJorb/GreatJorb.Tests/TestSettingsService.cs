@@ -6,11 +6,11 @@ namespace GreatJorb.Tests;
 [SupportedOSPlatform("windows")]
 public class TestSettingsService : ISecureSettingsService
 {
-    private readonly SettingsService _settingsService;
+    private readonly ISettingsService _settingsService;
     private readonly IMediator _mediator;
     private readonly IConfiguration _configuration;
 
-    public TestSettingsService(SettingsService settingsService, IConfiguration configuration, IMediator mediator)
+    public TestSettingsService(ISettingsService settingsService, IConfiguration configuration, IMediator mediator)
     {
         _settingsService = settingsService;
         _mediator = mediator;
@@ -30,6 +30,8 @@ public class TestSettingsService : ISecureSettingsService
     public TimeSpan MinTimeBetweenRequests => _settingsService.MinTimeBetweenRequests;
 
     public bool UseHeadlessBrowser => _settingsService.UseHeadlessBrowser;
+
+    public TimeSpan MaxCacheAge => TimeSpan.MaxValue;
 
     private async Task<string> PromptUserAsync(string prompt)
     {

@@ -30,6 +30,8 @@ public class SearchJobsQueryTests
     }
 
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 70000, WorkplaceType.OnSite)]
+    [TestCase("Google Jobs", "https://www.google.com/", "c#", 0, WorkplaceType.Remote)]
+
     public async Task CanSearchJobsWithFilters(string name, string url, string query, decimal salaryMin, WorkplaceType workplaceTypeFilter)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(
@@ -52,12 +54,14 @@ public class SearchJobsQueryTests
         var searchResult = await serviceProvider.Mediator.Send(
             new SearchJobsFromSiteQuery(loggedInPage.Data, filter, 1));
 
-
         Assert.IsNotEmpty(searchResult);
 
-        Assert.IsTrue(searchResult
-            .SelectMany(p => p.FilterMatches)
-            .Any(p => p.Field == nameof(JobFilter.Salary) && p.Level == FilterMatchLevel.PositiveMatch));
+        if (salaryMin > 0)
+        {
+            Assert.IsTrue(searchResult
+                .SelectMany(p => p.FilterMatches)
+                .Any(p => p.Field == nameof(JobFilter.Salary) && p.Level == FilterMatchLevel.PositiveMatch));
+        }
 
         Assert.IsTrue(searchResult
              .SelectMany(p => p.FilterMatches)

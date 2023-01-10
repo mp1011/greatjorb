@@ -4,9 +4,34 @@ public class GoogleJobsNavigator : IWebSiteNavigator
 {
     public string WebsiteName => "Google Jobs";
 
-    public Task<IPage> ApplyFilters(IPage page, JobFilter filter, CancellationToken cancellationToken)
+    public async Task<IPage> ApplyFilters(IPage page, JobFilter filter, CancellationToken cancellationToken)
     {
-        return Task.FromResult(page); //todo
+        if(filter.WorkplaceTypeFilter != WorkplaceType.Unknown)
+        {
+            await page
+                .GetElementByInnerText("span", "Location", cancellationToken)
+                .ClickAsync();
+
+            var workFromHomeButton = await page
+                .GetElementByInnerText("span", "Work from Home", cancellationToken)
+                .ParentElementAsync(page, cancellationToken)
+                .ParentElementAsync(page, cancellationToken);
+
+            if (workFromHomeButton != null)
+            {
+                bool isClicked = (await workFromHomeButton.GetBooleanAttribute("aria-pressed")).GetValueOrDefault();
+
+                if (isClicked != (filter.WorkplaceTypeFilter == WorkplaceType.Remote))
+                {
+                    await workFromHomeButton.ClickAsync();
+
+                    //need a better way to wait for results
+                    await Task.Delay(2000);
+                }
+            }
+        }
+
+        return page;
     }
 
     public Task<IElementHandle?> GetLoginButton(IPage page, CancellationToken cancellationToken)

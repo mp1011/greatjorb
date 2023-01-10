@@ -71,10 +71,17 @@ public static class StringExtensions
 
     public static decimal? TryParseCurrency(this string text)
     {
+        decimal multiply = 1.0m;
+
+        if(text.EndsWith("K", StringComparison.OrdinalIgnoreCase))
+        {
+            text = text.Substring(0, text.Length - 1);
+            multiply = 1000.0m;
+        }
         text = text.Replace("$", "");
         decimal result;
         if (decimal.TryParse(text, out result))
-            return result;
+            return result * multiply;
         else
             return null;
     }

@@ -84,27 +84,11 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
             .GetInnerTextAsync(".jobs-unified-top-card__workplace-type")
             .TryParseEnumAdvanced<WorkplaceType>();
 
-        if(insights.Any())
+        foreach(string insight in insights)
         {
-            string[] insightsElements = insights[0].Split(" · ", StringSplitOptions.TrimEntries);
-            if (insightsElements.Length >= 2)
-            {
-                posting.JobType = insightsElements[^2].TryParseEnumAdvanced(JobType.Unknown);
-                posting.JobLevel = insightsElements[^1].TryParseEnumAdvanced(JobLevel.Unknown);
-            }
-
-            foreach(var element in insightsElements)
-            {
-                var salaryFromElement = await _mediator.Send(new ParseSalaryQuery(element));
-                if(salaryFromElement.Min != null || salaryFromElement.Max != null)
-                {
-                    posting.SalaryMin = salaryFromElement.Min;
-                    posting.SalaryMax = salaryFromElement.Max;
-                    posting.SalaryType = salaryFromElement.SalaryType;
-                }
-            }
+            await _mediator.Send(new SetPropertiesFromTextCommand(posting, insight));
         }
-
+        
         posting.DescriptionHtml = description;
 
         posting.MiscProperties = metaData

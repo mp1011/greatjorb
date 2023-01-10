@@ -22,6 +22,10 @@ public class SettingsService : ISettingsService
 
     public int MaxNavigationRetries => _configuration[nameof(MaxNavigationRetries)].TryParseIntOrDefault().GetValueOrDefault();
 
+    public int MaxCacheAgeHours => _configuration[nameof(MaxCacheAgeHours)].TryParseInt(24);
+
+    public TimeSpan MaxCacheAge => TimeSpan.FromHours(MaxCacheAgeHours);
+
     public TimeSpan WaitAfterFailedNavigate => GetTimeConfig(nameof(WaitAfterFailedNavigate), 15000);
 
     public TimeSpan MinTimeBetweenRequests => GetTimeConfig(nameof(MinTimeBetweenRequests), 5);

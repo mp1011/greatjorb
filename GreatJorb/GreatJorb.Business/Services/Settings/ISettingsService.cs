@@ -6,5 +6,6 @@ public interface ISettingsService
     int MaxNavigationRetries { get; }
     TimeSpan WaitAfterFailedNavigate { get; }
     TimeSpan MinTimeBetweenRequests { get; }
+    TimeSpan MaxCacheAge { get; }
     public bool UseHeadlessBrowser { get; }
 }

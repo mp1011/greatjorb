@@ -6,11 +6,14 @@ public record SearchJobsFromSiteCachedQuery(WebSite Site, JobFilter Filter) : IR
     {
         private readonly LocalDataContextProvider _contextProvider;
         private readonly IMediator _mediator;
+        private readonly ISettingsService _settingsService;
 
-        public Handler(LocalDataContextProvider contextProvider, IMediator mediator)
+        public Handler(LocalDataContextProvider contextProvider, IMediator mediator, ISettingsService settingsService)
         {
             _contextProvider = contextProvider;
             _mediator = mediator;
+            _settingsService = settingsService;
+
         }
 
         public async Task<JobPostingSearchResult[]> Handle(SearchJobsFromSiteCachedQuery request, CancellationToken cancellationToken)
@@ -18,6 +21,12 @@ public record SearchJobsFromSiteCachedQuery(WebSite Site, JobFilter Filter) : IR
             using var context = _contextProvider.GetContext();
 
             var cachedHeaders = await context.Retrieve<JobPostingCacheHeader>(p => p.SiteUrl == request.Site.Url);
+
+            cachedHeaders = cachedHeaders
+                .Where(p => p.CacheDate.TimeSince() <= _settingsService.MaxCacheAge)
+                .ToArray();
+
+
             var cachedJobs = await context.Retrieve<JobPosting>(cachedHeaders.Select(p => p.StorageKey));
 
             List<JobPostingSearchResult> results = new();

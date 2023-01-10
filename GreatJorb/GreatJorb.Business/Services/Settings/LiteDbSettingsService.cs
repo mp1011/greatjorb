@@ -24,6 +24,8 @@ public class LiteDbSettingsService : ISecureSettingsService
 
     public TimeSpan MinTimeBetweenRequests => _configSettings.MinTimeBetweenRequests;
 
+    public TimeSpan MaxCacheAge => _configSettings.MaxCacheAge;
+
     public bool UseHeadlessBrowser => _configSettings.UseHeadlessBrowser;
 
     public async Task<string?> GetSitePassword(WebSite site)

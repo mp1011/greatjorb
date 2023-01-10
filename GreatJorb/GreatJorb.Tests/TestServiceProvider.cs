@@ -27,8 +27,8 @@ public class TestServiceProvider : IDisposable
                 #pragma warning disable CA1416
                 if (includeConfiguration)
                 {
-                    sc.AddSingleton<SettingsService>();
-                    sc.AddSingleton<ISettingsService, TestSettingsService>();
+                    sc.AddSingleton<ISettingsService, SettingsService>();
+                    sc.AddSingleton<ISecureSettingsService, TestSettingsService>();
                 }               
                 #pragma warning restore CA1416
 

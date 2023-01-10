@@ -15,8 +15,7 @@ public record LoadFiltersFromCacheQuery() : IRequest<JobFilterCacheResult[]>
         {
             using var context = _contextProvider.GetContext();
 
-            var headers = await context.Retrieve<JobFilterCacheHeader>(p => true);
-
+            var headers = await context.Retrieve<JobFilterCacheHeader>(p => true);         
             List<JobFilterCacheResult> results = new();
 
             foreach(var header in headers)

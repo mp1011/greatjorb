@@ -4,27 +4,30 @@ public record TryParsePropertyFromTextQuery(string Text) : IRequest<TextParseRes
 {
     public class Handler : IRequestHandler<TryParsePropertyFromTextQuery, TextParseResult[]>
     {
+        private readonly IMediator _mediator;
         private Dictionary<string, TextParseResult> _specialMatches = new();
 
 
-        public Handler()
+        public Handler(IMediator mediator)
         {
+            _mediator = mediator;
             _specialMatches["contractor"] = CreateResult(nameof(JobPosting.JobType), JobType.Contract);
             _specialMatches["work from home"] = CreateResult(nameof(JobPosting.WorkplaceType), WorkplaceType.Remote);
             _specialMatches["remote-eligible"] = CreateResult(nameof(JobPosting.WorkplaceType), WorkplaceType.Remote);
 
         }
 
-        public Task<TextParseResult[]> Handle(TryParsePropertyFromTextQuery request, CancellationToken cancellationToken)
+        public async Task<TextParseResult[]> Handle(TryParsePropertyFromTextQuery request, CancellationToken cancellationToken)
         {
             List<TextParseResult> results = new();
 
             foreach(var textToSearch in GetTextToSearch(request.Text))
             {
                 results.AddRange(TryParseText(textToSearch));
+                results.AddRange(await TryParseSalary(textToSearch));
             }
-            
-            return Task.FromResult(results.ToArray());
+
+            return results.ToArray();
         }
 
         private IEnumerable<string> GetTextToSearch(string requestText)
@@ -36,6 +39,17 @@ public record TryParsePropertyFromTextQuery(string Text) : IRequest<TextParseRes
             if (textInParens.Success)
             {
                 yield return textInParens.Groups[1].Value;
+            }
+
+            var splitByDot = requestText
+                .Split('·')
+                .Select(p => p.Trim())
+                .ToArray();
+
+            if(splitByDot.Length > 1)
+            {
+                foreach (var item in splitByDot)
+                    yield return item;
             }
         }
 
@@ -59,32 +73,26 @@ public record TryParsePropertyFromTextQuery(string Text) : IRequest<TextParseRes
 
             var specialMatch = _specialMatches.GetValueOrDefault(text.ToLower().Trim());
             if (specialMatch != null)
-                yield return new TextParseResult(text, specialMatch.JobInfoProperty, specialMatch.ParsedValue);
-
-
-            var maybeSalary = Regex.Match(text, @"(\$?)(\d+)(K?)(\sto\s|-|–|—)(\$?)(\d+)K(.*)", RegexOptions.IgnoreCase);
-
-            if (maybeSalary.Success)
-            {
-                int[] values = new[]
-                {
-                    maybeSalary.Groups[2].Value.TryParseInt(0),
-                    maybeSalary.Groups[6].Value.TryParseInt(0)
-                }.OrderBy(p => p).ToArray();
-
-                string type = maybeSalary.Groups[3].Value;
-
-                if (type.Contains("year"))
-                    yield return CreateResult(text, nameof(JobPosting.SalaryType), SalaryType.Annual);
-
-                if (values[0] > 0)
-                    yield return CreateResult(text, nameof(JobPosting.SalaryMin), values[0] * 1000.0m);
-
-                if (values[1] > 0)
-                    yield return CreateResult(text, nameof(JobPosting.SalaryMax), values[1] * 1000.0m);
-            }
+                yield return new TextParseResult(text, specialMatch.JobInfoProperty, specialMatch.ParsedValue); 
         }
 
+        private async Task<IEnumerable<TextParseResult>> TryParseSalary(string text)
+        {
+            List<TextParseResult> results = new();
+
+            var maybeSalary = await _mediator.Send(new ParseSalaryQuery(text));
+
+            if (maybeSalary.Min.HasValue)
+                results.Add(CreateResult(text, nameof(JobPosting.SalaryMin), maybeSalary.Min.Value));
+
+            if (maybeSalary.Max.HasValue)
+                results.Add(CreateResult(text, nameof(JobPosting.SalaryMax), maybeSalary.Max.Value));
+
+            if (maybeSalary.SalaryType != SalaryType.Unknown)
+                results.Add(CreateResult(text, nameof(JobPosting.SalaryType), maybeSalary.SalaryType));
+
+            return results;
+        }
 
         private TextParseResult CreateResult(string text, string propertyName, object value)
         {
