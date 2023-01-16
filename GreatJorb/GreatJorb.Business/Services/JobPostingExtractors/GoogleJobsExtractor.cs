@@ -54,14 +54,23 @@ public class GoogleJobsExtractor : IJobPostingExtractor
         }
 
         await element.ClickAsync();
+        await Task.Delay(200);
 
-        var jobDescriptionHeading = await page.GetElementByInnerText("div", "Job Description", cancellationToken);
-        if (jobDescriptionHeading == null)
-            return jobPosting;
+        var viewportSize = await page.GetViewportSize();
 
-        jobPosting.DescriptionHtml = await jobDescriptionHeading
-            .NextElementAsync(page, cancellationToken)
-            .GetInnerHTML();
+        var jobDescriptionArea = await page
+                .GetElementByPoint(0.7, 0.7)
+                .GetAncestor(page, async p =>
+                {
+                    var bounds = await p.BoundingBoxAsync();
+                    return (double)bounds.Height > viewportSize.Height * 0.5;
+                }, cancellationToken);
+
+        if (jobDescriptionArea != null)
+        {
+            jobPosting.DescriptionHtml = await jobDescriptionArea
+                .GetInnerHTML();
+        }
 
         jobPosting.Uri = new Uri(page.Url);
         jobPosting.StorageKey = page.Url;

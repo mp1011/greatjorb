@@ -300,6 +300,68 @@ public static class PuppeteerExtensions
         }
     }
 
+
+    public static async Task<Size> GetViewportSize(this IPage page)
+    {
+        var viewportWidth = await page.EvaluateFunctionAsync<int>("e => window.innerWidth");
+        var viewportHeight = await page.EvaluateFunctionAsync<int>("e => window.innerHeight");
+
+        return new(viewportWidth, viewportHeight);
+    }
+
+    public static async Task<IElementHandle?> GetElementByPoint(this IPage page, double pctX, double pctY)
+    {
+        var viewportSize = await page.GetViewportSize();
+        var pixelX = viewportSize.Width * pctX;
+        var pixelY = viewportSize.Height * pctY;
+
+        var elementAtPoint = await page.EvaluateFunctionReturnElementAsync($"document.elementFromPoint({pixelX},{pixelY})");
+        return elementAtPoint;
+    }
+
+    /// <summary>
+    /// Returns the first ancestor that matches the given condition
+    /// </summary>
+    /// <param name="element"></param>
+    /// <param name="condition"></param>
+    /// <returns></returns>
+    public static async Task<IElementHandle?> GetAncestor(this IElementHandle? element, 
+        IPage page,
+        Func<IElementHandle, Task<bool>> condition, 
+        CancellationToken cancellationToken)
+    {
+
+        while (element != null)
+        {
+            if (await condition(element))
+                return element;
+
+            element = await element.ParentElementAsync(page, cancellationToken);
+        }
+
+        return null;
+    }
+
+
+    /// <summary>
+    /// Returns the first ancestor that matches the given condition
+    /// </summary>
+    /// <param name="element"></param>
+    /// <param name="condition"></param>
+    /// <returns></returns>
+    public static async Task<IElementHandle?> GetAncestor(this Task<IElementHandle?> elementTask,
+        IPage page,
+        Func<IElementHandle, Task<bool>> condition,
+        CancellationToken cancellationToken)
+    {
+        var element = await elementTask;
+        if (element == null)
+            return null;
+        else 
+            return await element.GetAncestor(page, condition, cancellationToken);
+    }
+
+
     public static async Task<string> GetInnerHTML(this IElementHandle? element, IPage page)
     {
         if (element == null)
@@ -314,6 +376,7 @@ public static class PuppeteerExtensions
             return string.Empty;
         }
     }
+
     public static async Task<string> GetAttribute(this Task<IElementHandle?> elementTask, string attribute)
     {
         var element = await elementTask;
@@ -351,6 +414,13 @@ public static class PuppeteerExtensions
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="element"></param>
+    /// <param name="page"></param>
+    /// <param name="jsFunction">Example: e.myFunction()</param>
+    /// <returns></returns>
     public static async Task<IElementHandle?> EvaluateFunctionReturnElementAsync(this IElementHandle element, IPage page, string jsFunction)
     {
         var elementId = await element.EvaluateFunctionAsync<string>(@"e => { 
@@ -372,6 +442,35 @@ public static class PuppeteerExtensions
         return await page.QuerySelectorAsync("#" + elementId);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="jsFunction">Example: "document.getElementById('123')</param>
+    /// <returns></returns>
+    public static async Task<IElementHandle?> EvaluateFunctionReturnElementAsync(this IPage page, string jsFunction)
+    {
+        var elementId = await page.EvaluateFunctionAsync<string>(@"e => { 
+                var element = " + jsFunction + @";
+
+                if(!element)
+                {
+                    return '';
+                }
+
+                if(!element.id)
+                {
+                    element.id = '" + "dummy" + Guid.NewGuid().ToString() + @"';
+                }
+
+                return element.id;
+            }");
+
+        if (elementId.IsNullOrEmpty())
+            return null;
+
+        return await page.QuerySelectorAsync("#" + elementId);
+    }
 
     public static async Task<IElementHandle?> NextElementAsync(this IElementHandle element, IPage page, CancellationToken cancellationToken)
     {
@@ -402,5 +501,25 @@ public static class PuppeteerExtensions
             return null;
 
         return await element.EvaluateFunctionReturnElementAsync(page, "e.parentElement");
+    }
+
+    public static async Task WaitForDOMIdle(this IPage page, CancellationToken cancellationToken)
+    {
+        DateTime start = DateTime.Now;
+
+        var body = await page.QuerySelectorAsync("body");
+        var html = await body.GetInnerHTML();
+
+        while(!cancellationToken.IsCancellationRequested)
+        {
+            await Task.Delay(1000);
+            var newHtml = await body.GetInnerHTML();
+            if(newHtml.Equals(html))
+            {
+                return;
+            }
+
+            html = newHtml;
+        }
     }
 }

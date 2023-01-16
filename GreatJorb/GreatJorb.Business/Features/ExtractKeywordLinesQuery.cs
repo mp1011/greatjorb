@@ -19,7 +19,12 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
                 .Where(p => p.InnerText.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase))
                 .Select(p => CleanUpLine(p.InnerText))
                 .Union(ExtractBullets(request.Html, request.Keyword))
+                .Where(p=>p.Length < 100)
                 .Distinct()
+                .ToArray();
+
+            keywordLines = keywordLines
+                .Where(p => !keywordLines.Any(q => q != p && p.Contains(q, StringComparison.OrdinalIgnoreCase)))
                 .ToArray();
 
             return Task.FromResult(keywordLines);
@@ -40,9 +45,12 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
                 if (endIndex == -1)
                     endIndex = html.Length;
 
-                var line = html.Substring(index + 1, (endIndex - index)-1).Trim();
+                var line = html
+                    .Substring(index + 1, (endIndex - index)-1)
+                    .Trim();
+
                 if (line.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                    yield return line.Trim();
+                    yield return line;
 
                 index = endIndex;
             }

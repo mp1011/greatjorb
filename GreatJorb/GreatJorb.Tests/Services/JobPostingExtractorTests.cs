@@ -20,7 +20,7 @@ internal class JobPostingExtractorTests
         var results = await extractor.ExtractJobsFromPage(
             page,
             1,
-            new WebSite("Google", "https://www.googlecom"),
+            new WebSite("Google", "https://www.google.com"),
             new CancellationToken(),
             new JobFilter(),
             PageSize: 3);
@@ -31,5 +31,10 @@ internal class JobPostingExtractorTests
         Assert.That(results[0]!.DescriptionHtml!.Contains("C#"));
         Assert.AreEqual("C# Developer", results[2].Title);
 
+        var keywordLines = await serviceProvider.Mediator.Send(
+                new ExtractKeywordLinesQuery("c#", results[0].DescriptionHtml ?? ""));
+
+        Assert.AreEqual("Expert (5 Years of recent hands on experience) in .Net, C# Expert (4 Years of recent hands on",
+            keywordLines[0]);
     }
 }

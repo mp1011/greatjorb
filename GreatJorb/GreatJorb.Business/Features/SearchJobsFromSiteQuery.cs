@@ -30,14 +30,20 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int Pag
             cancellationToken.ThrowIfCancellationRequested();
 
             IPage? page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, request.PageNumber, cancellationToken);
+            
+            await page.WaitForDOMIdle(cancellationToken);
 
             page = await navigator.ApplyFilters(page, request.Filter, cancellationToken)
                 .NotifyError(page, _mediator);
 
-            jobs.AddRange(await extractor
-                .ExtractJobsFromPage(page, request.PageNumber, request.WebPage.Site, cancellationToken, request.Filter)
-                .NotifyError(page, _mediator, Array.Empty<JobPosting>()));
-            
+            await page.WaitForDOMIdle(cancellationToken);
+
+            if (page != null)
+            {
+                jobs.AddRange(await extractor
+                    .ExtractJobsFromPage(page, request.PageNumber, request.WebPage.Site, cancellationToken, request.Filter)
+                    .NotifyError(page, _mediator, Array.Empty<JobPosting>()));
+            }
 
             List<JobPostingSearchResult> results = new();
             foreach(var job in jobs)
