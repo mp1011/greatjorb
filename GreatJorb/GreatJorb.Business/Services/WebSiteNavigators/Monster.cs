@@ -9,9 +9,9 @@ public class MonsterNavigator : IWebSiteNavigator
         throw new NotImplementedException();
     }
 
-    public Task<IElementHandle?> GetLoginButton(IPage page, CancellationToken cancellationToken)
+    public async Task<IElementHandle?> GetLoginButton(IPage page, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return await page.QuerySelectorAsync("button[type='submit']");
     }
 
     public async Task<IElementHandle?> GetLoginElement(IPage page, CancellationToken cancellationToken)
@@ -41,8 +41,15 @@ public class MonsterNavigator : IWebSiteNavigator
         return loginButton != null;
     }
 
-    public Task WaitUntilLoggedIn(IPage page, CancellationToken cancellationToken)
+    public async Task WaitUntilLoggedIn(IPage page, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var profile = page.GetElementLabelledBy("Profile", cancellationToken);
+            if (profile != null)
+                return;
+
+            await Task.Delay(100);
+        }
     }
 }

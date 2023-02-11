@@ -1,6 +1,4 @@
-﻿using GreatJorb.Business.Services.Settings;
-
-namespace GreatJorb.Business.Features;
+﻿namespace GreatJorb.Business.Features;
 
 public record class BrowseToPageQuery(string Url) : IRequest<IPage>
 {
@@ -22,10 +20,10 @@ public record class BrowseToPageQuery(string Url) : IRequest<IPage>
             IBrowser browser = await _browserProvider
                 .GetBrowser();
 
-            IPage page = new BrowserAutomation(await browser.NewPageAsync(), _mediator, _settingsService);
+            BrowserAutomation page = new BrowserAutomation(browser, _mediator, _settingsService);
 
-            await page.GoToAsync(request.Url);
-
+            await page.LoadInitialPage(request.Url, cancellationToken);
+           
             return page;
         }
     }

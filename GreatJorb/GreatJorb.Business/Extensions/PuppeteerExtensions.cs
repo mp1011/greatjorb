@@ -699,6 +699,9 @@ public static class PuppeteerExtensions
         while(!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(1000);
+
+            body = await page.QuerySelectorAsync("body");
+    
             var newHtml = await body.GetInnerHTML();
             if(newHtml.Equals(html))
             {

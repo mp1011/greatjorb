@@ -4,20 +4,32 @@ public class BrowserAutomation : IPage
 {
     private readonly IMediator _mediator;
     private readonly ISettingsService _settings;
-    private readonly IPage _page;
+    private readonly IBrowser _browser;
 
+    private IPage? _page;
 
     public DateTime LastRequestTime { get; set; }
 
-    public BrowserAutomation(IPage page, IMediator mediator, ISettingsService settingsService)
+    public BrowserAutomation(IBrowser browser, IMediator mediator, ISettingsService settingsService)
     {
         _mediator = mediator;
         _settings = settingsService;
-        _page = page;
+        _browser = browser;
+    }
+
+    private IPage LoadedPage => _page ?? throw new Exception("Page has not been initialized");
+
+    public async Task<IResponse> LoadInitialPage(string url, CancellationToken cancellationToken)
+    {
+        _page = await _browser.NewPageAsync();            
+        var result = await GoToAsync(url);
+        await _page.WaitForDOMIdle(cancellationToken);
+        return result;                     
     }
 
     public async Task<IResponse> GoToAsync(string url, int? timeout = null, WaitUntilNavigation[]? waitUntil = null)
     {
+        Exception? lastError = null;
         int tries = _settings.MaxNavigationRetries;
 
         while(tries > 0)
@@ -25,19 +37,23 @@ public class BrowserAutomation : IPage
             try
             {
                 return await _page.GoToAsync(url, timeout, waitUntil);
-            }
-            catch
+            }            
+            catch(Exception e)
             {
+                lastError = e;
                 await Task.Delay(100);
                 tries--;
             }
         }
 
-        throw new Exception("Failed to navigate");
+        System.Diagnostics.Debug.WriteLine("Error, Frames = " + _page.Frames.Count());
+
+        throw lastError ?? new Exception("Failed to navigate");
     }
 
     public async Task<IResponse> GoToAsync(string url, NavigationOptions options)
     {
+        Exception? lastError = null;
         int tries = _settings.MaxNavigationRetries;
 
         while (tries > 0)
@@ -46,19 +62,21 @@ public class BrowserAutomation : IPage
             {
                 return await _page.GoToAsync(url, options);
             }
-            catch
+            catch (Exception e)
             {
+                lastError = e;
                 await Task.Delay(100);
                 tries--;
             }
         }
 
 
-        throw new Exception("Failed to navigate");
+        throw lastError ?? new Exception("Failed to navigate");
     }
 
     public async Task<IResponse> GoToAsync(string url, WaitUntilNavigation waitUntil)
     {
+        Exception? lastError = null;
         int tries = _settings.MaxNavigationRetries;
 
         while (tries > 0)
@@ -67,14 +85,15 @@ public class BrowserAutomation : IPage
             {
                 return await _page.GoToAsync(url, waitUntil);
             }
-            catch
+            catch (Exception e)
             {
+                lastError = e;
                 await Task.Delay(100);
                 tries--;
             }
         }
 
-        throw new Exception("Failed to navigate");
+        throw lastError ?? new Exception("Failed to navigate");
     }
 
     #region IPage implementaion
