@@ -5,6 +5,65 @@ public static class PuppeteerExtensions
     private static TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
 
 
+    public static async Task<IElementHandle?> WaitForSelectorSafeAsync(this IPage page, string selector, 
+        CancellationToken cancellationToken,
+        bool retryUntilFound=false)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                return await page.WaitForSelectorAsync(selector, new WaitForSelectorOptions { Timeout = 5000 });
+            }
+            catch(WaitTaskTimeoutException)
+            {
+                if (!retryUntilFound)
+                    throw;
+
+                await Task.Delay(100);
+            }
+            catch(Exception e)
+            {
+                if (e.Message == "Execution context was destroyed, most likely because of a navigation.")
+                {
+                    await Task.Delay(100);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static async Task<IElementHandle[]> QuerySelectorAllSafeAsync(this IPage page, 
+        string selector, 
+        CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                return await page.QuerySelectorAllAsync(selector);
+            }
+            catch (Exception e)
+            {
+                if (e.Message.Contains("session closed", StringComparison.OrdinalIgnoreCase))
+                {
+                    await Task.Delay(100);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static async Task<string[]> ExtractTextFromLeafNodes(this IElementHandle element, string selector)
     {
         var elements = await element
@@ -29,15 +88,18 @@ public static class PuppeteerExtensions
         return lines.ToArray();
     }
 
-    public static async Task<IElementHandle?> GetElementByInnerText(this IPage page, 
+    public static async Task<IElementHandle?> GetElementByInnerText(this IElementHandle page, 
         string selector, 
         string innerText, 
         CancellationToken cancellationToken, 
-        bool wildCardMatch=false)
+        bool wildCardMatch=false,
+        TimeSpan? timeout=null)
     {
+        timeout ??= DefaultTimeout;
+
         DateTime begin = DateTime.Now;
 
-        while (begin.TimeSince() <= DefaultTimeout)
+        while (begin.TimeSince() <= timeout)
         {
             var elements = await page
                 .QuerySelectorAllAsync(selector)
@@ -55,6 +117,117 @@ public static class PuppeteerExtensions
                 else if (elementText.Equals(innerText, StringComparison.OrdinalIgnoreCase))
                     return item;
             }
+        }
+
+        return null;
+    }
+
+    public static async Task<IElementHandle?> GetElementByJavascript(this IPage page, string js)
+    {
+        try
+        {
+            return await page.EvaluateExpressionHandleAsync(js) as IElementHandle;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public static async Task<IElementHandle?> GetElementByInnerText(this IPage page,
+        string selector,
+        string innerText,
+        CancellationToken cancellationToken,
+        bool wildCardMatch = false,
+        bool includeHidden = false)
+    {
+        DateTime begin = DateTime.Now;
+
+        while (begin.TimeSince() <= DefaultTimeout)
+        {
+            var elements = await page
+                .QuerySelectorAllSafeAsync(selector, cancellationToken);
+
+            if(!includeHidden)
+                elements = await elements.VisibleOnly();
+
+            foreach (var item in elements)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                string elementText = await item.GetInnerText();
+                elementText = elementText.Trim();
+
+                if (wildCardMatch && elementText.IsWildcardMatch(innerText))
+                    return item;
+                else if (elementText.Equals(innerText, StringComparison.OrdinalIgnoreCase))
+                    return item;
+            }
+        }
+
+        return null;
+    }
+
+    public static async Task NavigateMenus(this IPage page, CancellationToken cancellationToken, string menuSelector, params string[] menuText)
+    {
+        IElementHandle? lastMenu = null;
+
+        foreach(var menu in menuText)
+        {
+            var element = await page.GetElementByInnerText(menuSelector, menu, cancellationToken);
+
+            if(element == null && lastMenu != null)
+            {
+                await lastMenu.ClickAsync();
+            }
+            else if(element != null)
+            {
+                await element.ClickAsync();
+            }
+
+            lastMenu = element;
+        }
+    }
+
+
+    public static async Task<bool> WaitForManualCaptcha(this IPage page, CancellationToken cancellationToken)
+    {
+        await Task.Delay(500);
+
+        var captchaFrame = await page.GetCaptchaFrame(cancellationToken);
+
+        if (captchaFrame == null)
+            return false;
+
+        var captchaResponse = await captchaFrame.GetAttribute("data-hcaptcha-response");
+
+        while(!cancellationToken.IsCancellationRequested
+            && captchaResponse.IsNullOrEmpty())
+        {
+            await Task.Delay(100);
+            captchaResponse = await captchaFrame.GetAttribute("data-hcaptcha-response");
+        }
+
+        return true;
+    }
+
+    public static async Task<IElementHandle?> GetCaptchaFrame(this IPage page, CancellationToken cancellationToken)
+    {
+        var frames = await page.QuerySelectorAllAsync("iframe");
+
+        if (cancellationToken.IsCancellationRequested)
+            return null;
+
+        foreach (var frame in frames)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return null;
+
+            var url = await frame.GetAttribute("src");
+            if (!url.Contains("captcha", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            return frame;
         }
 
         return null;
@@ -184,6 +357,19 @@ public static class PuppeteerExtensions
         List<IElementHandle> visibleElements = new();
 
         var elements = await elementsTask;
+        foreach (var element in elements)
+        {
+            var visible = await element.CheckVisible();
+            if (visible)
+                visibleElements.Add(element);
+        }
+        return visibleElements.ToArray();
+    }
+
+    public static async Task<IElementHandle[]> VisibleOnly(this IElementHandle[] elements)
+    {
+        List<IElementHandle> visibleElements = new();
+
         foreach (var element in elements)
         {
             var visible = await element.CheckVisible();

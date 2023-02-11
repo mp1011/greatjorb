@@ -13,7 +13,7 @@ public record GetNavigatorQuery(WebSite Site) : IRequest<IWebSiteNavigator?>
 
         public Task<IWebSiteNavigator?> Handle(GetNavigatorQuery request, CancellationToken cancellationToken)
         {
-            var navigator = _webSiteNavigators.FirstOrDefault(p => p.WebsiteName == request.Site.Name);
+            var navigator = _webSiteNavigators.FirstOrDefault(p => p.Website.GetDisplayName() == request.Site.Name);
             return Task.FromResult(navigator);
         }
     }

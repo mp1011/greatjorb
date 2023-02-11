@@ -1,56 +1,4 @@
-﻿using GreatJorb.Business.Services.Settings;
-
-namespace GreatJorb.Business.Services.BrowserAutomation;
-
-public static class BrowserAutomationExtensions
-{
-    public static async Task<IResponse> RetryIfFailed(this Task<IResponse> navigationTask, BrowserAutomation page, IMediator mediator, ISettingsService settings)
-    {
-        int attempts = 0;
-        while (attempts < settings.MaxNavigationRetries)
-        {
-            try
-            {
-                var timeSinceLastRequest = DateTime.Now - page.LastRequestTime;
-
-                var waitTime = settings.MinTimeBetweenRequests - timeSinceLastRequest;
-                if(waitTime.TotalMilliseconds >= 0)
-                {
-                    await Task.Delay(waitTime);
-                }
-
-                page.LastRequestTime = DateTime.Now;
-                var result = await navigationTask;
-
-                await mediator.Publish(new BrowserPageChanged(page));
-
-                return result;
-
-            }
-            catch (NavigationException e)
-            {
-                if (attempts < settings.MaxNavigationRetries)
-                {
-                    attempts++;
-                    await mediator.Publish(new BrowserPageChanged(page, e.Url, BrowserAction.FailedNavigationRetrying, e));
-                    await Task.Delay(settings.WaitAfterFailedNavigate);
-                }
-                else
-                {
-                    await mediator.Publish(new BrowserPageChanged(page, e.Url, BrowserAction.FatalError, e));
-                    throw;
-                }
-            }
-            catch(Exception e)
-            {
-                await mediator.Publish(new BrowserPageChanged(page, "", BrowserAction.FatalError, e));
-                throw;
-            }
-        }
-
-        throw new Exception("Failed to navigate");
-    }
-}
+﻿namespace GreatJorb.Business.Services.BrowserAutomation;
 
 public class BrowserAutomation : IPage
 {
@@ -70,23 +18,63 @@ public class BrowserAutomation : IPage
 
     public async Task<IResponse> GoToAsync(string url, int? timeout = null, WaitUntilNavigation[]? waitUntil = null)
     {
-        return await _page
-            .GoToAsync(url, timeout, waitUntil)
-            .RetryIfFailed(this, _mediator, _settings);            
+        int tries = _settings.MaxNavigationRetries;
+
+        while(tries > 0)
+        {
+            try
+            {
+                return await _page.GoToAsync(url, timeout, waitUntil);
+            }
+            catch
+            {
+                await Task.Delay(100);
+                tries--;
+            }
+        }
+
+        throw new Exception("Failed to navigate");
     }
 
     public async Task<IResponse> GoToAsync(string url, NavigationOptions options)
     {
-        return await _page
-            .GoToAsync(url, options)
-            .RetryIfFailed(this, _mediator, _settings);
+        int tries = _settings.MaxNavigationRetries;
+
+        while (tries > 0)
+        {
+            try
+            {
+                return await _page.GoToAsync(url, options);
+            }
+            catch
+            {
+                await Task.Delay(100);
+                tries--;
+            }
+        }
+
+
+        throw new Exception("Failed to navigate");
     }
 
     public async Task<IResponse> GoToAsync(string url, WaitUntilNavigation waitUntil)
     {
-        return await _page
-            .GoToAsync(url, waitUntil)
-            .RetryIfFailed(this, _mediator, _settings);
+        int tries = _settings.MaxNavigationRetries;
+
+        while (tries > 0)
+        {
+            try
+            {
+                return await _page.GoToAsync(url, waitUntil);
+            }
+            catch
+            {
+                await Task.Delay(100);
+                tries--;
+            }
+        }
+
+        throw new Exception("Failed to navigate");
     }
 
     #region IPage implementaion

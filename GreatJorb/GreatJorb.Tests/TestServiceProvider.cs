@@ -41,6 +41,10 @@ public class TestServiceProvider : IDisposable
 
                    sc.AddSingleton<IWebSiteNavigator, LinkedInNavigator>();
                    sc.AddSingleton<IWebSiteNavigator, GoogleJobsNavigator>();
+                   sc.AddSingleton<IWebSiteNavigator, IndeedNavigator>();
+                   sc.AddSingleton<IWebSiteNavigator, SimplyHiredNavigator>();
+                   sc.AddSingleton<IWebSiteNavigator, DiceNavigator>();
+                   sc.AddSingleton<IWebSiteNavigator, MonsterNavigator>();
 
                    sc.AddSingleton<IJobPostingExtractor, LinkedInJobPostingExtractor>();
                    sc.AddSingleton<IJobPostingExtractor, GoogleJobsExtractor>();

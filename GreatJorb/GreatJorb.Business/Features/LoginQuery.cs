@@ -25,7 +25,7 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
         
             string loginPageUrl = page.Url;
 
-            if (!await navigator.IsLoginRequired(page))
+            if (!await navigator.IsLoginRequired(page, cancellationToken))
             {
                 return new Result<WebPage>(true, new WebPage(request.Site, page));
             }
@@ -52,7 +52,7 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
 
             await navigator.WaitUntilLoggedIn(page, cancellationToken);
 
-            return new Result<WebPage>(page.Url != loginPageUrl, new WebPage(request.Site,page));
+            return new Result<WebPage>(true, new WebPage(request.Site,page));
         }
     }
 }

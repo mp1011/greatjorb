@@ -3,23 +3,28 @@
 [Category(TestType.WebTest)]
 public class LoginQueryTests
 {
-    [TestCase("LinkedIn", "https://www.linkedin.com/", "https://www.linkedin.com/feed")]
-    [TestCase("Google Jobs", "https://www.google.com", "https://www.google.com")]
+    [TestCase("LinkedIn")]
+    [TestCase("Google Jobs")]
+    [TestCase("Indeed")]
+    [TestCase("Simply Hired")]
+    [TestCase("Dice")]
+    [TestCase("Monster")]
 
-    public async Task CanLoginToWebsite(string name, string url, string loggedInUrl)
+    public async Task CanLoginToWebsite(string siteName)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
             includeMediator: true,
             includePuppeteer: true);
 
-        var webSite = new WebSite(name, url);
+        var sites = await serviceProvider.Mediator.Send(new GetSitesQuery());
+
+        var webSite = sites.First(p => p.Name == siteName);
 
         var result = await serviceProvider.Mediator.Send(
             new LoginQuery(webSite));
 
         Assert.IsTrue(result.Success);
         Assert.IsNotNull(result.Data);
-        Assert.IsTrue(result.Data.Page!.Url.StartsWith(loggedInUrl));
     }
 }

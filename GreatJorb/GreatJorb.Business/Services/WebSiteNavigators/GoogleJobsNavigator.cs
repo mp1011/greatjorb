@@ -2,7 +2,7 @@
 
 public class GoogleJobsNavigator : IWebSiteNavigator
 {
-    public string WebsiteName => "Google Jobs";
+    public Site Website => Site.GoogleJobs;
 
     public async Task<IPage> ApplyFilters(IPage page, JobFilter filter, CancellationToken cancellationToken)
     {
@@ -94,7 +94,7 @@ public class GoogleJobsNavigator : IWebSiteNavigator
 
     }
 
-    public Task<bool> IsLoginRequired(IPage page)
+    public Task<bool> IsLoginRequired(IPage page, CancellationToken cancellationToken)
     {
         return Task.FromResult(false);
     }

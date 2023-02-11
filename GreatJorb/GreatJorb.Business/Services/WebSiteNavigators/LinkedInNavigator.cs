@@ -9,7 +9,7 @@ public class LinkedInNavigator : IWebSiteNavigator
         _mediator = mediator;
     }
 
-    public string WebsiteName => "LinkedIn";
+    public Site Website => Site.LinkedIn;
 
     public async Task<IPage> ApplyFilters(IPage page, JobFilter filter, CancellationToken cancellationToken)
     {
@@ -88,7 +88,7 @@ public class LinkedInNavigator : IWebSiteNavigator
         return page;
     }
 
-    public async Task<bool> IsLoginRequired(IPage page)
+    public async Task<bool> IsLoginRequired(IPage page, CancellationToken cancellationToken)
     {
         var signedInElement = await page.WaitForSelectorAsync("img.global-nav__me-photo",
                 new WaitForSelectorOptions { Timeout = 1000 })
