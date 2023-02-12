@@ -21,7 +21,7 @@ public class ParseSalaryQueryTests
 
     [TestCase("10,001+ employees · Financial Services")]
     [TestCase("51-200 employees · Software Development")]
-
+    [TestCase("12 hours ago")]
     public async Task TextIsNotParsedAsSalary(string text)
     {
         var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);

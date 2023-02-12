@@ -15,7 +15,8 @@
                     salaryType = SalaryType.Annual;
                 else if (request.Text.Contains("/hr", StringComparison.OrdinalIgnoreCase))
                     salaryType = SalaryType.Hourly;
-                else if (request.Text.Contains("hour", StringComparison.OrdinalIgnoreCase))
+                else if (request.Text.Contains("hour", StringComparison.OrdinalIgnoreCase) 
+                    && !request.Text.Contains("ago", StringComparison.OrdinalIgnoreCase))
                     salaryType = SalaryType.Hourly;
                 else if (request.Text.Contains("year", StringComparison.OrdinalIgnoreCase))
                     salaryType = SalaryType.Annual;

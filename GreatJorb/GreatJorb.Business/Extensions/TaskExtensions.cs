@@ -89,5 +89,18 @@
         }
 
         public static Task<T> AsTaskResult<T>(this T value) => Task.FromResult(value);
+
+
+        public static async Task<T> WithMinimumDelay<T>(this Task<T> task, TimeSpan minimumDelay)
+        {
+            DateTime requestStart = DateTime.Now;
+            var result = await task;
+
+            TimeSpan remainingDelay = minimumDelay - (DateTime.Now - requestStart);
+            if (remainingDelay.TotalMilliseconds > 0)
+                await Task.Delay(remainingDelay);
+
+            return result;
+        }
     }
 }

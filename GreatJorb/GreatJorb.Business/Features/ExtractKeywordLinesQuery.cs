@@ -19,7 +19,7 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
                 .Where(p => p.InnerText.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase))
                 .Select(p => CleanUpLine(p.InnerText))
                 .Union(ExtractBullets(request.Html, request.Keyword))
-                .Where(p=>p.Length < 100)
+               // .Where(p=>p.Length < 100)
                 .Distinct()
                 .ToArray();
 

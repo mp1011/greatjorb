@@ -39,6 +39,8 @@ internal class JobPostingExtractorTests
     }
 
     [TestCase("TestData/dice_sample.html")]
+    [TestCase("TestData/dice_sample2.html")]
+
     public async Task CanExtractInfoFromDice(string samplePage)
     {
         var serviceProvider = TestServiceProvider.CreateServiceProvider(
@@ -48,7 +50,7 @@ internal class JobPostingExtractorTests
 
         FileInfo f = new FileInfo(samplePage);
 
-        var extractor = new DiceJobPostingExtractor();
+        var extractor = new DiceJobPostingExtractor(serviceProvider.Mediator);
         var page = await serviceProvider.Mediator.Send(
             new BrowseToPageQuery(@$"file://{f.FullName}", DisableJavascript:true));
         
@@ -58,11 +60,22 @@ internal class JobPostingExtractorTests
 
         Assert.IsNotNull(result);
 
-        Assert.AreEqual(125000, result.SalaryMin);
-        Assert.AreEqual(150000, result.SalaryMax);
-        Assert.AreEqual("Last Vegas, NV", result.Location);
-        Assert.AreEqual("Cascade Financial Technology", result.Company);
-        Assert.AreEqual(WorkplaceType.Remote, result.WorkplaceType);
+        if (samplePage == "TestData/dice_sample.html")
+        {
+            Assert.AreEqual(125000, result.SalaryMin);
+            Assert.AreEqual(150000, result.SalaryMax);
+            Assert.AreEqual("Las Vegas, NV", result.Location);
+            Assert.AreEqual("Cascade Financial Technology", result.Company);
+            Assert.AreEqual(WorkplaceType.Remote, result.WorkplaceType);
+        }
+        else if(samplePage == "TestData/dice_sample2.html")
+        {
+            Assert.AreEqual("Senior Software Engineer (C# / Azure)", result.Title);
+            Assert.AreEqual("Los Angeles, CA", result.Location);
+            Assert.AreEqual(SalaryType.Hourly, result.SalaryType);
+            Assert.AreEqual(75, result.SalaryMin);
+            Assert.AreEqual(85, result.SalaryMax);
+        }
 
         var keywordLines = await serviceProvider.Mediator.Send(
                new ExtractKeywordLinesQuery("c#", result.DescriptionHtml ?? ""));

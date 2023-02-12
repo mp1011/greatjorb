@@ -82,6 +82,9 @@ public record TryParsePropertyFromTextQuery(string Text) : IRequest<TextParseRes
 
             var maybeSalary = await _mediator.Send(new ParseSalaryQuery(text));
 
+            if (maybeSalary.Max.HasValue && maybeSalary.Max.Value == 401000)
+                return results; //text is 401k, not a salary
+
             if (maybeSalary.Min.HasValue)
                 results.Add(CreateResult(text, nameof(JobPosting.SalaryMin), maybeSalary.Min.Value));
 

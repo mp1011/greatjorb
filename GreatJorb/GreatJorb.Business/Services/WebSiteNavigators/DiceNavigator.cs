@@ -92,7 +92,11 @@ public class DiceNavigator : IWebSiteNavigator
         await page
             .NavigateMenus(cancellationToken, "a", "Login/Register", "Login");
 
-        return await page.WaitForSelectorSafeAsync("#email", cancellationToken);
+        var element = await page.WaitForSelectorSafeAsync("#email", cancellationToken);
+
+        await Task.Delay(1000);
+
+        return element;
     }
 
     public async Task<IElementHandle?> GetPasswordElement(IPage page, CancellationToken cancellationToken)

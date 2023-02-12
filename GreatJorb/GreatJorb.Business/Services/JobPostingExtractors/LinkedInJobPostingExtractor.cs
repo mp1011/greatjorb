@@ -3,13 +3,15 @@
 public class LinkedInJobPostingExtractor : IJobPostingExtractor
 {
     private readonly IMediator _mediator;
+    private readonly ISettingsService _settings;
 
     public string WebsiteName => "LinkedIn";
 
 
-    public LinkedInJobPostingExtractor(IMediator mediator)
+    public LinkedInJobPostingExtractor(IMediator mediator, ISettingsService settings)
     {
         _mediator = mediator;
+        _settings = settings;
     }
 
     public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int pageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
@@ -30,7 +32,8 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         foreach(var header in postingHeaders)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            postingDetails.Add(await ExtractPostingDetails(page, site, header, filter));
+            postingDetails.Add(await ExtractPostingDetails(page, site, header, filter)
+                .WithMinimumDelay(_settings.MinTimeBetweenRequests));            
         }
 
         return postingDetails.ToArray();
