@@ -19,10 +19,14 @@ public class BrowserAutomation : IPage
 
     private IPage LoadedPage => _page ?? throw new Exception("Page has not been initialized");
 
-    public async Task<IResponse> LoadInitialPage(string url, CancellationToken cancellationToken)
+    public async Task<IResponse> LoadInitialPage(string url, bool disableJavascript, CancellationToken cancellationToken)
     {
-        _page = await _browser.NewPageAsync();            
-        var result = await GoToAsync(url);
+        _page = await _browser.NewPageAsync();
+
+        if (disableJavascript)
+            await _page.SetJavaScriptEnabledAsync(false);
+
+        var result = await GoToAsync(url);       
         await _page.WaitForDOMIdle(cancellationToken);
         return result;                     
     }

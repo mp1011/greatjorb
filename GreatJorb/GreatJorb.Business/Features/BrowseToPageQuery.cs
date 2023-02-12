@@ -1,6 +1,6 @@
 ﻿namespace GreatJorb.Business.Features;
 
-public record class BrowseToPageQuery(string Url) : IRequest<IPage>
+public record class BrowseToPageQuery(string Url, bool DisableJavascript=false) : IRequest<IPage>
 {
     public class Handler : IRequestHandler<BrowseToPageQuery,IPage>
     {
@@ -22,7 +22,7 @@ public record class BrowseToPageQuery(string Url) : IRequest<IPage>
 
             BrowserAutomation page = new BrowserAutomation(browser, _mediator, _settingsService);
 
-            await page.LoadInitialPage(request.Url, cancellationToken);
+            await page.LoadInitialPage(request.Url, request.DisableJavascript, cancellationToken);
            
             return page;
         }

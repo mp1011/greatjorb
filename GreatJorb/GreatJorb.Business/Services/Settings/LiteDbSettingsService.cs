@@ -28,6 +28,8 @@ public class LiteDbSettingsService : ISecureSettingsService
 
     public bool UseHeadlessBrowser => _configSettings.UseHeadlessBrowser;
 
+    public string Country => _configSettings.Country;
+
     public async Task<string?> GetSitePassword(WebSite site)
     {
         SiteCredentials? creds = await GetCredentials(site);

@@ -33,6 +33,8 @@ public class TestSettingsService : ISecureSettingsService
 
     public TimeSpan MaxCacheAge => TimeSpan.MaxValue;
 
+    public string Country => _settingsService.Country;
+
     private async Task<string> PromptUserAsync(string prompt)
     {
         if (File.Exists("prompt.html"))

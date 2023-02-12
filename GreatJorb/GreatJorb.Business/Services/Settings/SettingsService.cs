@@ -24,6 +24,8 @@ public class SettingsService : ISettingsService
 
     public int MaxCacheAgeHours => _configuration[nameof(MaxCacheAgeHours)].TryParseInt(24);
 
+    public string Country => _configuration[nameof(Country)] ?? "USA";
+
     public TimeSpan MaxCacheAge => TimeSpan.FromHours(MaxCacheAgeHours);
 
     public TimeSpan WaitAfterFailedNavigate => GetTimeConfig(nameof(WaitAfterFailedNavigate), 15000);

@@ -27,6 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestData\dice_sample.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\google.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

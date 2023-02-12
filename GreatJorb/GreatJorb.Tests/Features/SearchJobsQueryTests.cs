@@ -3,19 +3,25 @@
 [Category(TestType.WebTest)]
 public class SearchJobsQueryTests
 {
-    [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 1)]
-    [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 2)]
-    [TestCase("Google Jobs", "https://www.google.com/", "c#", 1)]
-    [TestCase("Google Jobs", "https://www.google.com/", "c#", 2)]
-    [TestCase("Google Jobs", "https://www.google.com/", "c#", 3)]
-    public async Task CanSearchJobs(string name, string url, string query, int pageNumber)
+    [TestCase(Site.LinkedIn, "c#", 1)]
+    [TestCase(Site.LinkedIn, "c#", 2)]
+    [TestCase(Site.GoogleJobs, "c#", 1)]
+    [TestCase(Site.GoogleJobs, "c#", 2)]
+    [TestCase(Site.GoogleJobs, "c#", 3)]
+    [TestCase(Site.Indeed, "c#", 1)]
+    [TestCase(Site.SimplyHired, "c#", 1)]
+    [TestCase(Site.Dice, "c#", 1)]
+    [TestCase(Site.Monster, "c#", 1)]
+    public async Task CanSearchJobs(Site site, string query, int pageNumber)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
             includeMediator: true,
             includePuppeteer: true);
 
-        var webSite = new WebSite(name, url);
+        var sites = await serviceProvider.Mediator.Send(new GetSitesQuery(site));
+
+        var webSite = sites.Single();
 
         var loggedInPage = await serviceProvider.Mediator.Send(
             new LoginQuery(webSite));

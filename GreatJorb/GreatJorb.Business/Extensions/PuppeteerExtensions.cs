@@ -470,8 +470,21 @@ public static class PuppeteerExtensions
         return text.ToArray();
     }
 
+    public static async Task<string> GetInnerText(this Task<IElementHandle?> elementTask)
+    {
+        if (elementTask == null)
+            return String.Empty;
+
+        var element = await elementTask;
+        if (element == null)
+            return string.Empty;
+
+        return await element.GetInnerText();
+    }
+
     public static async Task<string> GetInnerText(this IElementHandle? element)
     {
+
         if (element == null)
             return string.Empty;
 
@@ -485,7 +498,6 @@ public static class PuppeteerExtensions
             return string.Empty;
         }
     }
-
 
     public static async Task<Size> GetViewportSize(this IPage page)
     {

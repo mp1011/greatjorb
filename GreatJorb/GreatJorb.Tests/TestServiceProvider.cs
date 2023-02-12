@@ -48,6 +48,10 @@ public class TestServiceProvider : IDisposable
 
                    sc.AddSingleton<IJobPostingExtractor, LinkedInJobPostingExtractor>();
                    sc.AddSingleton<IJobPostingExtractor, GoogleJobsExtractor>();
+                   sc.AddSingleton<IJobPostingExtractor, DiceJobPostingExtractor>();
+                   sc.AddSingleton<IJobPostingExtractor, IndeedJobPostingExtractor>();
+                   sc.AddSingleton<IJobPostingExtractor, MonsterJobPostingExtractor>();
+                   sc.AddSingleton<IJobPostingExtractor, SimplyHiredJobPostingExtractor>();
                }
 
                if (includeDataContext)
