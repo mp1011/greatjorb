@@ -324,7 +324,8 @@ public static class PuppeteerExtensions
         return inputElement;
     }
 
-    public static async Task<IElementHandle?> GetElementLabelledBy(this IPage page, string label, CancellationToken cancellationToken)
+    public static async Task<IElementHandle?> GetElementLabelledBy(this IPage page, string label, CancellationToken cancellationToken,
+        bool repeatUntilFound=true)
     {
         while(true)
         {
@@ -339,7 +340,12 @@ public static class PuppeteerExtensions
 
             var labelHandle = await page.GetLabel(label);
             if (labelHandle == null)
-                continue;
+            {
+                if (repeatUntilFound)
+                    continue;
+                else
+                    return null;
+            }
 
             var labelFor = await labelHandle.GetAttribute("for");
 
