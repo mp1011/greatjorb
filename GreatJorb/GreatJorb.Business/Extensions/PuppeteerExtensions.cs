@@ -64,7 +64,7 @@ public static class PuppeteerExtensions
         return null;
     }
 
-    public static async Task<string[]> ExtractTextFromLeafNodes(this IElementHandle element, string selector)
+    public static async Task<string[]> ExtractTextFromLeafNodes(this IElementHandle element, string selector,char? delimiter=null)
     {
         var elements = await element
             .QuerySelectorAllAsync(selector)
@@ -75,14 +75,21 @@ public static class PuppeteerExtensions
         foreach(var childElement in elements)
         {
             var innerHtml = await childElement.GetInnerHTML();
-            if (innerHtml.Contains("<") && innerHtml.Contains(">"))
+            var children = await childElement.QuerySelectorAllAsync(":not(span)");
+
+            if(children.Any())
                 continue;
 
             var innerText = await childElement.GetInnerText();
             if (innerText.IsNullOrEmpty())
                 continue;
 
-            lines.Add(innerText);
+            if(delimiter.HasValue)
+            {
+                lines.AddRange(innerText.Split(delimiter.Value).Select(p => p.Trim()));
+            }
+            else 
+                lines.Add(innerText);
         }
 
         return lines.ToArray();

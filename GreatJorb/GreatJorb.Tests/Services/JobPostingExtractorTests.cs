@@ -82,4 +82,39 @@ internal class JobPostingExtractorTests
 
         Assert.IsNotEmpty(keywordLines.Where(p => p.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
     }
+
+    [TestCase("TestData/indeed_sample.html")]
+
+    public async Task CanExtractInfoFromIndeed(string samplePage)
+    {
+        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+            includeConfiguration: true,
+            includeMediator: true,
+            includePuppeteer: true);
+
+        FileInfo f = new FileInfo(samplePage);
+
+        var extractor = new IndeedJobPostingExtractor(serviceProvider.Mediator);
+        var page = await serviceProvider.Mediator.Send(
+            new BrowseToPageQuery(@$"file://{f.FullName}", DisableJavascript: true));
+
+        var result = await extractor.ExtractJobDetail(
+            page,
+            new CancellationToken());
+
+        Assert.IsNotNull(result);
+
+        Assert.Fail();
+
+        //Assert.AreEqual(125000, result.SalaryMin);
+        //Assert.AreEqual(150000, result.SalaryMax);
+        //Assert.AreEqual("Las Vegas, NV", result.Location);
+        //Assert.AreEqual("Cascade Financial Technology", result.Company);
+        //Assert.AreEqual(WorkplaceType.Remote, result.WorkplaceType);
+      
+        //var keywordLines = await serviceProvider.Mediator.Send(
+        //       new ExtractKeywordLinesQuery("c#", result.DescriptionHtml ?? ""));
+
+        //Assert.IsNotEmpty(keywordLines.Where(p => p.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
+    }
 }

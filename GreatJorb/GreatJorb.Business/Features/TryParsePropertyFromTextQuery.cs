@@ -14,7 +14,7 @@ public record TryParsePropertyFromTextQuery(string Text) : IRequest<TextParseRes
             _specialMatches["contractor"] = CreateResult(nameof(JobPosting.JobType), JobType.Contract);
             _specialMatches["work from home"] = CreateResult(nameof(JobPosting.WorkplaceType), WorkplaceType.Remote);
             _specialMatches["remote-eligible"] = CreateResult(nameof(JobPosting.WorkplaceType), WorkplaceType.Remote);
-
+            _specialMatches["hybrid remote"] = CreateResult(nameof(JobPosting.WorkplaceType), WorkplaceType.Hybrid);
         }
 
         public async Task<TextParseResult[]> Handle(TryParsePropertyFromTextQuery request, CancellationToken cancellationToken)
