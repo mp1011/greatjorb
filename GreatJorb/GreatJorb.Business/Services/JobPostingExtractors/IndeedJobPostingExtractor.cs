@@ -45,7 +45,16 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
             .QuerySelectorAsync("h2.jobsearch-JobInfoHeader-title")
             .GetInnerText();
 
+        job.Company = await jobContainer
+            .QuerySelectorAsync("div[data-company-name='true']")
+            .GetInnerText();
+
+        job.DescriptionHtml = await jobContainer
+            .QuerySelectorAsync("#jobDescriptionText")
+            .GetInnerHTML();
+
         var dataLines = await jobContainer.ExtractTextFromLeafNodes("div", delimiter: '•');
+        job.Location = dataLines[0];
         foreach (var text in dataLines)
         {
             await _mediator.Send(new SetPropertiesFromTextCommand(job, text));

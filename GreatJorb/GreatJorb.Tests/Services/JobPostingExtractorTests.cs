@@ -104,17 +104,15 @@ internal class JobPostingExtractorTests
 
         Assert.IsNotNull(result);
 
-        Assert.Fail();
+        Assert.AreEqual(90000, result.SalaryMin);
+        Assert.AreEqual(140000, result.SalaryMax);
+        Assert.AreEqual("Hauppauge, NY 11788", result.Location);
+        Assert.AreEqual("Intelligent Product Solutions", result.Company);
+        Assert.AreEqual(WorkplaceType.Hybrid, result.WorkplaceType);
 
-        //Assert.AreEqual(125000, result.SalaryMin);
-        //Assert.AreEqual(150000, result.SalaryMax);
-        //Assert.AreEqual("Las Vegas, NV", result.Location);
-        //Assert.AreEqual("Cascade Financial Technology", result.Company);
-        //Assert.AreEqual(WorkplaceType.Remote, result.WorkplaceType);
-      
-        //var keywordLines = await serviceProvider.Mediator.Send(
-        //       new ExtractKeywordLinesQuery("c#", result.DescriptionHtml ?? ""));
+        var keywordLines = await serviceProvider.Mediator.Send(
+               new ExtractKeywordLinesQuery("c#", result.DescriptionHtml ?? ""));
 
-        //Assert.IsNotEmpty(keywordLines.Where(p => p.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
+        Assert.IsNotEmpty(keywordLines.Where(p => p.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
     }
 }
