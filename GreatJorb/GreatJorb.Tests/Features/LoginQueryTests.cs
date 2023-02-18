@@ -1,8 +1,9 @@
 ﻿namespace GreatJorb.Tests.Features;
 
-[Category(TestType.WebTest)]
+[Category(TestType.WebTest1)]
 public class LoginQueryTests
 {
+
     [TestCase("LinkedIn")]
     [TestCase("Google Jobs")]
     [TestCase("Indeed")]

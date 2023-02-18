@@ -115,4 +115,31 @@ internal class JobPostingExtractorTests
 
         Assert.IsNotEmpty(keywordLines.Where(p => p.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
     }
+
+    [TestCase("TestData/samplehtml_monster.html")]
+
+    public async Task CanExtractInfoFromMonster(string samplePage)
+    {
+        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+            includeConfiguration: true,
+            includeMediator: true,
+            includePuppeteer: true);
+
+        FileInfo f = new FileInfo(samplePage);
+
+        var extractor = new MonsterJobPostingExtractor(serviceProvider.Mediator);
+        var page = await serviceProvider.Mediator.Send(
+            new BrowseToPageQuery(@$"file://{f.FullName}", DisableJavascript: true));
+
+        var result = await extractor.ExtractJob(
+            page,
+            @$"file://{f.FullName}",
+            new CancellationToken());
+
+        Assert.AreEqual(120000, result.SalaryMin);
+        Assert.AreEqual(140000, result.SalaryMax);
+        Assert.AreEqual("Smithtown, NY 11787", result.Location);
+        Assert.AreEqual("DP Search Associates, Inc", result.Company);
+        Assert.AreEqual(JobType.FullTime, result.JobType);
+    }
 }

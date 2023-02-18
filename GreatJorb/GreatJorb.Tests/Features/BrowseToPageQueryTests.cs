@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace GreatJorb.Tests.Features;
 
-[Category(TestType.WebTest)]
+[Category(TestType.WebTest1)]
 public class BrowseToPageQueryTests
 {
     private List<string> _messages = new();

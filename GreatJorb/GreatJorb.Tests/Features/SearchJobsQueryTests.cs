@@ -1,8 +1,9 @@
 ﻿namespace GreatJorb.Tests.Features;
 
-[Category(TestType.WebTest)]
+
 public class SearchJobsQueryTests
 {
+    [Category(TestType.WebTest2)]
     [TestCase(Site.LinkedIn, "c#", 1)]
     [TestCase(Site.LinkedIn, "c#", 2)]
     [TestCase(Site.GoogleJobs, "c#", 1)]
@@ -35,6 +36,7 @@ public class SearchJobsQueryTests
             .Any(p => p.Level == FilterMatchLevel.PositiveMatch));
     }
 
+    [Category(TestType.WebTest3)]
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 70000, WorkplaceType.OnSite)]
     [TestCase("Google Jobs", "https://www.google.com/", "c#", 0, WorkplaceType.Remote)]
 
@@ -74,8 +76,7 @@ public class SearchJobsQueryTests
              .Any(p => p.Field == nameof(JobFilter.WorkplaceTypeFilter) && p.Level == FilterMatchLevel.PositiveMatch));
     }
 
-
-
+    [Category(TestType.WebTest3)]
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#", 1)]
     public async Task JobSearchDoesNotReturnResultsThatDoNotContainKeywords(string name, string url, string query, int numberOfPages)
     {
@@ -118,6 +119,7 @@ public class SearchJobsQueryTests
         Assert.IsFalse(noMatches);
     }
 
+    [Category(TestType.WebTest3)]
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
     public async Task CanExtractLinesWithKeyword(string name, string url, string query)
     {
@@ -145,6 +147,7 @@ public class SearchJobsQueryTests
         Assert.Fail("no keyword matches found");
     }
 
+    [Category(TestType.WebTest3)]
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
     public async Task SearchJobsDoesNotReturnDuplicates(string name, string url, string query)
     {
@@ -169,7 +172,7 @@ public class SearchJobsQueryTests
         Assert.AreEqual(distinctUrls.Length, searchResult.Length);
     }
 
-
+    [Category(TestType.WebTest3)]
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
     public async Task CanExtractDetailFromJob(string name, string url, string query)
     {
@@ -195,6 +198,7 @@ public class SearchJobsQueryTests
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.WorkplaceType != WorkplaceType.Unknown));
     }
 
+    [Category(TestType.WebTest3)]
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
     public async Task CanExtractSalaryFromJob(string name, string url, string query)
     {

@@ -4,9 +4,51 @@ public class MonsterNavigator : IWebSiteNavigator
 {
     public Site Website => Site.Monster;
 
-    public Task<IPage> ApplyFilters(IPage page, JobFilter filter, CancellationToken cancellationToken)
+    public async Task<IPage> ApplyFilters(IPage page, JobFilter filter, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await page
+                .GetElementByInnerText("button", "Filter", cancellationToken)
+                .ClickAsync();
+
+        await Task.Delay(500);
+
+        await page
+            .GetElementByInnerText("span", "All Job Types", cancellationToken)
+            .ClickAsync();
+
+        if(filter.WorkplaceTypeFilter == WorkplaceType.Remote)
+        {
+            await page
+                .GetElementByInnerText("span", "Remote Jobs Only", cancellationToken)
+                .ClickAsync();
+        }
+
+        if(filter.JobTypeFilter.HasFlag(JobType.FullTime))
+        {
+            await page
+                .GetElementByInnerText("span", "Full-Time", cancellationToken)
+                .ClickAsync();
+        }
+
+        if (filter.JobTypeFilter.HasFlag(JobType.PartTime))
+        {
+            await page
+                .GetElementByInnerText("span", "Part-Time", cancellationToken)
+                .ClickAsync();
+        }
+
+        if (filter.JobTypeFilter.HasFlag(JobType.Contract))
+        {
+            await page
+                .GetElementByInnerText("span", "Contract", cancellationToken)
+                .ClickAsync();
+        }
+
+        await page
+              .GetElementByInnerText("button", "View Results", cancellationToken)
+              .ClickAsync();
+
+        return page;
     }
 
     public async Task<IElementHandle?> GetLoginButton(IPage page, CancellationToken cancellationToken)
@@ -28,9 +70,10 @@ public class MonsterNavigator : IWebSiteNavigator
         return await page.WaitForSelectorSafeAsync("#password", cancellationToken);
     }
 
-    public Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
+    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await page.GoToAsync($"https://www.monster.com/jobs/search?q={query.UrlEncode()}&where=remote&page={pageNumber}");
+        return page;
     }
 
     public async Task<bool> IsLoginRequired(IPage page, CancellationToken cancellationToken)

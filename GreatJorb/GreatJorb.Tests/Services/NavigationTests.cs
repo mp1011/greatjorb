@@ -1,6 +1,7 @@
 ﻿namespace GreatJorb.Tests.Services;
 
-[Category(TestType.WebTest)]
+
+[Category(TestType.WebTest3)]
 public class NavigationTests
 {
     [TestCase("LinkedIn", "https://www.linkedin.com/", "c#")]
