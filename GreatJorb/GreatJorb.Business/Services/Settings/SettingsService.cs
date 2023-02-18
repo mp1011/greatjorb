@@ -26,6 +26,8 @@ public class SettingsService : ISettingsService
 
     public string Country => _configuration[nameof(Country)] ?? "USA";
 
+    public string OnsiteLocation => _configuration[nameof(OnsiteLocation)] ?? "";
+
     public TimeSpan MaxCacheAge => TimeSpan.FromHours(MaxCacheAgeHours);
 
     public TimeSpan WaitAfterFailedNavigate => GetTimeConfig(nameof(WaitAfterFailedNavigate), 15000);

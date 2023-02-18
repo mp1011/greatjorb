@@ -47,7 +47,8 @@
                 }
 
                 currencies = currencies
-                    .Where(p => p.HasValue)
+                    .Where(p => p.HasValue 
+                            && p.Value > 10)
                     .OrderBy(p => p.Value)
                     .ToArray();
 
@@ -60,8 +61,6 @@
                 {
                     currencies[0] *= 1000.0m;
                 }
-
-             
 
                 if (currencies.Length == 1)
                 {

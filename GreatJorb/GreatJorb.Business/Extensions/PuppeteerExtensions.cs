@@ -736,4 +736,20 @@ public static class PuppeteerExtensions
             html = newHtml;
         }
     }
+
+    public static async Task ChangeQuerystring(this IPage page, string key, string newValue, CancellationToken cancellation)
+    {
+        var uri = new Uri(page.Url);
+        var query = HttpUtility.ParseQueryString(uri.Query);
+
+        query[key] = newValue;
+
+        var newUrl = page.Url;
+        if (newUrl.Contains("?"))
+            newUrl = newUrl.Substring(0, newUrl.IndexOf("?"));
+
+        newUrl += "?" + query.ToString();
+
+        await page.GoToAsync(newUrl);
+    }
 }

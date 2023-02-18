@@ -35,6 +35,8 @@ public class TestSettingsService : ISecureSettingsService
 
     public string Country => _settingsService.Country;
 
+    public string OnsiteLocation => _settingsService.OnsiteLocation;
+
     private async Task<string> PromptUserAsync(string prompt)
     {
         if (File.Exists("prompt.html"))

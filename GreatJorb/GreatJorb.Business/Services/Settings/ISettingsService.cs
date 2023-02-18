@@ -7,6 +7,7 @@ public interface ISettingsService
     TimeSpan WaitAfterFailedNavigate { get; }
     TimeSpan MinTimeBetweenRequests { get; }
     TimeSpan MaxCacheAge { get; }
+    string OnsiteLocation { get; }
     bool UseHeadlessBrowser { get; }
     string Country { get; }
 }

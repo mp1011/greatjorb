@@ -132,4 +132,10 @@ public static class StringExtensions
     }
 
     public static bool IsNullOrEmpty(this string s) => String.IsNullOrEmpty(s);
+
+    public static string ChangeRelativePath(this string url, string relativePath)
+    {
+        var uri = new Uri(url);
+        return uri.GetLeftPart(UriPartial.Authority) + relativePath;
+    }
 }

@@ -33,6 +33,9 @@ public class BrowserAutomation : IPage
 
     public async Task<IResponse> GoToAsync(string url, int? timeout = null, WaitUntilNavigation[]? waitUntil = null)
     {
+        if (!url.StartsWith("http"))
+            url = _page.Url.ChangeRelativePath(url);
+
         Exception? lastError = null;
         int tries = _settings.MaxNavigationRetries;
 
