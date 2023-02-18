@@ -136,10 +136,10 @@ internal class JobPostingExtractorTests
             @$"file://{f.FullName}",
             new CancellationToken());
 
-        Assert.AreEqual(120000, result.SalaryMin);
-        Assert.AreEqual(140000, result.SalaryMax);
-        Assert.AreEqual("Smithtown, NY 11787", result.Location);
-        Assert.AreEqual("DP Search Associates, Inc", result.Company);
+        Assert.AreEqual(92436, result.SalaryMin);
+        Assert.AreEqual(101956, result.SalaryMax);
+        Assert.AreEqual("New York City, NY 10014", result.Location);
+        Assert.AreEqual("Isospin Technologies, LLC", result.Company);
         Assert.AreEqual(JobType.FullTime, result.JobType);
     }
 }

@@ -15,18 +15,32 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
     {
         var cards = await page.QuerySelectorAllAsync("div[class*='JobCardWrap']");
 
-        List<string> jobUrls = new();
+        List<string> urls = new();
+
+        List<JobPosting> jobs = new List<JobPosting>();
+
         foreach(var card in cards)
         {
-            jobUrls.Add(await card.QuerySelectorAsync("a").GetAttribute("href"));
+            urls.Add(await card.QuerySelectorAsync("a").GetAttribute("href"));
+            if (PageSize.HasValue && jobs.Count == PageSize)
+                break;
         }
 
-        throw new NotImplementedException();
+        if (PageSize.HasValue)
+            urls = urls.Take(PageSize.Value).ToList();
+
+        foreach(var url in urls)
+        {
+            await page.GoToAsync("https:" + url);
+            jobs.Add(await ExtractJob(page, url, cancellationToken));
+        }
+
+        return jobs.ToArray();
     }
 
     public async Task<JobPosting> ExtractJob(IPage page, string url, CancellationToken cancellationToken)
     {
-        var jobContainer = await page.QuerySelectorAsync("div[class*='JobContainer']");
+        var jobContainer = await page.QuerySelectorAsync("div[class*='jobview-container']");
 
         var job = new JobPosting();
         job.Uri = new Uri(url);
