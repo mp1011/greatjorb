@@ -1,4 +1,6 @@
-﻿namespace GreatJorb.Tests.Services;
+﻿using System.Collections.Generic;
+
+namespace GreatJorb.Tests.Services;
 
 [Category(TestType.UnitTest)]
 internal class JobPostingExtractorTests
@@ -7,7 +9,7 @@ internal class JobPostingExtractorTests
     [TestCase("TestData/google.html")]
     public async Task CanExtractInfoFromGoogleJob(string samplePage)
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
             includeMediator: true,
             includePuppeteer: true);
@@ -19,11 +21,10 @@ internal class JobPostingExtractorTests
 
         var results = await extractor.ExtractJobsFromPage(
             page,
-            1,
-            new WebSite("Google", "https://www.google.com"),
-            new CancellationToken(),
             new JobFilter(),
-            PageSize: 3);
+            new HashSet<string>(),
+            Limit: 3,
+            cancellationToken: new CancellationToken());
 
         Assert.AreNotEqual("https://none/", results[0].StorageKey);
         Assert.AreEqual(WorkplaceType.Remote, results[0].WorkplaceType);
@@ -43,7 +44,7 @@ internal class JobPostingExtractorTests
 
     public async Task CanExtractInfoFromDice(string samplePage)
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
             includeMediator: true,
             includePuppeteer: true);
@@ -87,7 +88,7 @@ internal class JobPostingExtractorTests
 
     public async Task CanExtractInfoFromIndeed(string samplePage)
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
             includeMediator: true,
             includePuppeteer: true);
@@ -120,7 +121,7 @@ internal class JobPostingExtractorTests
 
     public async Task CanExtractInfoFromMonster(string samplePage)
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
             includeMediator: true,
             includePuppeteer: true);

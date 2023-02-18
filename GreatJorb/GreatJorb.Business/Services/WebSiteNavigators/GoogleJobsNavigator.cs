@@ -57,7 +57,7 @@ public class GoogleJobsNavigator : IWebSiteNavigator
         throw new NotSupportedException("google doesn't allow signing from automated browsers");
     }
 
-    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
+    public async Task<IPage> GotoJobsListPage(IPage page, string query, CancellationToken cancellationToken)
     {
         var url = page.Url;
 
@@ -76,19 +76,20 @@ public class GoogleJobsNavigator : IWebSiteNavigator
 
         var jobCards = await page.QuerySelectorAllAsync("li.iFjolb");
 
-        while(--pageNumber > 0)
-        {
-            await jobCards.Last().ClickAsync();
+        throw new NotImplementedException();
+        //while(--pageNumber > 0)
+        //{
+        //    await jobCards.Last().ClickAsync();
 
-            var newJobCards = await TaskHelper.RepeatUntilCondition(
-                createTask: () => page.QuerySelectorAllAsync("li.iFjolb"),
-                condition: p => p.Length > jobCards.Length);
+        //    var newJobCards = await TaskHelper.RepeatUntilCondition(
+        //        createTask: () => page.QuerySelectorAllAsync("li.iFjolb"),
+        //        condition: p => p.Length > jobCards.Length);
 
-            if (newJobCards == null)
-                break;
+        //    if (newJobCards == null)
+        //        break;
 
-            jobCards = newJobCards;
-        }
+        //    jobCards = newJobCards;
+        //}
 
         return page;
 

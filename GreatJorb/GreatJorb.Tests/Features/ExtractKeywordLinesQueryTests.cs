@@ -10,7 +10,7 @@ public class ExtractKeywordLinesQueryTests
 
     public async Task TestExtractKeywordLinesQuery(string file, string query, string firstExpected)
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);
 
         var html = File.ReadAllText(TestContext.CurrentContext.TestDirectory + @$"\TestData\{file}");
 

@@ -6,7 +6,7 @@ public class SetPropertyFromTextCommandTests
     [Test]
     public async Task CanSetSalaryFromText()
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeMediator: true);
 
         var posting = new JobPosting();

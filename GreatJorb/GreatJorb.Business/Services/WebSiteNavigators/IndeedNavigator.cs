@@ -99,7 +99,7 @@ public class IndeedNavigator : IWebSiteNavigator
         return await page.WaitForSelectorSafeAsync("input[type='password']", cancellationToken);
     }
 
-    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
+    public async Task<IPage> GotoJobsListPage(IPage page, string query, CancellationToken cancellationToken)
     {
         await page.GoToAsync($"https://www.indeed.com/jobs?q={query.UrlEncode()}");
         return page;

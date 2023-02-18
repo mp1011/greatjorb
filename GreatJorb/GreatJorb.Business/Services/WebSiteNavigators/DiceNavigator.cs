@@ -104,7 +104,7 @@ public class DiceNavigator : IWebSiteNavigator
         return await page.WaitForSelectorSafeAsync("#password", cancellationToken);
     }
 
-    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
+    public async Task<IPage> GotoJobsListPage(IPage page, string query, CancellationToken cancellationToken)
     {
         var country = _settingsService.Country;
         await page.GoToAsync($"https://www.dice.com/jobs?q={query.UrlEncode()}&location={country}");

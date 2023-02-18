@@ -4,16 +4,13 @@
 public class SearchJobsQueryTests
 {
     [Category(TestType.WebTest2)]
-    [TestCase(Site.LinkedIn, "c#", 1)]
-    [TestCase(Site.LinkedIn, "c#", 2)]
-    [TestCase(Site.GoogleJobs, "c#", 1)]
-    [TestCase(Site.GoogleJobs, "c#", 2)]
-    [TestCase(Site.GoogleJobs, "c#", 3)]
-    [TestCase(Site.Indeed, "c#", 1)]
-    [TestCase(Site.SimplyHired, "c#", 1)]
-    [TestCase(Site.Dice, "c#", 1)]
-    [TestCase(Site.Monster, "c#", 1)]
-    public async Task CanSearchJobs(Site site, string query, int pageNumber)
+    [TestCase(Site.LinkedIn, "c#")]
+    [TestCase(Site.GoogleJobs, "c#")]
+    [TestCase(Site.Indeed, "c#")]
+    [TestCase(Site.SimplyHired, "c#")]
+    [TestCase(Site.Dice, "c#")]
+    [TestCase(Site.Monster, "c#")]
+    public async Task CanSearchJobs(Site site, string query)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
@@ -28,12 +25,46 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), pageNumber));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 3));
 
         Assert.IsNotEmpty(searchResult);
         Assert.IsTrue(searchResult
             .SelectMany(p => p.FilterMatches)
             .Any(p => p.Level == FilterMatchLevel.PositiveMatch));
+    }
+
+
+    [Category(TestType.WebTest3)]
+    [TestCase(Site.LinkedIn, "c#")]
+    [TestCase(Site.GoogleJobs, "c#")]
+    [TestCase(Site.Indeed, "c#")]
+    [TestCase(Site.SimplyHired, "c#")]
+    [TestCase(Site.Dice, "c#")]
+    [TestCase(Site.Monster, "c#")]
+    public async Task JobSearchSkipsPreviouslyFoundJobs(Site site, string query)
+    {
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
+            includeConfiguration: true,
+            includeMediator: true,
+            includePuppeteer: true);
+
+        var sites = await serviceProvider.Mediator.Send(new GetSitesQuery(site));
+
+        var webSite = sites.Single();
+
+        var loggedInPage = await serviceProvider.Mediator.Send(
+            new LoginQuery(webSite));
+
+        var searchResult = await serviceProvider.Mediator.Send(
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 20));
+
+        
+        var newSearchResult = await serviceProvider.Mediator.Send(
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 20));
+
+        throw new Exception("check new result does not contain anything from first result");
+        throw new Exception("need to deal with previous urls");
+
     }
 
     [Category(TestType.WebTest3)]
@@ -187,7 +218,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), PageNumber:1));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), Limit:5));
 
         Assert.IsTrue(searchResult.Select(p=>p.Job).Any(p => p.Company != null));
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.DescriptionHtml != null));
@@ -213,7 +244,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), PageNumber: 1));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query),  Limit: 5));
 
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.SalaryMin != null));
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.SalaryMax != null));

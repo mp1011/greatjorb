@@ -70,9 +70,9 @@ public class MonsterNavigator : IWebSiteNavigator
         return await page.WaitForSelectorSafeAsync("#password", cancellationToken);
     }
 
-    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
+    public async Task<IPage> GotoJobsListPage(IPage page, string query, CancellationToken cancellationToken)
     {
-        await page.GoToAsync($"https://www.monster.com/jobs/search?q={query.UrlEncode()}&where=remote&page={pageNumber}");
+        await page.GoToAsync($"https://www.monster.com/jobs/search?q={query.UrlEncode()}&where=remote");
         return page;
     }
 

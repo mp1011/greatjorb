@@ -12,7 +12,7 @@ public class LocalDataContextTests
     [Test]
     public async Task CanStoreDataLocally()
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
             includeDataContext: true,
             includeMediator: true);

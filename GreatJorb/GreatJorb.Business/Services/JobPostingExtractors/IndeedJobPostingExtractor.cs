@@ -11,7 +11,7 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int PageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
+    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)
     {
         var jobTitles = await page.QuerySelectorAllAsync(".jcs-JobTitle");
 

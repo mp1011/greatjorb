@@ -6,7 +6,7 @@ public class SearchJobsFromMultipleSitesQueryTests
     [Test]
     public async Task CanSearchFromMultipleSites()
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
             includeConfiguration: true,
             includeMediator: true,
             includePuppeteer: true,

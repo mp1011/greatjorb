@@ -11,32 +11,33 @@ public class GoogleJobsExtractor : IJobPostingExtractor
 
     public string WebsiteName => "Google Jobs";
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int pageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
+    public Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)    
     {
-        List<JobPosting> jobs = new();
+        throw new NotImplementedException();
+        //List<JobPosting> jobs = new();
 
-        var jobHeaders = await page.QuerySelectorAllAsync("li.iFjolb");
+        //var jobHeaders = await page.QuerySelectorAllAsync("li.iFjolb");
 
-        jobHeaders = jobHeaders
-            .Skip((pageNumber - 1) * 10)
-            .ToArray();
+        //jobHeaders = jobHeaders
+        //    .Skip((pageNumber - 1) * 10)
+        //    .ToArray();
 
-        if (PageSize.HasValue)
-        {
-            jobHeaders = jobHeaders
-                .Take(PageSize.Value)
-                .ToArray();
-        }
+        //if (PageSize.HasValue)
+        //{
+        //    jobHeaders = jobHeaders
+        //        .Take(PageSize.Value)
+        //        .ToArray();
+        //}
 
-        foreach(var jobHeader in jobHeaders)
-        {
-            jobs.Add(await ExtractJob(jobHeader, site, page, cancellationToken));
-        }
+        //foreach(var jobHeader in jobHeaders)
+        //{
+        //    jobs.Add(await ExtractJob(jobHeader, site, page, cancellationToken));
+        //}
 
-        return jobs.ToArray();
+        //return jobs.ToArray();
     }
 
-    private async Task<JobPosting> ExtractJob(IElementHandle element, WebSite site, IPage page, CancellationToken cancellationToken)
+    private async Task<JobPosting> ExtractJob(IElementHandle element, IPage page, CancellationToken cancellationToken)
     {
         var lines = await element
             .ExtractTextFromLeafNodes("div,span");
@@ -75,7 +76,8 @@ public class GoogleJobsExtractor : IJobPostingExtractor
         jobPosting.Uri = new Uri(page.Url);
         jobPosting.StorageKey = page.Url;
 
-        await _mediator.Publish(new JobPostingRead(jobPosting, site, FromCache: false));
+        throw new Exception("need to do this universally");
+       // await _mediator.Publish(new JobPostingRead(jobPosting, site, FromCache: false));
 
         return jobPosting;
     }

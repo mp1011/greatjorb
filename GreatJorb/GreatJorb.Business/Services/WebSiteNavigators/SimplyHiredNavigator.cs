@@ -88,7 +88,7 @@ public class SimplyHiredNavigator : IWebSiteNavigator
         throw new NotSupportedException();
     }
 
-    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
+    public async Task<IPage> GotoJobsListPage(IPage page, string query, CancellationToken cancellationToken)
     {
         await page.GoToAsync($"https://www.simplyhired.com/search?q={query.UrlEncode()}");
         return page; 

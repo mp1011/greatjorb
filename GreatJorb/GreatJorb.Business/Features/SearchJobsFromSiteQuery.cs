@@ -1,6 +1,6 @@
 ﻿namespace GreatJorb.Business.Features;
 
-public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int PageNumber) 
+public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int Limit) 
     : IRequest<JobPostingSearchResult[]>
 {
 
@@ -29,7 +29,7 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int Pag
         
             cancellationToken.ThrowIfCancellationRequested();
 
-            IPage? page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, request.PageNumber, cancellationToken);
+            IPage? page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, cancellationToken);
             
             await page.WaitForDOMIdle(cancellationToken);
 
@@ -38,10 +38,17 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int Pag
 
             await page.WaitForDOMIdle(cancellationToken);
 
+            throw new Exception("how to get previous list?");
+
             if (page != null)
             {
                 jobs.AddRange(await extractor
-                    .ExtractJobsFromPage(page, request.PageNumber, request.WebPage.Site, cancellationToken, request.Filter)
+                    .ExtractJobsFromPage(
+                        page, 
+                        request.Filter, 
+                        new HashSet<string>(), 
+                        request.Limit, 
+                        cancellationToken)
                     .NotifyError(page, _mediator, Array.Empty<JobPosting>()));
             }
 

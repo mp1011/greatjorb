@@ -15,7 +15,7 @@ public class TryParsePropertyFromTextQueryTests
     [TestCase("Senior Software Engineer, Backend (Remote)", nameof(JobPosting.WorkplaceType), WorkplaceType.Remote)]
     public async Task CanParseProperty(string text, string expectedProperty, object expectedValue)
     {
-        var serviceProvider = TestServiceProvider
+        using var serviceProvider = TestServiceProvider
             .CreateServiceProvider(includeMediator: true);
 
         var result = await serviceProvider.Mediator.Send(new TryParsePropertyFromTextQuery(text));
@@ -36,7 +36,7 @@ public class TryParsePropertyFromTextQueryTests
     [TestCase("130K–150K a year", 130000, 150000, SalaryType.Annual)]
     public async Task CanParseSalary(string text, decimal min, decimal max, SalaryType? salaryType)
     {
-        var serviceProvider = TestServiceProvider
+        using var serviceProvider = TestServiceProvider
             .CreateServiceProvider(includeMediator: true);
 
         var result = await serviceProvider.Mediator.Send(new TryParsePropertyFromTextQuery(text));

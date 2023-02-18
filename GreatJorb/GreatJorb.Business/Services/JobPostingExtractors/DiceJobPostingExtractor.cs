@@ -11,7 +11,12 @@ public class DiceJobPostingExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int PageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
+    public async Task<JobPosting[]> ExtractJobsFromPage(
+        IPage page,
+        JobFilter filter,
+        HashSet<string> knownJobs,
+        int Limit,
+        CancellationToken cancellationToken)
     {
         var cards = await page.QuerySelectorAllSafeAsync("dhi-search-card", cancellationToken);
 

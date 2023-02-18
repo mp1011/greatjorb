@@ -11,21 +11,22 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
 
     public string WebsiteName => Site.SimplyHired.GetDisplayName();
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int PageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
+    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)
     {
         var cards = await page.QuerySelectorAllAsync("#job-list li");
 
         List<string> urls = new();
-        foreach(var card in cards)
-        {
-            var url = await card.QuerySelectorAsync("a").GetAttribute("href");
+        throw new NotImplementedException();
+        //foreach(var card in cards)
+        //{
+        //    var url = await card.QuerySelectorAsync("a").GetAttribute("href");
 
-            if (!url.IsNullOrEmpty() && url.StartsWith("/job"))
-                urls.Add(url);
+        //    if (!url.IsNullOrEmpty() && url.StartsWith("/job"))
+        //        urls.Add(url);
 
-            if (PageSize.HasValue && urls.Count == PageSize)
-                break;
-        }
+        //    if (PageSize.HasValue && urls.Count == PageSize)
+        //        break;
+        //}
 
         List<JobPosting> jobs = new();
         foreach(var url in urls)
@@ -36,6 +37,8 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
 
         return jobs.ToArray();
     }
+
+
 
     private async Task<JobPosting> ExtractJob(IPage page, CancellationToken cancellationToken)
     {

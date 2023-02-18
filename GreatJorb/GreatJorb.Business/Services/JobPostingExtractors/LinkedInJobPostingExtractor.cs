@@ -14,12 +14,14 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         _settings = settings;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int pageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
-    {
+
+    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)
+    {     
         var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
 
-        if (PageSize != null)
-            jobCards = jobCards.Take(PageSize.Value).ToArray();
+        throw new NotImplementedException();
+        //if (PageSize != null)
+        //    jobCards = jobCards.Take(PageSize.Value).ToArray();
 
         List<JobPosting> postingHeaders = new();
 
@@ -32,7 +34,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         foreach(var header in postingHeaders)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            postingDetails.Add(await ExtractPostingDetails(page, site, header, filter)
+            postingDetails.Add(await ExtractPostingDetails(page, header, filter)
                 .WithMinimumDelay(_settings.MinTimeBetweenRequests));            
         }
 
@@ -60,8 +62,8 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
             SalaryType = SalaryType.Unknown
         };
     }
-
-    private async Task<JobPosting> ExtractPostingDetails(IPage page, WebSite site, JobPosting posting, JobFilter filter)
+    
+    private async Task<JobPosting> ExtractPostingDetails(IPage page, JobPosting posting, JobFilter filter)
     {
         await page.GoToAsync(posting.Uri.ToString());
 
@@ -100,8 +102,10 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
         await _mediator.Send(new SetPropertiesFromTextCommand(posting, posting.Title ?? ""));
 
-        await _mediator.Publish(new JobPostingRead(posting, site, FromCache: false));
+        throw new Exception("handle this differently");
+       //await _mediator.Publish(new JobPostingRead(posting, site, FromCache: false));
 
         return posting;       
     }
+
 }

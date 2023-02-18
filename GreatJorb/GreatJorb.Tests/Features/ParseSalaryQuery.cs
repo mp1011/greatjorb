@@ -12,7 +12,7 @@ public class ParseSalaryQueryTests
     [TestCase("$65.00 - $73.01 an hour", 65,73, SalaryType.Hourly)]
     public async Task CanParseSalary(string text, decimal min, decimal max, SalaryType salaryType)
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);
         var result = await serviceProvider.Mediator.Send(new ParseSalaryQuery(text));
 
         Assert.AreEqual(min, result.Min);
@@ -25,7 +25,7 @@ public class ParseSalaryQueryTests
     [TestCase("12 hours ago")]
     public async Task TextIsNotParsedAsSalary(string text)
     {
-        var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);
         var result = await serviceProvider.Mediator.Send(new ParseSalaryQuery(text));
 
         Assert.IsNull( result.Min);

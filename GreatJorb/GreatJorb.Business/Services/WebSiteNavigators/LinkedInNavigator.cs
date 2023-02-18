@@ -58,7 +58,7 @@ public class LinkedInNavigator : IWebSiteNavigator
     public async Task<IElementHandle?> GetPasswordElement(IPage page, CancellationToken cancellationToken) =>
         await page.GetElementLabelledBy("Password", cancellationToken);
 
-    public async Task<IPage> GotoJobsListPage(IPage page, string query, int pageNumber, CancellationToken cancellationToken)
+    public async Task<IPage> GotoJobsListPage(IPage page, string query, CancellationToken cancellationToken)
     {
         await page.GoToAsync($"https://www.linkedin.com/jobs/search/?keywords={query.UrlEncode()}");
         //await page.GoToAsync("https://www.linkedin.com/jobs/search");
@@ -66,24 +66,25 @@ public class LinkedInNavigator : IWebSiteNavigator
         //    .GetElementLabelledBy("Search by title, skill, or company")
         //    .SetText(page, query, clearExistingText: false, pressEnter: true);
 
-        if (pageNumber > 1)
-        {
-            var pager = await page.WaitForSelectorAsync("ul.artdeco-pagination__pages");
-            var pagerElements = await pager.QuerySelectorAllAsync("li.artdeco-pagination__indicator");
+        throw new NotImplementedException();
+        //if (pageNumber > 1)
+        //{
+        //    var pager = await page.WaitForSelectorAsync("ul.artdeco-pagination__pages");
+        //    var pagerElements = await pager.QuerySelectorAllAsync("li.artdeco-pagination__indicator");
 
-            foreach (var element in pagerElements)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
+        //    foreach (var element in pagerElements)
+        //    {
+        //        cancellationToken.ThrowIfCancellationRequested();
 
-                var elementPageNum = await element.TryGetNumberAsync();
-                if (elementPageNum.HasValue && elementPageNum.Value == pageNumber)
-                {
-                    await element.ClickAsync();
-                    return page;
-                }
-            }
-            throw new PageNumberNotFoundException();
-        }
+        //        var elementPageNum = await element.TryGetNumberAsync();
+        //        if (elementPageNum.HasValue && elementPageNum.Value == pageNumber)
+        //        {
+        //            await element.ClickAsync();
+        //            return page;
+        //        }
+        //    }
+        //    throw new PageNumberNotFoundException();
+        //}
 
         return page;
     }

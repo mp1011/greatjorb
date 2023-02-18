@@ -11,7 +11,8 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, int PageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null)
+
+    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)
     {
         var cards = await page.QuerySelectorAllAsync("div[class*='JobCardWrap']");
 
@@ -22,12 +23,11 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
         foreach(var card in cards)
         {
             urls.Add(await card.QuerySelectorAsync("a").GetAttribute("href"));
-            if (PageSize.HasValue && jobs.Count == PageSize)
+            if (jobs.Count == Limit)
                 break;
         }
 
-        if (PageSize.HasValue)
-            urls = urls.Take(PageSize.Value).ToList();
+        urls = urls.Take(Limit).ToList();
 
         foreach(var url in urls)
         {
@@ -74,4 +74,5 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
 
         return job;
     }
+
 }

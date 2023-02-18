@@ -4,5 +4,10 @@ public interface IJobPostingExtractor
 {
     string WebsiteName { get; }
 
-    Task<JobPosting[]> ExtractJobsFromPage(IPage page, int PageNumber, WebSite site, CancellationToken cancellationToken, JobFilter filter, int? PageSize = null);
+    Task<JobPosting[]> ExtractJobsFromPage(
+        IPage page,         
+        JobFilter filter, 
+        HashSet<string> knownJobs,
+        int Limit,
+        CancellationToken cancellationToken);
 }
