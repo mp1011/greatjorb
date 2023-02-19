@@ -11,12 +11,13 @@ public class DiceJobPostingExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(
-        IPage page,
-        JobFilter filter,
-        HashSet<string> knownJobs,
-        int Limit,
-        CancellationToken cancellationToken)
+    public string GetStorageKeyFromUrl(string url)
+    {
+        url = url.SubstringUpTo('?');
+        return "Dice " + url.Split('/').Last();
+    }
+
+    public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
     {
         var cards = await page.QuerySelectorAllSafeAsync("dhi-search-card", cancellationToken);
 
@@ -24,27 +25,27 @@ public class DiceJobPostingExtractor : IJobPostingExtractor
         foreach(var card in cards)
         {
             var urlElement = card.QuerySelectorAsync("a.card-title-link");
-            if (urlElement != null)
-                detailUrls.Add(await urlElement.GetAttribute("href"));
-        }
+            if (urlElement == null)
+                continue;
 
-        List<JobPosting> postings = new();
+            var url = await urlElement.GetAttribute("href");
 
-        foreach(var detailUrl in detailUrls)
-        {
-            await page.GoToAsync(detailUrl);
+            if (knownJobs.Contains(GetStorageKeyFromUrl(url)))
+                continue;
+
+            await page.GoToAsync(url);
             await page.WaitForDOMIdle(cancellationToken);
-            postings.Add(await ExtractJobDetail(page, cancellationToken));
+            return await ExtractJobDetail(page, cancellationToken);
         }
 
-        return postings.ToArray();
+        return null;
     }
 
     public async Task<JobPosting> ExtractJobDetail(IPage page, CancellationToken cancellation)
     {
         var job = new JobPosting();
         job.Uri = new Uri(page.Url);
-        job.StorageKey = job.Uri.Host + job.Uri.LocalPath;
+        job.StorageKey = GetStorageKeyFromUrl(page.Url);
 
         var mainElement = await page.QuerySelectorAsync("main");
 

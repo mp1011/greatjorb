@@ -12,30 +12,26 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
     }
 
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)
+    public string GetStorageKeyFromUrl(string url)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
     {
         var cards = await page.QuerySelectorAllAsync("div[class*='JobCardWrap']");
 
-        List<string> urls = new();
-
-        List<JobPosting> jobs = new List<JobPosting>();
-
         foreach(var card in cards)
         {
-            urls.Add(await card.QuerySelectorAsync("a").GetAttribute("href"));
-            if (jobs.Count == Limit)
-                break;
-        }
+            var url = await card.QuerySelectorAsync("a").GetAttribute("href");
+            if (knownJobs.Contains(GetStorageKeyFromUrl(url)))
+                continue;
 
-        urls = urls.Take(Limit).ToList();
-
-        foreach(var url in urls)
-        {
             await page.GoToAsync("https:" + url);
-            jobs.Add(await ExtractJob(page, url, cancellationToken));
+            return await ExtractJob(page, url, cancellationToken);
         }
 
-        return jobs.ToArray();
+        return null;
     }
 
     public async Task<JobPosting> ExtractJob(IPage page, string url, CancellationToken cancellationToken)
@@ -44,7 +40,7 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
 
         var job = new JobPosting();
         job.Uri = new Uri(url);
-        job.StorageKey = url;
+        job.StorageKey = GetStorageKeyFromUrl(page.Url); 
 
         job.Title = await jobContainer
             .QuerySelectorAsync(".JobViewTitle")

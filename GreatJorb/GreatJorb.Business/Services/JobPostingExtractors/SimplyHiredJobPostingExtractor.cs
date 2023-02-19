@@ -11,41 +11,39 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
 
     public string WebsiteName => Site.SimplyHired.GetDisplayName();
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)
+    public string GetStorageKeyFromUrl(string url)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
     {
         var cards = await page.QuerySelectorAllAsync("#job-list li");
 
-        List<string> urls = new();
-        throw new NotImplementedException();
-        //foreach(var card in cards)
-        //{
-        //    var url = await card.QuerySelectorAsync("a").GetAttribute("href");
-
-        //    if (!url.IsNullOrEmpty() && url.StartsWith("/job"))
-        //        urls.Add(url);
-
-        //    if (PageSize.HasValue && urls.Count == PageSize)
-        //        break;
-        //}
-
-        List<JobPosting> jobs = new();
-        foreach(var url in urls)
+        foreach (var card in cards)
         {
+            var url = await card.QuerySelectorAsync("a").GetAttribute("href");
+
+            if (url.IsNullOrEmpty()
+                    || !url.StartsWith("/job")
+                    || knownJobs.Contains(url))
+            {
+                continue;
+            }
+
             await page.GoToAsync(url);
-            jobs.Add(await ExtractJob(page, cancellationToken));
+            return await ExtractJob(page, cancellationToken);
         }
 
-        return jobs.ToArray();
+        return null;
     }
-
-
 
     private async Task<JobPosting> ExtractJob(IPage page, CancellationToken cancellationToken)
     {
         var job = new JobPosting();
 
         job.Uri = new Uri(page.Url);
-        job.StorageKey = page.Url;
+        job.StorageKey = GetStorageKeyFromUrl(page.Url);
 
         job.Title = await page
             .QuerySelectorAsync("h2[data-testid='viewJobTitle']")

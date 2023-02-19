@@ -92,20 +92,14 @@ public partial class Index : IDisposable
     {
         await InvokeAsync(async () =>
         {
-            Postings.RemoveAll(p => p.Job.StorageKey == notification.Job.StorageKey);
+            Postings.RemoveAll(p => p.Job.StorageKey == notification.JobSearchResult.Job.StorageKey);
 
-            var keywordLines = await Mediator.Send(new ExtractKeywordLinesQuery(CurrentFilter.Query, notification.Job.DescriptionHtml));
-
-            Postings.Add(new JobPostingSearchResult(
-                notification.Job,
-                notification.Site,                 
-                await Mediator.Send(new MatchJobFilterQuery(notification.Job, keywordLines.Any(), CurrentFilter)),
-                keywordLines));
-
+            Postings.Add(notification.JobSearchResult);
+             
             Postings.Sort();
 
             if(!notification.FromCache)
-                await Mediator.Send(new AddJobResultToCacheCommand(notification.Site, notification.Job));
+                await Mediator.Send(new AddJobResultToCacheCommand(notification.JobSearchResult.Site, notification.JobSearchResult.Job));
 
             StateHasChanged();            
         });

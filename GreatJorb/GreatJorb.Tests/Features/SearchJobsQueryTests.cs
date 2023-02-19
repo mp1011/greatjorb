@@ -25,12 +25,16 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 3));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), new HashSet<string>(), 3));
 
         Assert.IsNotEmpty(searchResult);
-        Assert.IsTrue(searchResult
-            .SelectMany(p => p.FilterMatches)
-            .Any(p => p.Level == FilterMatchLevel.PositiveMatch));
+
+        var idCount = searchResult
+            .Select(p => p.Job.StorageKey)
+            .Distinct()
+            .Count();
+
+        Assert.AreEqual(3, idCount);
     }
 
 
@@ -55,12 +59,12 @@ public class SearchJobsQueryTests
         var loggedInPage = await serviceProvider.Mediator.Send(
             new LoginQuery(webSite));
 
-        var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 20));
+        //var searchResult = await serviceProvider.Mediator.Send(
+        //    new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 20));
 
         
-        var newSearchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 20));
+        //var newSearchResult = await serviceProvider.Mediator.Send(
+        //    new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 20));
 
         throw new Exception("check new result does not contain anything from first result");
         throw new Exception("need to deal with previous urls");
@@ -91,7 +95,7 @@ public class SearchJobsQueryTests
         };
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, filter, 1));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, filter, new HashSet<string>(), 1));
 
         Assert.IsNotEmpty(searchResult);
 
@@ -122,7 +126,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), numberOfPages));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query),new HashSet<string>(), numberOfPages));
 
         bool noMatches = true;
 
@@ -165,7 +169,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 1));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), new HashSet<string>(), 1));
 
         foreach (var result in searchResult)
         {
@@ -193,7 +197,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 3));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), new HashSet<string>(), 3));
 
         string[] distinctUrls = searchResult
             .Select(p => p.Job.Uri.PathAndQuery)
@@ -218,7 +222,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), Limit:5));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), new HashSet<string>(), Limit:5));
 
         Assert.IsTrue(searchResult.Select(p=>p.Job).Any(p => p.Company != null));
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.DescriptionHtml != null));
@@ -244,7 +248,7 @@ public class SearchJobsQueryTests
             new LoginQuery(webSite));
 
         var searchResult = await serviceProvider.Mediator.Send(
-            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query),  Limit: 5));
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), new HashSet<string>(), Limit: 5));
 
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.SalaryMin != null));
         Assert.IsTrue(searchResult.Select(p => p.Job).Any(p => p.SalaryMax != null));

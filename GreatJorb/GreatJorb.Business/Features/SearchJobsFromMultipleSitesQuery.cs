@@ -41,10 +41,11 @@ public record class SearchJobsFromMultipleSitesQuery(JobFilter Filter, int NumPa
             CancellationToken cancellationToken)
         {
             var loginResult = await _mediator.Send(new LoginQuery(site));
-           
-            return await _mediator
-                .Send(new SearchJobsFromSiteQuery(loginResult.Data, filter, pageNumber), cancellationToken)
-                .IgnoreCancellationException(Array.Empty<JobPostingSearchResult>());
+
+            throw new NotImplementedException();
+            //return await _mediator
+            //    .Send(new SearchJobsFromSiteQuery(loginResult.Data, filter, pageNumber), cancellationToken)
+            //    .IgnoreCancellationException(Array.Empty<JobPostingSearchResult>());
         }
 
         

@@ -15,30 +15,29 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
     }
 
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)
-    {     
-        var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
-
+    public string GetStorageKeyFromUrl(string url)
+    {
         throw new NotImplementedException();
-        //if (PageSize != null)
-        //    jobCards = jobCards.Take(PageSize.Value).ToArray();
+    }
 
-        List<JobPosting> postingHeaders = new();
+    public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
+    {
+        var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
 
         foreach(var jobCard in jobCards)
         {
-            postingHeaders.Add(await ExtractPostingHeaders(jobCard));
+            string url = await jobCard
+                .QuerySelectorAsync("a.job-card-container__link")
+                .GetAttribute("href");
+
+            if (knownJobs.Contains(GetStorageKeyFromUrl(url)))
+                continue;
+
+            var header = await ExtractPostingHeaders(jobCard);
+            return await ExtractPostingDetails(page, header);
         }
 
-        List<JobPosting> postingDetails = new();
-        foreach(var header in postingHeaders)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            postingDetails.Add(await ExtractPostingDetails(page, header, filter)
-                .WithMinimumDelay(_settings.MinTimeBetweenRequests));            
-        }
-
-        return postingDetails.ToArray();
+        return null;
     }
 
     private async Task<JobPosting> ExtractPostingHeaders(IElementHandle jobCard)
@@ -63,7 +62,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         };
     }
     
-    private async Task<JobPosting> ExtractPostingDetails(IPage page, JobPosting posting, JobFilter filter)
+    private async Task<JobPosting> ExtractPostingDetails(IPage page, JobPosting posting)
     {
         await page.GoToAsync(posting.Uri.ToString());
 

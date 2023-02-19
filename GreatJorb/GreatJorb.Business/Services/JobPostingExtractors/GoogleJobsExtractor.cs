@@ -9,32 +9,44 @@ public class GoogleJobsExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public string WebsiteName => "Google Jobs";
+    public string WebsiteName => Site.GoogleJobs.GetDisplayName();
 
-    public Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)    
+    public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-        //List<JobPosting> jobs = new();
+        var jobHeaders = await page.QuerySelectorAllAsync("li.iFjolb");
 
-        //var jobHeaders = await page.QuerySelectorAllAsync("li.iFjolb");
+        foreach (var jobHeader in jobHeaders)
+        {
+            var jobId = await GetJobId(page, jobHeader, cancellationToken);
+            if (!knownJobs.Contains(jobId))
+            {
+                return await ExtractJob(jobHeader, page, cancellationToken);
+            }
+        }
 
-        //jobHeaders = jobHeaders
-        //    .Skip((pageNumber - 1) * 10)
-        //    .ToArray();
+        return null;
+    }
 
-        //if (PageSize.HasValue)
-        //{
-        //    jobHeaders = jobHeaders
-        //        .Take(PageSize.Value)
-        //        .ToArray();
-        //}
+    private async Task<string> GetJobId(IPage page, IElementHandle element, CancellationToken cancellationToken)
+    {
+        var shareButton = await element.QuerySelectorAsync("kno-share-button");
 
-        //foreach(var jobHeader in jobHeaders)
-        //{
-        //    jobs.Add(await ExtractJob(jobHeader, site, page, cancellationToken));
-        //}
+        if(shareButton == null)
+        {
+            await element.ClickAsync();
+            return GetStorageKeyFromUrl(page.Url);
+        }
 
-        //return jobs.ToArray();
+        var divs = await shareButton.QuerySelectorAllAsync("div");
+
+        foreach(var div in divs)
+        {
+            var dataDsu = await div.GetAttribute("data-dsu");
+            if (dataDsu != null)
+                return GetStorageKeyFromUrl(dataDsu);
+        }
+
+        throw new Exception("Unable to find job id from element");
     }
 
     private async Task<JobPosting> ExtractJob(IElementHandle element, IPage page, CancellationToken cancellationToken)
@@ -74,13 +86,14 @@ public class GoogleJobsExtractor : IJobPostingExtractor
         }
 
         jobPosting.Uri = new Uri(page.Url);
-        jobPosting.StorageKey = page.Url;
-
-        throw new Exception("need to do this universally");
-       // await _mediator.Publish(new JobPostingRead(jobPosting, site, FromCache: false));
+        jobPosting.StorageKey = GetStorageKeyFromUrl(page.Url);
 
         return jobPosting;
     }
 
-
+    public string GetStorageKeyFromUrl(string url)
+    {
+        var docid = url.GetQuerystringOrHashValue("htidocid");
+        return "Google " + docid;
+    }
 }

@@ -4,10 +4,10 @@ public interface IJobPostingExtractor
 {
     string WebsiteName { get; }
 
-    Task<JobPosting[]> ExtractJobsFromPage(
+    string GetStorageKeyFromUrl(string url);
+
+    Task<JobPosting?> ExtractNextJob(
         IPage page,         
-        JobFilter filter, 
         HashSet<string> knownJobs,
-        int Limit,
         CancellationToken cancellationToken);
 }

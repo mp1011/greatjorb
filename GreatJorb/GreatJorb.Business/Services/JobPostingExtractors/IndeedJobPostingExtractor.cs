@@ -11,8 +11,14 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
         _mediator = mediator;
     }
 
-    public async Task<JobPosting[]> ExtractJobsFromPage(IPage page, JobFilter filter, HashSet<string> knownJobs, int Limit, CancellationToken cancellationToken)
+    public string GetStorageKeyFromUrl(string url)
     {
+        return $"Indeed {url.GetQuerystringOrHashValue("vjk")} {url.GetQuerystringOrHashValue("advn")}";
+    }
+
+    public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
         var jobTitles = await page.QuerySelectorAllAsync(".jcs-JobTitle");
 
         List<JobPosting> jobs = new();
@@ -24,7 +30,6 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
             jobs.Add(await ExtractJobDetail(page, cancellationToken));
         }
 
-        return jobs.ToArray();
     }
 
     public async Task<JobPosting> ExtractJobDetail(IPage page, CancellationToken cancellation)
@@ -39,7 +44,7 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
             return job;
 
         job.Uri = new Uri(page.Url);
-        job.StorageKey = page.Url;
+        job.StorageKey = GetStorageKeyFromUrl(page.Url);
 
         job.Title = await jobContainer
             .QuerySelectorAsync("h2.jobsearch-JobInfoHeader-title")

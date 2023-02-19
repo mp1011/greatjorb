@@ -19,21 +19,18 @@ internal class JobPostingExtractorTests
         var extractor = new GoogleJobsExtractor(serviceProvider.Mediator);
         var page = await serviceProvider.Mediator.Send(new BrowseToPageQuery(@$"file://{f.FullName}"));
 
-        var results = await extractor.ExtractJobsFromPage(
+        var result = await extractor.ExtractNextJob(
             page,
-            new JobFilter(),
             new HashSet<string>(),
-            Limit: 3,
             cancellationToken: new CancellationToken());
 
-        Assert.AreNotEqual("https://none/", results[0].StorageKey);
-        Assert.AreEqual(WorkplaceType.Remote, results[0].WorkplaceType);
-        Assert.AreEqual(JobType.Contract, results[0].JobType);
-        Assert.That(results[0]!.DescriptionHtml!.Contains("C#"));
-        Assert.AreEqual("C# Developer", results[2].Title);
+        Assert.AreNotEqual("https://none/", result.StorageKey);
+        Assert.AreEqual(WorkplaceType.Remote, result.WorkplaceType);
+        Assert.AreEqual(JobType.Contract, result.JobType);
+        Assert.That(result.DescriptionHtml!.Contains("C#"));
 
         var keywordLines = await serviceProvider.Mediator.Send(
-                new ExtractKeywordLinesQuery("c#", results[0].DescriptionHtml ?? ""));
+                new ExtractKeywordLinesQuery("c#", result.DescriptionHtml ?? ""));
 
         Assert.AreEqual("Expert (5 Years of recent hands on experience) in .Net, C# Expert (4 Years of recent hands on",
             keywordLines[0]);

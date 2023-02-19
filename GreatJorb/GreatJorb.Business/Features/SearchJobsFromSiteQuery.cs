@@ -1,74 +1,104 @@
 ﻿namespace GreatJorb.Business.Features;
 
-public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, int Limit) 
+public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet<string> KnownJobs, int Limit) 
     : IRequest<JobPostingSearchResult[]>
 {
 
     public class Handler : IRequestHandler<SearchJobsFromSiteQuery, JobPostingSearchResult[]>
     {
         private readonly IMediator _mediator;
-        public Handler(IMediator mediator)
+        private readonly ISettingsService _settings;
+
+        public Handler(IMediator mediator, ISettingsService settingsService)
         {
             _mediator = mediator;
+            _settings = settingsService;
         }
 
         public async Task<JobPostingSearchResult[]> Handle(SearchJobsFromSiteQuery request, CancellationToken cancellationToken)
         {
-            if (request.WebPage == null || request.WebPage.Page == null)
-                return Array.Empty<JobPostingSearchResult>();
-
-            IWebSiteNavigator? navigator = await _mediator.Send(new GetNavigatorQuery(request.WebPage.Site));
-            if (navigator == null)
+            var page = await GoToJobsPage(request, cancellationToken);
+            if (page == null)
                 return Array.Empty<JobPostingSearchResult>();
 
             IJobPostingExtractor? extractor = await _mediator.Send(new GetExtractorQuery(request.WebPage.Site));
             if (extractor == null)
                 return Array.Empty<JobPostingSearchResult>();
 
-            List<JobPosting> jobs = new();
-        
+            List<JobPostingSearchResult> jobs = new();
+
+            string jobsUrl = page.Url;
+
+            while(!cancellationToken.IsCancellationRequested && jobs.Count < request.Limit)
+            {
+                var nextResult = await ExtractNextJob(page, request, extractor, jobsUrl, cancellationToken)
+                    .WithMinimumDelay(_settings.MinTimeBetweenRequests);
+
+                if (nextResult != null)
+                    jobs.Add(nextResult);
+            }
+
+            await page.CloseAsync();
+
+            return jobs.ToArray();
+        }
+
+        private async Task<JobPostingSearchResult?> ExtractNextJob(
+            IPage page, 
+            SearchJobsFromSiteQuery request, 
+            IJobPostingExtractor extractor, 
+            string jobsUrl, 
+            CancellationToken cancellationToken)
+        {
+            if (page.Url != jobsUrl)
+            {
+                await page.GoToAsync(jobsUrl);
+                await page.WaitForDOMIdle(cancellationToken);
+            }
+
+            var nextJob = await extractor.ExtractNextJob(page, request.KnownJobs, cancellationToken);
+            if (nextJob == null)
+                return null;
+
+            request.KnownJobs.Add(nextJob.StorageKey);
+
+            string[] keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter.Query, nextJob.DescriptionHtml ?? ""));
+
+            var searchResult = new JobPostingSearchResult(
+                    nextJob,
+                    Site: request.WebPage.Site,
+                    await _mediator.Send(new MatchJobFilterQuery(nextJob, keywordLines.Any(), request.Filter)),
+                    keywordLines);
+
+            await _mediator.Publish(new JobPostingRead(searchResult, FromCache: false));
+
+            return searchResult;
+        }
+
+        private async Task<IPage?> GoToJobsPage(SearchJobsFromSiteQuery request, CancellationToken cancellationToken)
+        {
+            if (request.WebPage == null || request.WebPage.Page == null)
+                return null;
+
+            IWebSiteNavigator? navigator = await _mediator.Send(new GetNavigatorQuery(request.WebPage.Site));
+            if (navigator == null)
+                return null;
+
             cancellationToken.ThrowIfCancellationRequested();
 
             IPage? page = await navigator.GotoJobsListPage(request.WebPage.Page, request.Filter.Query, cancellationToken);
-            
+
             await page.WaitForDOMIdle(cancellationToken);
 
             page = await navigator.ApplyFilters(page, request.Filter, cancellationToken)
                 .NotifyError(page, _mediator);
 
+            if (page == null)
+                return null;
+
             await page.WaitForDOMIdle(cancellationToken);
 
-            throw new Exception("how to get previous list?");
-
-            if (page != null)
-            {
-                jobs.AddRange(await extractor
-                    .ExtractJobsFromPage(
-                        page, 
-                        request.Filter, 
-                        new HashSet<string>(), 
-                        request.Limit, 
-                        cancellationToken)
-                    .NotifyError(page, _mediator, Array.Empty<JobPosting>()));
-            }
-
-            List<JobPostingSearchResult> results = new();
-            foreach(var job in jobs)
-            {
-                string[] keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter.Query, job.DescriptionHtml ?? ""));
-
-                results.Add(new JobPostingSearchResult(
-                    job,
-                    Site: request.WebPage.Site,
-                    await _mediator.Send(new MatchJobFilterQuery(job, keywordLines.Any(), request.Filter)),
-                    keywordLines));
-            }
-
-            await page.CloseAsync();
-
-            return results.ToArray();
+            return page;
         }
-
-       
     }
 }

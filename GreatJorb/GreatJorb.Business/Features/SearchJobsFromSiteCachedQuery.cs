@@ -42,7 +42,7 @@ public record SearchJobsFromSiteCachedQuery(WebSite Site, JobFilter Filter) : IR
 
                 results.Add(result);
 
-                await _mediator.Publish(new JobPostingRead(job, request.Site, FromCache:true));
+                await _mediator.Publish(new JobPostingRead(result, FromCache:true));
             }
 
             return results.ToArray();

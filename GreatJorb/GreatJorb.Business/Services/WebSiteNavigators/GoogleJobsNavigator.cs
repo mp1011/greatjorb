@@ -73,26 +73,7 @@ public class GoogleJobsNavigator : IWebSiteNavigator
             .ClickAsync();
 
         await page.WaitForNavigationFromAsync(url);
-
-        var jobCards = await page.QuerySelectorAllAsync("li.iFjolb");
-
-        throw new NotImplementedException();
-        //while(--pageNumber > 0)
-        //{
-        //    await jobCards.Last().ClickAsync();
-
-        //    var newJobCards = await TaskHelper.RepeatUntilCondition(
-        //        createTask: () => page.QuerySelectorAllAsync("li.iFjolb"),
-        //        condition: p => p.Length > jobCards.Length);
-
-        //    if (newJobCards == null)
-        //        break;
-
-        //    jobCards = newJobCards;
-        //}
-
         return page;
-
     }
 
     public Task<bool> IsLoginRequired(IPage page, CancellationToken cancellationToken)

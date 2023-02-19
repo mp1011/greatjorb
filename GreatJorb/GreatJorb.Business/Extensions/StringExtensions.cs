@@ -19,6 +19,30 @@ public static class StringExtensions
         return Regex.IsMatch(text, regex, RegexOptions.IgnoreCase);
     }
 
+    public static string SubstringUpTo(this string? text, char endExclusive)
+    {
+        if (text!.IsNullOrEmpty())
+            return string.Empty;
+
+        var index = text!.IndexOf(endExclusive);
+        if (index < 0)
+            return text ?? string.Empty;
+
+        return text.Substring(0, index);
+    }
+
+    public static string SubstringFrom(this string? text, char start)
+    {
+        if (text!.IsNullOrEmpty())
+            return string.Empty;
+
+        var index = text!.IndexOf(start);
+        if (index < 0)
+            return text ?? string.Empty;
+
+        return text.Substring(index);
+    }
+
     public static string UrlEncode(this string? text)
     {
         if (text == null)
@@ -137,5 +161,23 @@ public static class StringExtensions
     {
         var uri = new Uri(url);
         return uri.GetLeftPart(UriPartial.Authority) + relativePath;
+    }
+
+    public static string? GetQuerystringOrHashValue(this string url, string key)
+    {
+        var query = url.SubstringFrom('?');
+        if (query.IsNullOrEmpty())
+            return null;
+
+        var queryWithoutHash = query.SubstringUpTo('#');
+        var parsedQuery = HttpUtility.ParseQueryString(queryWithoutHash);
+
+        var result = parsedQuery[key];
+        if (result != null)
+            return result.Split(',').Last();
+
+        var hashQuery = query.SubstringFrom('#');
+        parsedQuery = HttpUtility.ParseQueryString(hashQuery);
+        return parsedQuery[key];
     }
 }
