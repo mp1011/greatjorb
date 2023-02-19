@@ -18,18 +18,25 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
 
     public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
         var jobTitles = await page.QuerySelectorAllAsync(".jcs-JobTitle");
 
         List<JobPosting> jobs = new();
         foreach(var title in jobTitles)
         {
+            var dataJk = await title.GetAttribute("data-jk");
+            var dataEmpn = await title.GetAttribute("data-empn");
+            var jobKey = $"Indeed {dataJk} {dataEmpn}";
+
+            if (knownJobs.Contains(jobKey))
+                continue;
+
             await title.ClickAsync();
             await page.WaitForDOMIdle(cancellationToken);
 
-            jobs.Add(await ExtractJobDetail(page, cancellationToken));
+            return await ExtractJobDetail(page, cancellationToken);
         }
 
+        return null;
     }
 
     public async Task<JobPosting> ExtractJobDetail(IPage page, CancellationToken cancellation)
