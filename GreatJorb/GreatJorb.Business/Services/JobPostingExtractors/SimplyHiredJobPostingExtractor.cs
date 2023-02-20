@@ -13,7 +13,10 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
 
     public string GetStorageKeyFromUrl(string url)
     {
-        throw new NotImplementedException();
+        return url
+            .SubstringUpTo('?')
+            .Split('/')
+            .Last();
     }
 
     public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
@@ -25,8 +28,8 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
             var url = await card.QuerySelectorAsync("a").GetAttribute("href");
 
             if (url.IsNullOrEmpty()
-                    || !url.StartsWith("/job")
-                    || knownJobs.Contains(url))
+                    || !url.Contains("/job")
+                    || knownJobs.Contains(GetStorageKeyFromUrl(url)))
             {
                 continue;
             }

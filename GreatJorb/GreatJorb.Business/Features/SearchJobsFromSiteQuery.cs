@@ -38,8 +38,6 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
                     jobs.Add(nextResult);
             }
 
-            await page.CloseAsync();
-
             return jobs.ToArray();
         }
 
@@ -59,8 +57,6 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
             var nextJob = await extractor.ExtractNextJob(page, request.KnownJobs, cancellationToken);
             if (nextJob == null)
                 return null;
-
-            request.KnownJobs.Add(nextJob.StorageKey);
 
             string[] keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter.Query, nextJob.DescriptionHtml ?? ""));
 

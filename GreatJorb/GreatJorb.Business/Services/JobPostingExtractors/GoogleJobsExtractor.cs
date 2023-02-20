@@ -29,24 +29,8 @@ public class GoogleJobsExtractor : IJobPostingExtractor
 
     private async Task<string> GetJobId(IPage page, IElementHandle element, CancellationToken cancellationToken)
     {
-        var shareButton = await element.QuerySelectorAsync("kno-share-button");
-
-        if(shareButton == null)
-        {
-            await element.ClickAsync();
-            return GetStorageKeyFromUrl(page.Url);
-        }
-
-        var divs = await shareButton.QuerySelectorAllAsync("div");
-
-        foreach(var div in divs)
-        {
-            var dataDsu = await div.GetAttribute("data-dsu");
-            if (dataDsu != null)
-                return GetStorageKeyFromUrl(dataDsu);
-        }
-
-        throw new Exception("Unable to find job id from element");
+        await element.ClickAsync();
+        return GetStorageKeyFromUrl(page.Url);       
     }
 
     private async Task<JobPosting> ExtractJob(IElementHandle element, IPage page, CancellationToken cancellationToken)

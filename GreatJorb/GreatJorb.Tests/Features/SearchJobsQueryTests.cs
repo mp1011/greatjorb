@@ -59,15 +59,24 @@ public class SearchJobsQueryTests
         var loggedInPage = await serviceProvider.Mediator.Send(
             new LoginQuery(webSite));
 
-        //var searchResult = await serviceProvider.Mediator.Send(
-        //    new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 20));
+        var knownJobs = new HashSet<string>();
+        var searchResult = await serviceProvider.Mediator.Send(
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), knownJobs, 3));
 
-        
-        //var newSearchResult = await serviceProvider.Mediator.Send(
-        //    new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), 20));
+        foreach(var job in searchResult)
+        {
+            knownJobs.Add(job.Job.StorageKey);
+        }
 
-        throw new Exception("check new result does not contain anything from first result");
-        throw new Exception("need to deal with previous urls");
+        var newSearchResult = await serviceProvider.Mediator.Send(
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), knownJobs, 3));
+
+        Assert.IsNotEmpty(newSearchResult);
+
+        foreach(var newResult in newSearchResult)
+        {
+            Assert.IsFalse(knownJobs.Contains(newResult.Job.StorageKey));
+        }
 
     }
 

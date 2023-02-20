@@ -59,6 +59,7 @@ public class GoogleJobsNavigator : IWebSiteNavigator
 
     public async Task<IPage> GotoJobsListPage(IPage page, string query, CancellationToken cancellationToken)
     {
+        await page.GoToAsync("https://www.google.com");
         var url = page.Url;
 
         await page
@@ -73,6 +74,7 @@ public class GoogleJobsNavigator : IWebSiteNavigator
             .ClickAsync();
 
         await page.WaitForNavigationFromAsync(url);
+
         return page;
     }
 

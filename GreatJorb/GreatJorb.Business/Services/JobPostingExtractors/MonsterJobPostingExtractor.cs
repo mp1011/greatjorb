@@ -14,7 +14,8 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
 
     public string GetStorageKeyFromUrl(string url)
     {
-        throw new NotImplementedException();
+        url = url.SubstringUpTo('?');
+        return url.Split('/').Last();
     }
 
     public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)

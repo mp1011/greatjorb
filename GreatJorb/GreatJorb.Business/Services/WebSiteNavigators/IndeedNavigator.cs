@@ -79,16 +79,16 @@ public class IndeedNavigator : IWebSiteNavigator
 
     public async Task<IElementHandle?> GetPasswordElement(IPage page, CancellationToken cancellationToken)
     {
-        await page
-            .GetElementByInnerText("button","Continue", cancellationToken)
-            .ClickAsync();
-
-        if(await page.WaitForManualCaptcha(cancellationToken))
+        if (await page.WaitForManualCaptcha(cancellationToken))
         {
             await page
                 .GetElementByInnerText("button", "Continue", cancellationToken)
                 .ClickAsync();
         }
+
+        await page
+            .GetElementByInnerText("button","Continue", cancellationToken)
+            .ClickAsync();
 
         await Task.Delay(1000);
 

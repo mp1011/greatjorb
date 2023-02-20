@@ -17,7 +17,9 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
     public string GetStorageKeyFromUrl(string url)
     {
-        throw new NotImplementedException();
+        url = url.SubstringUpTo('?');
+        url = url.TrimEnd('/');
+        return "LinkedIn " + url.Split('/').Last();
     }
 
     public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
@@ -48,7 +50,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
         url = $"https://linkedin.com/{url}";
 
-        return new JobPosting(url, new Uri(url).GetLeftPart(UriPartial.Path))
+        return new JobPosting(url, GetStorageKeyFromUrl(url))
         {
             Title = await jobCard.GetTextAsync(".job-card-list__title"),
             Company = await jobCard.GetTextAsync(".job-card-container__company-name"),
@@ -100,9 +102,6 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
             .ToArray();
 
         await _mediator.Send(new SetPropertiesFromTextCommand(posting, posting.Title ?? ""));
-
-        throw new Exception("handle this differently");
-       //await _mediator.Publish(new JobPostingRead(posting, site, FromCache: false));
 
         return posting;       
     }
