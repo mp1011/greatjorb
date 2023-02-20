@@ -10,4 +10,6 @@ public interface IJobPostingExtractor
         IPage page,         
         HashSet<string> knownJobs,
         CancellationToken cancellationToken);
+
+    Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken);
 }

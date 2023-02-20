@@ -24,22 +24,55 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
 
     public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
     {
-        var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
-
-        foreach(var jobCard in jobCards)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            string url = await jobCard
-                .QuerySelectorAsync("a.job-card-container__link")
-                .GetAttribute("href");
+            var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
 
-            if (knownJobs.Contains(GetStorageKeyFromUrl(url)))
-                continue;
+            foreach (var jobCard in jobCards)
+            {
+                string url = await jobCard
+                    .QuerySelectorAsync("a.job-card-container__link")
+                    .GetAttribute("href");
 
-            var header = await ExtractPostingHeaders(jobCard);
-            return await ExtractPostingDetails(page, header);
+                if (knownJobs.Contains(GetStorageKeyFromUrl(url)))
+                    continue;
+
+                var header = await ExtractPostingHeaders(jobCard);
+                return await ExtractPostingDetails(page, header);
+            }
+
+            if (!await GotoNextPage(page, cancellationToken))
+                break;
         }
 
         return null;
+    }
+
+    public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
+    {
+        var pager = await page.WaitForSelectorAsync("ul.artdeco-pagination__pages");
+        var pagerElements = await pager.QuerySelectorAllAsync("li.artdeco-pagination__indicator");
+
+        bool foundSelected = false;
+
+        foreach (var element in pagerElements)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!foundSelected)
+            {
+                var classes = (await element.GetAttribute("class")).Split(' ');
+                foundSelected = classes.Contains("selected");
+            }
+            else
+            {
+                await element.ClickAsync();
+                await page.WaitForDOMIdle(cancellationToken);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task<JobPosting> ExtractPostingHeaders(IElementHandle jobCard)

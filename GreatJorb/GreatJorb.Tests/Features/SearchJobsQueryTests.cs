@@ -37,6 +37,41 @@ public class SearchJobsQueryTests
         Assert.AreEqual(3, idCount);
     }
 
+    [Category(TestType.WebTest3)]
+    [TestCase(Site.LinkedIn, "c#",20)]
+    [TestCase(Site.GoogleJobs, "c#", 20)]
+    [TestCase(Site.Indeed, "c#", 20)]
+    [TestCase(Site.SimplyHired, "c#", 20)]
+    [TestCase(Site.Dice, "c#", 20)]
+    [TestCase(Site.Monster, "c#", 20)]
+    public async Task CanSearchJobsBeyondFirstPage(Site site, string query, int count)
+    {
+        using var serviceProvider = TestServiceProvider.CreateServiceProvider(
+            includeConfiguration: true,
+            includeMediator: true,
+            includePuppeteer: true);
+
+        var sites = await serviceProvider.Mediator.Send(new GetSitesQuery(site));
+
+        var webSite = sites.Single();
+
+        var loggedInPage = await serviceProvider.Mediator.Send(
+            new LoginQuery(webSite));
+
+        var searchResult = await serviceProvider.Mediator.Send(
+            new SearchJobsFromSiteQuery(loggedInPage.Data, new JobFilter(query), new HashSet<string>(), count));
+
+        Assert.IsNotEmpty(searchResult);
+
+        var idCount = searchResult
+            .Select(p => p.Job.StorageKey)
+            .Distinct()
+            .Count();
+
+        Assert.AreEqual(count, idCount);
+    }
+
+
 
     [Category(TestType.WebTest3)]
     [TestCase(Site.LinkedIn, "c#")]

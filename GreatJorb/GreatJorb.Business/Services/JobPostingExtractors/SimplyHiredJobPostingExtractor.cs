@@ -40,7 +40,11 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
 
         return null;
     }
-
+    public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
+    {
+        await Task.Delay(0);
+        throw new NotImplementedException();
+    }
     private async Task<JobPosting> ExtractJob(IPage page, CancellationToken cancellationToken)
     {
         var job = new JobPosting();

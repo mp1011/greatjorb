@@ -29,13 +29,22 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
 
             string jobsUrl = page.Url;
 
+            HashSet<string> knownJobs = new();
+            foreach(var key in request.KnownJobs)
+            {
+                knownJobs.Add(key);
+            }
+
             while(!cancellationToken.IsCancellationRequested && jobs.Count < request.Limit)
             {
-                var nextResult = await ExtractNextJob(page, request, extractor, jobsUrl, cancellationToken)
+                var nextResult = await ExtractNextJob(page, request, knownJobs, extractor, jobsUrl, cancellationToken)
                     .WithMinimumDelay(_settings.MinTimeBetweenRequests);
 
                 if (nextResult != null)
+                {
+                    knownJobs.Add(nextResult.Job.StorageKey);
                     jobs.Add(nextResult);
+                }
             }
 
             return jobs.ToArray();
@@ -44,6 +53,7 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
         private async Task<JobPostingSearchResult?> ExtractNextJob(
             IPage page, 
             SearchJobsFromSiteQuery request, 
+            HashSet<string> knownJobs,
             IJobPostingExtractor extractor, 
             string jobsUrl, 
             CancellationToken cancellationToken)
@@ -54,7 +64,7 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
                 await page.WaitForDOMIdle(cancellationToken);
             }
 
-            var nextJob = await extractor.ExtractNextJob(page, request.KnownJobs, cancellationToken);
+            var nextJob = await extractor.ExtractNextJob(page, knownJobs, cancellationToken);
             if (nextJob == null)
                 return null;
 

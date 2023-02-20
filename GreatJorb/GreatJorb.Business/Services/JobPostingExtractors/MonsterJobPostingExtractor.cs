@@ -35,6 +35,12 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
         return null;
     }
 
+    public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
+    {
+        await Task.Delay(0);
+        throw new NotImplementedException();
+    }
+
     public async Task<JobPosting> ExtractJob(IPage page, string url, CancellationToken cancellationToken)
     {
         var jobContainer = await page.QuerySelectorAsync("div[class*='jobview-container']");

@@ -26,6 +26,11 @@ public class GoogleJobsExtractor : IJobPostingExtractor
 
         return null;
     }
+    public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
+    {
+        await Task.Delay(0);
+        throw new NotImplementedException();
+    }
 
     private async Task<string> GetJobId(IPage page, IElementHandle element, CancellationToken cancellationToken)
     {
