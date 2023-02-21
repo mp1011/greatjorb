@@ -752,4 +752,11 @@ public static class PuppeteerExtensions
 
         await page.GoToAsync(newUrl);
     }
+
+    public static async Task ClickAndWaitForNavigation(this IPage page, IElementHandle element)
+    {
+        string url = page.Url;
+        await element.ClickAsync();
+        await page.WaitForNavigationFromAsync(url);
+    }
 }

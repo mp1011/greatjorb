@@ -43,8 +43,29 @@ public class DiceJobPostingExtractor : IJobPostingExtractor
 
     public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
     {
-        await Task.Delay(0);
-        throw new NotImplementedException();
+        var pager = await page.WaitForSelectorAsync("ul.pagination");
+        var pagerElements = await pager.QuerySelectorAllAsync("li.pagination-page");
+
+        bool foundSelected = false;
+
+        foreach (var element in pagerElements)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!foundSelected)
+            {
+                var classes = (await element.GetAttribute("class")).Split(' ');
+                foundSelected = classes.Contains("active");
+            }
+            else
+            {
+                await element.ClickAsync();
+                await page.WaitForDOMIdle(cancellationToken);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public async Task<JobPosting> ExtractJobDetail(IPage page, CancellationToken cancellation)
