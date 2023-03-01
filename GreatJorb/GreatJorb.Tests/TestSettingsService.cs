@@ -37,6 +37,8 @@ public class TestSettingsService : ISecureSettingsService
 
     public string OnsiteLocation => _settingsService.OnsiteLocation;
 
+    public int JobsToExtractPerPass => 10;
+
     private async Task<string> PromptUserAsync(string prompt)
     {
         if (File.Exists("prompt.html"))

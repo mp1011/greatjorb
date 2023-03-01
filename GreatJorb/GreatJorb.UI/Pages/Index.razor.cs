@@ -83,7 +83,7 @@ public partial class Index : IDisposable
         Postings.Clear();
 
         await Mediator.Send(new AddFilterToCacheCommand(filter));
-        await Mediator.Send(new SearchJobsFromMultipleSitesQuery(filter, 10), _cancellationTokenSource.Token);
+        await Mediator.Send(new SearchJobsFromMultipleSitesQuery(filter), _cancellationTokenSource.Token);
 
         StateHasChanged();
     }

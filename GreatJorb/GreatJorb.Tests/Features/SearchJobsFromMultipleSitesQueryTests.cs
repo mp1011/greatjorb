@@ -18,7 +18,7 @@ public class SearchJobsFromMultipleSitesQueryTests
             Sites = Site.GoogleJobs | Site.LinkedIn
         };
 
-        var result = await serviceProvider.Mediator.Send(new SearchJobsFromMultipleSitesQuery(filter, 2));
+        var result = await serviceProvider.Mediator.Send(new SearchJobsFromMultipleSitesQuery(filter));
 
         Assert.IsNotNull(result);
         Assert.IsNotEmpty(result);

@@ -18,4 +18,5 @@ public static class EnumerableExtensions
         match = matchList.ToArray();
         noMatch = noMatchList.ToArray();
     }
+
 }

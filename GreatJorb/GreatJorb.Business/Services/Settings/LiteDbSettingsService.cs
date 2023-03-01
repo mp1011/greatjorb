@@ -32,6 +32,8 @@ public class LiteDbSettingsService : ISecureSettingsService
 
     public string OnsiteLocation => _configSettings.OnsiteLocation;
 
+    public int JobsToExtractPerPass => _configSettings.JobsToExtractPerPass;
+
     public async Task<string?> GetSitePassword(WebSite site)
     {
         SiteCredentials? creds = await GetCredentials(site);

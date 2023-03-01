@@ -6,8 +6,8 @@ public static class EnumExtensions
     {
         var displayAttribute = enumValue.GetType()
                        .GetMember(enumValue.ToString())
-                       .First()
-                       .GetCustomAttribute<DisplayAttribute>();
+                       .FirstOrDefault()
+                       ?.GetCustomAttribute<DisplayAttribute>();
 
         return displayAttribute?.Name ?? enumValue.ToString();
     }

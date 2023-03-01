@@ -37,10 +37,17 @@ public static class MauiProgram
 		builder.Services.AddSingleton<BrowserProvider>();
 		builder.Services.AddSingleton<IWebSiteNavigator, LinkedInNavigator>();
 		builder.Services.AddSingleton<IWebSiteNavigator, GoogleJobsNavigator>();
-
+		builder.Services.AddSingleton<IWebSiteNavigator, IndeedNavigator>();
+		builder.Services.AddSingleton<IWebSiteNavigator, DiceNavigator>();
+		builder.Services.AddSingleton<IWebSiteNavigator, MonsterNavigator>();
+		builder.Services.AddSingleton<IWebSiteNavigator, SimplyHiredNavigator>();
 
 		builder.Services.AddSingleton<IJobPostingExtractor, LinkedInJobPostingExtractor>();
 		builder.Services.AddSingleton<IJobPostingExtractor, GoogleJobsExtractor>();
+		builder.Services.AddSingleton<IJobPostingExtractor, DiceJobPostingExtractor>();
+		builder.Services.AddSingleton<IJobPostingExtractor, IndeedJobPostingExtractor>();
+		builder.Services.AddSingleton<IJobPostingExtractor, MonsterJobPostingExtractor>();
+		builder.Services.AddSingleton<IJobPostingExtractor, SimplyHiredJobPostingExtractor>();
 
 		builder.Services.AddSingleton<LocalDataContextProvider>();
 

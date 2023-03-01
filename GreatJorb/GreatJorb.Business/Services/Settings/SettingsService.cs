@@ -34,6 +34,8 @@ public class SettingsService : ISettingsService
 
     public TimeSpan MinTimeBetweenRequests => GetTimeConfig(nameof(MinTimeBetweenRequests), 5);
 
+    public int JobsToExtractPerPass => _configuration[nameof(JobsToExtractPerPass)].TryParseInt(10);
+
     private TimeSpan GetTimeConfig(string key, int defaultMS) =>
         TimeSpan.FromMilliseconds(_configuration[key].TryParseInt(defaultMS));
 
