@@ -16,10 +16,10 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
 
             var keywordLines = liTags
                 .Union(pTags)
-                .Where(p => p.InnerText.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase))
                 .Select(p => CleanUpLine(p.InnerText))
                 .Union(ExtractBullets(request.Html, request.Keyword))
-               // .Where(p=>p.Length < 100)
+                .SelectMany(p => ExtractSentences(p))
+                .Where(p => p.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase))
                 .Distinct()
                 .ToArray();
 
@@ -54,6 +54,15 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
 
                 index = endIndex;
             }
+        }
+
+        private IEnumerable<string> ExtractSentences(string input)
+        {
+            var maybeSentences = input.Split(". ");
+            if (maybeSentences.Length >= 3)
+                return maybeSentences;
+            else
+                return new string[] { input };
         }
 
         private string CleanUpLine(string line)

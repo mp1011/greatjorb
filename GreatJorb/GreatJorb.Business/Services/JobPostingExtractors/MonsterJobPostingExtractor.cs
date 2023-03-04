@@ -64,8 +64,7 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
             await _mediator.Send(new SetPropertiesFromTextCommand(job, line));
         }
 
-        job.DescriptionHtml = await jobContainer
-            .QuerySelectorAsync("div[class*='DescriptionContainer']")
+        job.DescriptionHtml = await GetDescriptionElement(page,cancellationToken)
             .GetInnerHTML();
 
         job.Location = await jobContainer
@@ -78,4 +77,11 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
         return job;
     }
 
+    public async Task<IElementHandle?> GetDescriptionElement(IPage page, CancellationToken cancellation)
+    {
+        var jobContainer = await page.QuerySelectorAsync("div[class*='jobview-container']");
+
+        return await jobContainer
+            .QuerySelectorAsync("div[class*='DescriptionContainer']");
+    }
 }

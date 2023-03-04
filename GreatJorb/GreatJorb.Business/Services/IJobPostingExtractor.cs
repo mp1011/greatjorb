@@ -11,5 +11,7 @@ public interface IJobPostingExtractor
         HashSet<string> knownJobs,
         CancellationToken cancellationToken);
 
+    Task<IElementHandle?> GetDescriptionElement(IPage page, CancellationToken cancellation);
+
     Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken);
 }

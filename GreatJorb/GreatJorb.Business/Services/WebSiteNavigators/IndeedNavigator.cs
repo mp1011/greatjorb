@@ -2,6 +2,13 @@
 
 public class IndeedNavigator : IWebSiteNavigator
 {
+    private readonly IMediator _mediator;
+
+    public IndeedNavigator(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
     public Site Website => Site.Indeed;
 
     public async Task<IPage> ApplyFilters(IPage page, JobFilter filter, CancellationToken cancellationToken)
@@ -79,7 +86,7 @@ public class IndeedNavigator : IWebSiteNavigator
 
     public async Task<IElementHandle?> GetPasswordElement(IPage page, CancellationToken cancellationToken)
     {
-        if (await page.WaitForManualCaptcha(cancellationToken))
+        if (await page.WaitForManualCaptcha(_mediator, cancellationToken))
         {
             await page
                 .GetElementByInnerText("button", "Continue", cancellationToken)
@@ -91,6 +98,13 @@ public class IndeedNavigator : IWebSiteNavigator
             .ClickAsync();
 
         await Task.Delay(1000);
+
+        if (await page.WaitForManualCaptcha(_mediator, cancellationToken))
+        {
+            await page
+                .GetElementByInnerText("button", "Continue", cancellationToken)
+                .ClickAsync();
+        }
 
         await page
             .GetElementByInnerText("a", "Log in with a password instead", cancellationToken)

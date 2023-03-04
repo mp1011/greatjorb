@@ -38,7 +38,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
                     continue;
 
                 var header = await ExtractPostingHeaders(jobCard);
-                return await ExtractPostingDetails(page, header);
+                return await ExtractPostingDetails(page, header, cancellationToken);
             }
 
             if (!await GotoNextPage(page, cancellationToken))
@@ -97,7 +97,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         };
     }
     
-    private async Task<JobPosting> ExtractPostingDetails(IPage page, JobPosting posting)
+    private async Task<JobPosting> ExtractPostingDetails(IPage page, JobPosting posting, CancellationToken cancellation)
     {
         await page.GoToAsync(posting.Uri.ToString());
 
@@ -111,8 +111,7 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
             .QuerySelectorAllAsync(".jobs-unified-top-card__job-insight")
             .GetInnerTextAsync();
 
-        var description = await page
-            .QuerySelectorAsync(".jobs-description-content")
+        var description = await GetDescriptionElement(page, cancellation)
             .GetInnerHTML();
 
         posting.Company = await page.GetInnerTextAsync(".jobs-unified-top-card__company-name");
@@ -139,4 +138,9 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
         return posting;       
     }
 
+    public async Task<IElementHandle?> GetDescriptionElement(IPage page, CancellationToken cancellation)
+    {
+        return await page
+            .QuerySelectorAsync(".jobs-description-content");
+    }
 }

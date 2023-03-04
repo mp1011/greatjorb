@@ -197,7 +197,9 @@ public static class PuppeteerExtensions
     }
 
 
-    public static async Task<bool> WaitForManualCaptcha(this IPage page, CancellationToken cancellationToken)
+    public static async Task<bool> WaitForManualCaptcha(this IPage page, 
+        IMediator mediator,
+        CancellationToken cancellationToken)
     {
         await Task.Delay(500);
 
@@ -205,6 +207,8 @@ public static class PuppeteerExtensions
 
         if (captchaFrame == null)
             return false;
+
+        await mediator.Publish(new BrowserPageChanged(page, page.Url, BrowserAction.ManualCaptcha));
 
         var captchaResponse = await captchaFrame.GetAttribute("data-hcaptcha-response");
 
@@ -634,23 +638,26 @@ public static class PuppeteerExtensions
     /// <returns></returns>
     public static async Task<IElementHandle?> EvaluateFunctionReturnElementAsync(this IElementHandle element, IPage page, string jsFunction)
     {
-        var elementId = await element.EvaluateFunctionAsync<string>(@"e => { 
+        //"id" is not guaranteed to be unique, insert a fake css class instead
+
+        string dummyClass = $"gj_dummy_{Guid.NewGuid()}";
+
+        dummyClass = await element.EvaluateFunctionAsync<string>(@"e => { 
                 var element = " + jsFunction + @";
                 if(!element)
                     return '';
 
-                if(!element.id)
-                {
-                    element.id = '" + "dummy" + Guid.NewGuid().ToString() + @"';
+                for (let i = 0; i < element.classList.length; i++) {
+                    if(element.classList[i].startsWith('gj_dummy_')) 
+                        return element.classList[i];                    
                 }
 
-                return element.id;
-            }");
+                element.classList.add('" + dummyClass + @"');
 
-        if (elementId.IsNullOrEmpty())
-            return null;
-
-        return await page.QuerySelectorAsync("#" + elementId);
+                return '" + dummyClass + @"';
+        }");
+ 
+        return await page.QuerySelectorAsync("." + dummyClass);
     }
 
     /// <summary>

@@ -21,6 +21,7 @@
             BrowserAction.Navigate => "Navigated to " + UrlShort,
             BrowserAction.FailedNavigationRetrying => "Failed navigation, retrying",
             BrowserAction.FatalError => Error?.Message ?? "Fatal Error",
+            BrowserAction.ManualCaptcha => "Waiting for Manual Captcha",
             _ => Action.ToString()
         };
     }

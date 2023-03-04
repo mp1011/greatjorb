@@ -96,4 +96,10 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
 
         return job;
     }
+
+    public async Task<IElementHandle?> GetDescriptionElement(IPage page, CancellationToken cancellation)
+    {
+        return await page
+            .QuerySelectorAsync("div[data-testid='viewJobBodyJobFullDescriptionContent']");
+    }
 }

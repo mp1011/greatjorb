@@ -33,7 +33,7 @@ public class TestServiceProvider : IDisposable
                 #pragma warning restore CA1416
 
                if (includeMediator)
-                   sc.AddMediatR(typeof(LoginQuery));
+                   sc.AddMediatR(typeof(LoginQuery), typeof(TestNotificationHandler));
 
                if (includePuppeteer)
                {

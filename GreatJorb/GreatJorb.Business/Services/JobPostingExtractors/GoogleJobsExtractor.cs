@@ -58,15 +58,8 @@ public class GoogleJobsExtractor : IJobPostingExtractor
         await element.ClickAsync();
         await Task.Delay(200);
 
-        var viewportSize = await page.GetViewportSize();
-
-        var jobDescriptionArea = await page
-                .GetElementByPoint(0.7, 0.7)
-                .GetAncestor(page, async p =>
-                {
-                    var bounds = await p.BoundingBoxAsync();
-                    return (double)bounds.Height > viewportSize.Height * 0.5;
-                }, cancellationToken);
+       
+        var jobDescriptionArea = await GetDescriptionElement(page, cancellationToken);
 
         if (jobDescriptionArea != null)
         {
@@ -84,5 +77,19 @@ public class GoogleJobsExtractor : IJobPostingExtractor
     {
         var docid = url.GetQuerystringOrHashValue("htidocid");
         return "Google " + docid;
+    }
+
+    public async Task<IElementHandle?> GetDescriptionElement(IPage page, CancellationToken cancellationToken)
+    {
+        var viewportSize = await page.GetViewportSize();
+
+        return await page
+                .GetElementByPoint(0.7, 0.7)
+                .GetAncestor(page, async p =>
+                {
+                    var id = await p.GetAttribute("id"); //for debugging
+                    var bounds = await p.BoundingBoxAsync();
+                    return bounds != null && (double)bounds.Height > viewportSize.Height * 0.5;
+                }, cancellationToken); throw new NotImplementedException();
     }
 }

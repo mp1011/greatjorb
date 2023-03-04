@@ -49,7 +49,6 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
             cancellation,
             retryUntilFound: true);
 
-
         var job = new JobPosting();
         if (jobContainer == null)
             return job;
@@ -65,8 +64,7 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
             .QuerySelectorAsync("div[data-company-name='true']")
             .GetInnerText();
 
-        job.DescriptionHtml = await jobContainer
-            .QuerySelectorAsync("#jobDescriptionText")
+        job.DescriptionHtml = await GetDescriptionElement(page, cancellation)
             .GetInnerHTML();
 
         var dataLines = await jobContainer.ExtractTextFromLeafNodes("div", delimiter: '•');
@@ -77,5 +75,18 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
         }
 
         return job;
+    }
+
+    public async Task<IElementHandle?> GetDescriptionElement(IPage page, CancellationToken cancellation)
+    {
+        var jobContainer = await page.WaitForSelectorSafeAsync(".jobsearch-ViewJobLayout-jobDisplay",
+            cancellation,
+            retryUntilFound: true);
+
+        if (jobContainer == null)
+            return null;
+
+        return await jobContainer
+                .QuerySelectorAsync("#jobDescriptionText");
     }
 }

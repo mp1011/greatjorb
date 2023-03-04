@@ -128,8 +128,11 @@ public class DiceJobPostingExtractor : IJobPostingExtractor
            .QuerySelectorAsync("h1.jobTitle")
            .GetInnerText();
 
-        var mainElement = await page.QuerySelectorAsync(".container.job-details");
-        job.DescriptionHtml = await mainElement.GetInnerHTML();
+        var mainElement = await GetDescriptionElement(page, cancellation);
+        if (mainElement != null)
+        {
+            job.DescriptionHtml = await mainElement.GetInnerHTML();
+        }
 
         var lines = await mainElement
            .QuerySelectorAllAsync("p,li")
@@ -149,5 +152,17 @@ public class DiceJobPostingExtractor : IJobPostingExtractor
             .GetInnerText();
 
         return job;
+    }
+
+    public async Task<IElementHandle?> GetDescriptionElement(IPage page, CancellationToken cancellation)
+    {
+        var description = await page.QuerySelectorAsync(".container.job-details");
+
+        if(description == null)
+        {
+            description = await page.QuerySelectorAsync(".job-description");
+        }
+
+        return description;
     }
 }
