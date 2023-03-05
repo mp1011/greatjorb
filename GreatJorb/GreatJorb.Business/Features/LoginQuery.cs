@@ -38,17 +38,22 @@ public record LoginQuery(WebSite Site) : IRequest<Result<WebPage>>
 
             await navigator
                 .GetLoginElement(page, cancellationToken)
-                .SetText(page, userName);
+                .SetText(page, userName)
+                .ThrowNavigationErrorIfNull(page,_mediator,"Login Element", cancellationToken);
 
             await navigator
                 .GetPasswordElement(page, cancellationToken)
-                .SetText(page, password);
+                .SetText(page, password)
+                .ThrowNavigationErrorIfNull(page, _mediator, "Password Element", cancellationToken);
 
             await navigator
                 .GetLoginButton(page, cancellationToken)
+                .ThrowNavigationErrorIfNull(page, _mediator, "Login Button", cancellationToken)
                 .ClickAsync();
 
             await page.WaitForNavigationFromAsync(loginPageUrl);
+
+            _mediator.Publish(new BrowserPageChanged(page, "Waiting to be logged in"));
 
             await navigator.WaitUntilLoggedIn(page, cancellationToken);
 

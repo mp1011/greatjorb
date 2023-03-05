@@ -38,11 +38,37 @@ public class IndeedJobPostingExtractor : IJobPostingExtractor
 
         return null;
     }
+
     public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
     {
-        await Task.Delay(0);
-        throw new NotImplementedException();
+        var pager = await page.QuerySelectorAsync("nav[role='navigation']");
+        if (pager == null)
+            return false;
+
+        var pagerElements = await pager.QuerySelectorAllAsync("div");
+
+        bool foundSelected = false;
+
+        foreach (var element in pagerElements)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!foundSelected)
+            {
+                var button = await element.QuerySelectorAsync("button");
+                foundSelected = (await button.GetAttribute("data-testid")) == "pagination-page-current";
+            }
+            else
+            {
+                await element.ClickAsync();
+                await page.WaitForDOMIdle(cancellationToken);
+                return true;
+            }
+        }
+
+        return false;
     }
+
     public async Task<JobPosting> ExtractJobDetail(IPage page, CancellationToken cancellation)
     {
         var jobContainer = await page.WaitForSelectorSafeAsync(".jobsearch-ViewJobLayout-jobDisplay", 

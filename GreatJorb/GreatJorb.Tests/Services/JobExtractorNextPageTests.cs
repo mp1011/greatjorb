@@ -8,6 +8,7 @@
         [TestCase(Site.Monster)]
         [TestCase(Site.SimplyHired)]
         [TestCase(Site.Dice)]
+        [TestCase(Site.Indeed)]
         public async Task CanGoToNextPageOfResults(Site site)
         {
             using var serviceProvider = TestServiceProvider.CreateServiceProvider(
@@ -25,17 +26,26 @@
             
             var loginResult = await serviceProvider.Mediator.Send(new LoginQuery(webSite));
 
-            if (navigator == null || loginResult == null || loginResult.Data == null || loginResult.Data.Page == null)
+            if (navigator == null || loginResult == null || loginResult.Data == null || loginResult.Data.Page == null || extractor == null)
             {
                 Assert.Fail();
                 return;
             }
 
             await navigator.GotoJobsListPage(loginResult.Data.Page, "c#", new CancellationToken());
-            Assert.IsTrue(await extractor!.GotoNextPage(loginResult.Data.Page, new CancellationToken()));
+            var job1 = await extractor.ExtractNextJob(loginResult.Data.Page, new HashSet<string>(), new CancellationToken());
 
-            //do it again
             Assert.IsTrue(await extractor!.GotoNextPage(loginResult.Data.Page, new CancellationToken()));
+            var job2 = await extractor.ExtractNextJob(loginResult.Data.Page, new HashSet<string>(), new CancellationToken());
+
+            if (job1 == null || job2 == null)
+            {
+                Assert.IsNotNull(job1);
+                Assert.IsNotNull(job2);
+                return;
+            }
+
+            Assert.AreNotEqual(job1.StorageKey, job2.StorageKey);
         }
     }
 }

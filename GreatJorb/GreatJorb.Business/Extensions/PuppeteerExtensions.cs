@@ -61,6 +61,33 @@ public static class PuppeteerExtensions
             }
         }
 
+        return Array.Empty<IElementHandle>();
+    }
+
+    public static async Task<IElementHandle?> QuerySelectorSafeAsync(this IPage page,
+       string selector,
+       CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                return await page.QuerySelectorAsync(selector);
+            }
+            catch (Exception e)
+            {
+                if (e.Message.Contains("session closed", StringComparison.OrdinalIgnoreCase)
+                    || e.Message.Contains("Execution context was destroyed, most likely because of a navigation."))
+                {
+                    await Task.Delay(100);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         return null;
     }
 
@@ -725,15 +752,18 @@ public static class PuppeteerExtensions
     {
         DateTime start = DateTime.Now;
 
-        var body = await page.QuerySelectorAsync("body");
-        var html = await body.GetInnerHTML();
+        var body = await page.QuerySelectorSafeAsync("body", cancellationToken);
+        var html = body == null ? "" : await body.GetInnerHTML();
 
         while(!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(1000);
 
-            body = await page.QuerySelectorAsync("body");
-    
+            body = await page.QuerySelectorSafeAsync("body", cancellationToken);
+
+            if (body == null)
+                continue;
+
             var newHtml = await body.GetInnerHTML();
             if(newHtml.Equals(html))
             {

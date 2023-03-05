@@ -86,6 +86,8 @@ public class IndeedNavigator : IWebSiteNavigator
 
     public async Task<IElementHandle?> GetPasswordElement(IPage page, CancellationToken cancellationToken)
     {
+        await Task.Delay(1000);
+
         if (await page.WaitForManualCaptcha(_mediator, cancellationToken))
         {
             await page

@@ -6,5 +6,6 @@ public enum BrowserAction
     Navigate=1,
     FailedNavigationRetrying=2,
     FatalError=3,
-    ManualCaptcha=4
+    ManualCaptcha=4,
+    Information=5
 }

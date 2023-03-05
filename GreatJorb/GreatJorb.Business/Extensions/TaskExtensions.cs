@@ -102,5 +102,26 @@
 
             return result;
         }
+
+        public static async Task<T?> ThrowNavigationErrorIfNull<T>(this Task<T?> task, IPage page, IMediator mediator, string elementDescription, CancellationToken cancellationToken)
+            where T : class
+        {
+            var result = await task;
+            if(result == null)
+            {
+                var error = new NullReferenceException($"{elementDescription} was not found");
+
+                await mediator.Publish(new BrowserPageChanged(
+                    page,
+                    page.Url,
+                    BrowserAction.FatalError,
+                    error));
+
+                throw error;
+            }
+
+            return result;
+
+        }
     }
 }
