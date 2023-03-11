@@ -3,13 +3,13 @@
     [Category(TestType.WebTest2)]
     public class JobExtractorNextPageTests
     {
-        [TestCase(Site.LinkedIn)]
-        [TestCase(Site.GoogleJobs)]
-        [TestCase(Site.Monster)]
-        [TestCase(Site.SimplyHired)]
-        [TestCase(Site.Dice)]
-        [TestCase(Site.Indeed)]
-        public async Task CanGoToNextPageOfResults(Site site)
+        [TestCase(Site.LinkedIn,false)]
+        [TestCase(Site.GoogleJobs,true)]
+        [TestCase(Site.Monster,true)]
+        [TestCase(Site.SimplyHired,false)]
+        [TestCase(Site.Dice,false)]
+        [TestCase(Site.Indeed,false)]
+        public async Task CanGoToNextPageOfResults(Site site, bool isSinglePage)
         {
             using var serviceProvider = TestServiceProvider.CreateServiceProvider(
                includeConfiguration: true,
@@ -32,11 +32,25 @@
                 return;
             }
 
-            await navigator.GotoJobsListPage(loginResult.Data.Page, "c#", new CancellationToken());
-            var job1 = await extractor.ExtractNextJob(loginResult.Data.Page, new HashSet<string>(), new CancellationToken());
+            var page = loginResult.Data.Page;
+
+            await navigator.GotoJobsListPage(page, "c#", new CancellationToken());
+            string jobsUrl = loginResult.Data.Page.Url;
+
+            await Task.Delay(1000);
+            var job1 = await extractor.ExtractNextJob(page, new HashSet<string>(), new CancellationToken());
+
+            if (page.Url != jobsUrl)
+                await page.GoToAsync(jobsUrl);
+
+            var knownJobs = new HashSet<string>();
+            if (isSinglePage)
+                knownJobs.Add(job1!.StorageKey);
+
+            await page.WaitForDOMIdle(new CancellationToken());
 
             Assert.IsTrue(await extractor!.GotoNextPage(loginResult.Data.Page, new CancellationToken()));
-            var job2 = await extractor.ExtractNextJob(loginResult.Data.Page, new HashSet<string>(), new CancellationToken());
+            var job2 = await extractor.ExtractNextJob(loginResult.Data.Page, knownJobs, new CancellationToken());
 
             if (job1 == null || job2 == null)
             {

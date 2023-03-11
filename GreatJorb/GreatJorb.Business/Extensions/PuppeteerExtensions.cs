@@ -561,6 +561,32 @@ public static class PuppeteerExtensions
         return elementAtPoint;
     }
 
+    public static async Task<IElementHandle?> GetScrollContainer(this IElementHandle? element,
+        IPage page,
+        CancellationToken cancellationToken)
+    {
+        return await element.GetAncestor(page, async (e) =>
+        {
+            var scrollHeight = await e.EvaluateFunctionAsync<int>("e=>e.scrollHeight");
+            var clientHeight = await e.EvaluateFunctionAsync<int>("e=>e.clientHeight");
+            return scrollHeight > clientHeight;
+        }, cancellationToken);
+    }
+
+    public static async Task ScrollContainerToElement(this IElementHandle? element,
+        IPage page,
+        CancellationToken cancellationToken)
+    {
+        var scrollContainer = await element.GetScrollContainer(page, cancellationToken);
+        if (scrollContainer == null)
+            return;
+
+        var elementPosition = await element.EvaluateFunctionAsync<int>("e=>e.offsetTop");
+        await scrollContainer.EvaluateFunctionAsync("e=>e.scrollTop=" + elementPosition);
+
+        await Task.Delay(500);
+    }
+
     /// <summary>
     /// Returns the first ancestor that matches the given condition
     /// </summary>

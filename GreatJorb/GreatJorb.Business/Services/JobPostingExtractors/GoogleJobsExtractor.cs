@@ -28,8 +28,15 @@ public class GoogleJobsExtractor : IJobPostingExtractor
     }
     public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
     {
-        await Task.Delay(0);
-        throw new NotImplementedException();
+        var jobHeaders = await page.QuerySelectorAllAsync("li.iFjolb");
+        var lastHeader = jobHeaders.Last();
+
+        await lastHeader.ScrollContainerToElement(page, cancellationToken);
+
+        await page.WaitForDOMIdle(cancellationToken);
+        var jobHeadersNow = await page.QuerySelectorAllAsync("li.iFjolb");
+
+        return jobHeadersNow.Length > jobHeaders.Length;
     }
 
     private async Task<string> GetJobId(IPage page, IElementHandle element, CancellationToken cancellationToken)

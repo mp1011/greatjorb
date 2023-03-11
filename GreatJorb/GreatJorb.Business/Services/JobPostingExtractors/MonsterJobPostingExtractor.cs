@@ -37,8 +37,19 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
 
     public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
     {
-        await Task.Delay(0);
-        throw new NotImplementedException();
+        await Task.Delay(1000);
+        var cards = await page.QuerySelectorAllAsync("div[class*='JobCardWrap']");
+        var lastCard = cards.Last();
+
+        await lastCard.FocusAsync();
+
+        await page.EvaluateFunctionAsync("e => window.scroll(0, window.scrollY+8)");
+
+        await Task.Delay(100);
+        await page.WaitForDOMIdle(cancellationToken);
+
+        var newCards = await page.QuerySelectorAllAsync("div[class*='JobCardWrap']");
+        return newCards.Length > cards.Length;
     }
 
     public async Task<JobPosting> ExtractJob(IPage page, string url, CancellationToken cancellationToken)

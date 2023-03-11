@@ -42,8 +42,8 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
     }
     public async Task<bool> GotoNextPage(IPage page, CancellationToken cancellationToken)
     {
-        var pager = await page.WaitForSelectorAsync("nav.pagination ul");
-        var pagerElements = await pager.QuerySelectorAllAsync("li");
+        var pager = await page.WaitForSelectorAsync("nav[role='navigation']");
+        var pagerElements = await pager.QuerySelectorAllAsync("span,a");
 
         bool foundSelected = false;
 
@@ -53,12 +53,12 @@ public class SimplyHiredJobPostingExtractor : IJobPostingExtractor
 
             if (!foundSelected)
             {
-                var classes = (await element.GetAttribute("class")).Split(' ');
-                foundSelected = classes.Contains("active");
+                foundSelected = (await element.GetAttribute("aria-current")) == "true";
             }
             else
             {
                 await page.ClickAndWaitForNavigation(element);
+                await page.WaitForDOMIdle(cancellationToken);
                 return true;
             }
         }

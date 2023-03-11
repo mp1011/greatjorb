@@ -50,10 +50,10 @@ public class LinkedInNavigator : IWebSiteNavigator
     }
 
     public async Task<IElementHandle?> GetLoginButton(IPage page, CancellationToken cancellationToken) =>
-        await page.QuerySelectorAsync(".sign-in-form__submit-button");
+        await page.GetElementByInnerText("button","Sign in", cancellationToken);
 
     public async Task<IElementHandle?> GetLoginElement(IPage page, CancellationToken cancellationToken) =>
-        await page.GetElementLabelledBy("Email or phone number", cancellationToken);
+        await page.GetElementLabelledBy("Email or phone", cancellationToken);
 
     public async Task<IElementHandle?> GetPasswordElement(IPage page, CancellationToken cancellationToken) =>
         await page.GetElementLabelledBy("Password", cancellationToken);
