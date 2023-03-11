@@ -1,5 +1,6 @@
 ﻿global using GreatJorb.Business.Extensions;
 global using GreatJorb.Business.Features;
+global using GreatJorb.Business.Features.Behaviors;
 global using GreatJorb.Business.Features.Notifications;
 global using GreatJorb.Business.Models;
 global using GreatJorb.Business.Services;

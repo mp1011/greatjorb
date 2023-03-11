@@ -1,6 +1,4 @@
-﻿using GreatJorb.Business.Services.Settings;
-
-namespace GreatJorb.UI;
+﻿namespace GreatJorb.UI;
 
 public static class MauiProgram
 {
@@ -50,6 +48,8 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IJobPostingExtractor, SimplyHiredJobPostingExtractor>();
 
 		builder.Services.AddSingleton<LocalDataContextProvider>();
+
+		builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlerBehavior<,>));
 
 		var config = new ConfigurationBuilder()
 				.AddJsonFile("appsettings.json")				

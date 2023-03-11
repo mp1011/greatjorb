@@ -47,6 +47,7 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
                 {
                     await _mediator.Publish(new BrowserPageChanged(page, $"No more jobs found, going to next page"));
                     await extractor.GotoNextPage(page, cancellationToken);
+                    jobsUrl = page.Url;
                 }
                 else
                 {

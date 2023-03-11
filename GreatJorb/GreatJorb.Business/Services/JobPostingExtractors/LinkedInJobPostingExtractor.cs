@@ -23,23 +23,20 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
     }
 
     public async Task<JobPosting?> ExtractNextJob(IPage page, HashSet<string> knownJobs, CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
+    {       
+        var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
+
+        foreach (var jobCard in jobCards)
         {
-            var jobCards = await page.QuerySelectorAllAsync(".job-card-container");
+            string url = await jobCard
+                .QuerySelectorAsync("a.job-card-container__link")
+                .GetAttribute("href");
 
-            foreach (var jobCard in jobCards)
-            {
-                string url = await jobCard
-                    .QuerySelectorAsync("a.job-card-container__link")
-                    .GetAttribute("href");
+            if (knownJobs.Contains(GetStorageKeyFromUrl(url)))
+                continue;
 
-                if (knownJobs.Contains(GetStorageKeyFromUrl(url)))
-                    continue;
-
-                var header = await ExtractPostingHeaders(jobCard);
-                return await ExtractPostingDetails(page, header, cancellationToken);
-            }
+            var header = await ExtractPostingHeaders(jobCard);
+            return await ExtractPostingDetails(page, header, cancellationToken);
         }
 
         return null;
