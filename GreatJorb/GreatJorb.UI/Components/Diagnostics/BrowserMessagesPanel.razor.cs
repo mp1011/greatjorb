@@ -8,6 +8,7 @@ public partial class BrowserMessagesPanel
     public string GetCss(BrowserPageChanged notification) => notification.Action switch
     {
         BrowserAction.Navigate => "bg-info",
+        BrowserAction.Information => "bg-info",
         BrowserAction.FailedNavigationRetrying => "bg-warning",
         _ => "bg-danger"
     };

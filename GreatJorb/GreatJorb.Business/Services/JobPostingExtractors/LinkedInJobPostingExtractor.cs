@@ -40,9 +40,6 @@ public class LinkedInJobPostingExtractor : IJobPostingExtractor
                 var header = await ExtractPostingHeaders(jobCard);
                 return await ExtractPostingDetails(page, header, cancellationToken);
             }
-
-            if (!await GotoNextPage(page, cancellationToken))
-                break;
         }
 
         return null;

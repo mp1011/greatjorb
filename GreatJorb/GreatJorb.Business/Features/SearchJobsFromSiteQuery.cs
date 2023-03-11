@@ -21,6 +21,9 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
             if (page == null)
                 return Array.Empty<JobPostingSearchResult>();
 
+
+            await _mediator.Publish(new BrowserPageChanged(page, $"Extracting jobs from {request.WebPage.Site.Name}"));
+
             IJobPostingExtractor? extractor = await _mediator.Send(new GetExtractorQuery(request.WebPage.Site));
             if (extractor == null)
                 return Array.Empty<JobPostingSearchResult>();
@@ -40,8 +43,14 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
                 var nextResult = await ExtractNextJob(page, request, knownJobs, extractor, jobsUrl, cancellationToken)
                     .WithMinimumDelay(_settings.MinTimeBetweenRequests);
 
-                if (nextResult != null)
+                if(nextResult == null)
                 {
+                    await _mediator.Publish(new BrowserPageChanged(page, $"No more jobs found, going to next page"));
+                    await extractor.GotoNextPage(page, cancellationToken);
+                }
+                else
+                {
+                    await _mediator.Publish(new BrowserPageChanged(page, $"Extracted job {nextResult.Job.StorageKey}"));
                     knownJobs.Add(nextResult.Job.StorageKey);
                     jobs.Add(nextResult);
                 }
@@ -96,6 +105,7 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
 
             await page.WaitForDOMIdle(cancellationToken);
 
+            await _mediator.Publish(new BrowserPageChanged(page, "Applying filters"));
             page = await navigator.ApplyFilters(page, request.Filter, cancellationToken)
                 .NotifyError(page, _mediator);
 
