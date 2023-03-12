@@ -39,6 +39,9 @@
     <None Update="TestData\indeed_sample.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\sampledetail_google.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\samplehtml.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

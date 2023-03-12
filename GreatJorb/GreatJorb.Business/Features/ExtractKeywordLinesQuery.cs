@@ -13,9 +13,13 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
 
             var liTags = html.DocumentNode.Descendants("li");
             var pTags = html.DocumentNode.Descendants("p");
+            var divTags = html.DocumentNode.Descendants("div")
+                .Where(p => MayBeKeywordLine(p))
+                .ToArray();
 
             var keywordLines = liTags
                 .Union(pTags)
+                .Union(divTags)
                 .Select(p => CleanUpLine(p.InnerText))
                 .Union(ExtractBullets(request.Html, request.Keyword))
                 .SelectMany(p => ExtractSentences(p))
@@ -30,6 +34,17 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
             return Task.FromResult(keywordLines);
         }
 
+        private bool MayBeKeywordLine(HtmlNode divTag)
+        {
+            var html = divTag.InnerHtml;
+            var bulletIndex = html.IndexOf('•');
+            if(bulletIndex == -1)
+                return false; ;
+
+            var nextBulletIndex = html.IndexOf('•', bulletIndex + 1);
+            return nextBulletIndex == -1;
+        }
+
         private IEnumerable<string> ExtractBullets(string html, string keyword)
         {
             char bullet = '•';
@@ -41,13 +56,23 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
                 if (index == -1)
                     break;
 
-                int endIndex = html.IndexOf("\n", index);
+                int nextNewlineIndex = html.IndexOf("\n", index);
+                int nextBulletIndex = html.IndexOf(bullet, index + 1);
+
+                if (nextNewlineIndex == -1)
+                    nextNewlineIndex = int.MaxValue;
+                if (nextBulletIndex == -1)
+                    nextBulletIndex = int.MaxValue;
+
+                int endIndex = Math.Min(nextNewlineIndex,nextBulletIndex);
                 if (endIndex == -1)
                     endIndex = html.Length;
 
                 var line = html
                     .Substring(index + 1, (endIndex - index)-1)
                     .Trim();
+
+                line = Regex.Replace(line, "<.*?>", "");
 
                 if (line.Contains(keyword, StringComparison.OrdinalIgnoreCase))
                     yield return line;

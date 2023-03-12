@@ -9,6 +9,11 @@
 
         public JobPosting Job => JobResult.Job;
 
+
+        public async Task CopyUrl()
+        {
+            await Clipboard.SetTextAsync(Job.Uri.ToString());
+        }
       
         public IEnumerable<JobBadge> GetBadges()
         {

@@ -11,6 +11,7 @@
                         title="@Job.Uri.ToString()">
                         @Job.Title
                     </a>
+                    <button class="btn btn-info btn-sm" @onclick="CopyUrl">Copy Url</button>
             
                     @if(Job.SalaryMax.HasValue && Job.SalaryMin.HasValue)
                     {

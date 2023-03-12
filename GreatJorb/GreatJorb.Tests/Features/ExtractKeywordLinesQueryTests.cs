@@ -8,6 +8,7 @@ public class ExtractKeywordLinesQueryTests
     [TestCase("samplehtml_bullets.txt", "c#", null)]
     [TestCase("samplehtml_google.txt", "c#", "Expert (5 Years of recent hands on experience) in .Net, C# Expert (4 Years of recent hands on")]
     [TestCase("samplehtml_linkedin.html", "c#", "Demonstrated experience using C#, .NET Framework, JavaScript, SQL and SQL Server, Angular, ASP.NET MVC, and other .NET frameworks.")]
+    [TestCase("sampledetail_google.html", "c#", "Good experience with Java, C#.net, Apache web server, Apache Tomcat, and Eloquence designs")]
 
     public async Task TestExtractKeywordLinesQuery(string file, string query, string firstExpected)
     {
