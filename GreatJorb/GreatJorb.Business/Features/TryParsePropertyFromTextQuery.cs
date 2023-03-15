@@ -80,6 +80,9 @@ public record TryParsePropertyFromTextQuery(string Text) : IRequest<TextParseRes
         {
             List<TextParseResult> results = new();
 
+            if (text.Length > 100)
+                return results;
+
             var maybeSalary = await _mediator.Send(new ParseSalaryQuery(text));
 
             if (maybeSalary.Max.HasValue && maybeSalary.Max.Value == 401000)

@@ -28,7 +28,8 @@ public class MonsterJobPostingExtractor : IJobPostingExtractor
             if (knownJobs.Contains(GetStorageKeyFromUrl(url)))
                 continue;
 
-            await page.GoToAsync("https:" + url);
+            url = $"https:{url}";
+            await page.GoToAsync(url);
             return await ExtractJob(page, url, cancellationToken);
         }
 

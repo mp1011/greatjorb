@@ -15,18 +15,18 @@
             
                     @if(Job.SalaryMax.HasValue && Job.SalaryMin.HasValue)
                     {
-                        <span>@Job.SalaryMin.ToShortMoney()</span>
+                        <span>@Job.SalaryMinAsAnnual.ToShortMoney()</span>
                         <span>-</span>
-                            <span>@Job.SalaryMax.ToShortMoney()</span>
+                            <span>@Job.SalaryMaxAsAnnual.ToShortMoney()</span>
                     }
                     else if(Job.SalaryMin.HasValue)
                     {                    
-                        <span>@Job.SalaryMin.ToShortMoney()</span>
+                        <span>@Job.SalaryMinAsAnnual.ToShortMoney()</span>
                         <span>+</span>
                     }
                     else if(Job.SalaryMax.HasValue)
                     {                    
-                        <span>@Job.SalaryMax.ToShortMoney()</span>
+                        <span>@Job.SalaryMaxAsAnnual.ToShortMoney()</span>
                     }
                 </h5>
                 

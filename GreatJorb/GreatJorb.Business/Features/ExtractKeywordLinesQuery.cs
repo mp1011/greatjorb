@@ -68,9 +68,21 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
                 if (endIndex == -1)
                     endIndex = html.Length;
 
-                var line = html
-                    .Substring(index + 1, (endIndex - index)-1)
-                    .Trim();
+                int length = (endIndex - index) - 1;
+
+                string line;
+                if (index + 1 + length >= html.Length)
+                {
+                    line = html
+                        .Substring(index + 1)
+                        .Trim();
+                }
+                else
+                {
+                    line = html
+                        .Substring(index + 1, length)
+                        .Trim();
+                }
 
                 line = Regex.Replace(line, "<.*?>", "");
 

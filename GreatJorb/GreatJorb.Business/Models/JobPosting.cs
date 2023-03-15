@@ -2,6 +2,8 @@
 
 public class JobPosting : ILocalStorable
 {
+    private const int WorkHoursPerYear = 2080;
+
     public string StorageKey { get; set; }
 
     public Uri Uri { get; set; } = new Uri("https://none");
@@ -15,6 +17,20 @@ public class JobPosting : ILocalStorable
     public decimal? SalaryMin { get; set; }
     public decimal? SalaryMax { get; set; }
     public string? DescriptionHtml { get; set; }
+
+    public decimal? SalaryMinAsAnnual => AsAnnual(SalaryMin);
+    public decimal? SalaryMaxAsAnnual => AsAnnual(SalaryMax);
+
+    private decimal? AsAnnual(decimal? amount)
+    {
+        if (amount == null)
+            return null;
+
+        if (SalaryType == SalaryType.Hourly || amount <= 1000)
+            amount *= WorkHoursPerYear;
+
+        return amount;
+    }
 
     public string[] MiscProperties { get; set; } = Array.Empty<string>();
 

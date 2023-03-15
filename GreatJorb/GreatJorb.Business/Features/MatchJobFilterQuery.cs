@@ -41,7 +41,7 @@ public record MatchJobFilterQuery(JobPosting Job, bool HasKeywordMatches, JobFil
             {
                 if (request.Job.SalaryMax == null)
                     matches.Add(new FilterMatch(FilterMatchLevel.Unknown, nameof(JobFilter.Salary)));
-                else if(request.Job.SalaryMax.GetValueOrDefault() < request.Filter.Salary)
+                else if(request.Job.SalaryMaxAsAnnual.GetValueOrDefault() < request.Filter.Salary)
                     matches.Add(new FilterMatch(FilterMatchLevel.NegativeMatch, nameof(JobFilter.Salary)));
                 else
                     matches.Add(new FilterMatch(FilterMatchLevel.PositiveMatch, nameof(JobFilter.Salary)));

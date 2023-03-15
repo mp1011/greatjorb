@@ -118,6 +118,9 @@ public static class StringExtensions
     public static T TryParseEnumAdvanced<T>(this string text, T defaultValue)
        where T : struct, Enum
     {
+        if(int.TryParse(text, out _))
+            return defaultValue; 
+
         T result;
         if (Enum.TryParse(text, out result))
             return result;
@@ -143,6 +146,8 @@ public static class StringExtensions
 
     public static string ToShortMoney(this decimal? d)
     {
+        int workHoursPerYear = 2080;
+
         if (d == null)
             return string.Empty;
 

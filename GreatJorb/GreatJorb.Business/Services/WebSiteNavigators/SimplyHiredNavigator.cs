@@ -51,13 +51,13 @@ public class SimplyHiredNavigator : IWebSiteNavigator
 
         if(filter.Salary.HasValue)
         {
-            await page
-                .GetElementLabelledBy("Minimum Salary Filter", cancellationToken)
+            await page 
+                .GetElementByInnerText("button","Minimum Salary", cancellationToken)
                 .ClickAsync();
 
             await Task.Delay(500);
 
-            var salaryOptions = await page.QuerySelectorAllAsync("#Filters-dropdownBody-MinimumPay a");
+            var salaryOptions = await page.QuerySelectorAllAsync("button[data-testid='dropdown-option']");
 
             foreach(var option in salaryOptions)
             {
