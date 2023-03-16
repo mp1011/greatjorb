@@ -10,7 +10,7 @@ public class ExtractKeywordLinesQueryTests
     [TestCase("samplehtml_linkedin.html", "c#", "Demonstrated experience using C#, .NET Framework, JavaScript, SQL and SQL Server, Angular, ASP.NET MVC, and other .NET frameworks.")]
     [TestCase("sampledetail_google.html", "c#", "Good experience with Java, C#.net, Apache web server, Apache Tomcat, and Eloquence designs")]
 
-    public async Task TestExtractKeywordLinesQuery(string file, string query, string firstExpected)
+    public async Task TestExtractKeywordLinesQuery(string file, string query, string expected)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);
 
@@ -26,8 +26,10 @@ public class ExtractKeywordLinesQueryTests
             Assert.IsTrue(line.Line.Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (firstExpected != null)
-            Assert.AreEqual(firstExpected, result[0]);
+        if (expected != null)
+        {
+            Assert.IsTrue(result.Any(p => p.Line == expected));
+        }
     }
 
     [Category(TestType.WebTest1)]

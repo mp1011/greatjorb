@@ -4,7 +4,7 @@ public static class StringExtensions
 {
     public static bool ContainsWord(this string text, string word)
     {
-        var index = text.IndexOf(word);
+        var index = text.IndexOf(word, StringComparison.OrdinalIgnoreCase);
         while (index != -1)
         {
             bool validBefore = index == 0 || text[index - 1].IsBoundary();
@@ -13,7 +13,7 @@ public static class StringExtensions
             if (validBefore && validAfter)
                 return true;
 
-            index = text.IndexOf(word, index+1);
+            index = text.IndexOf(word, index+1, StringComparison.OrdinalIgnoreCase);
         }
 
         return false;
