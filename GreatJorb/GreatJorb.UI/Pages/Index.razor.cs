@@ -71,6 +71,17 @@ public partial class Index : IDisposable
     {      
         CurrentFilter = filter;
 
+        //temporary until ui is made
+        CurrentFilter.WatchWords = new WatchWord[]
+        {
+            new WatchWord(".net", isGood:true),
+            new WatchWord("offshore", isGood:false),
+            new WatchWord("travel", isGood:null),
+            new WatchWord("ny", isGood:null),
+            new WatchWord("new york", isGood:null),
+            new WatchWord("states", isGood:null),
+        };
+
         if (_cancellationTokenSource != null)
         {
             _cancellationTokenSource.Cancel();

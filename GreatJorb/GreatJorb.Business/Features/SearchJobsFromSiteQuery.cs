@@ -78,12 +78,12 @@ public record SearchJobsFromSiteQuery(WebPage WebPage, JobFilter Filter, HashSet
             if (nextJob == null)
                 return null;
 
-            string[] keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter.Query, nextJob.DescriptionHtml ?? ""));
+            KeywordLine[] keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter, nextJob.DescriptionHtml ?? ""));
 
             var searchResult = new JobPostingSearchResult(
                     nextJob,
                     Site: request.WebPage.Site,
-                    await _mediator.Send(new MatchJobFilterQuery(nextJob, keywordLines.Any(), request.Filter)),
+                    await _mediator.Send(new MatchJobFilterQuery(nextJob, keywordLines, request.Filter)),
                     keywordLines);
 
             await _mediator.Publish(new JobPostingRead(searchResult, FromCache: false));

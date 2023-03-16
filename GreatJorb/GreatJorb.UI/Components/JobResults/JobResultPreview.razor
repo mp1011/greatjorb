@@ -48,7 +48,14 @@
             <ul>
                 @foreach(var line in JobResult.KeywordLines)
                 {
-                    <li>@line</li>
+                    @if (line.Type == KeywordLineType.NegativeKeyword)
+                    {
+                        <li class="text-danger">@line.Line</li>
+                    }
+                    else
+                    {
+                        <li>@line.Line</li>
+                    }
                 }
             </ul>
 

@@ -6,6 +6,8 @@ public class JobFilter : ILocalStorable
 
     public string Query { get; set; } = "";
 
+    public WatchWord[] WatchWords { get; set; } = Array.Empty<WatchWord>();
+
     public decimal? Salary { get; set; }
 
     public Site Sites { get; set; } = Site.None;

@@ -1,6 +1,6 @@
 ﻿namespace GreatJorb.Business.Models;
 
-public record JobPostingSearchResult(JobPosting Job, WebSite Site, FilterMatch[] FilterMatches, string[] KeywordLines) : IComparable<JobPostingSearchResult>
+public record JobPostingSearchResult(JobPosting Job, WebSite Site, FilterMatch[] FilterMatches, KeywordLine[] KeywordLines) : IComparable<JobPostingSearchResult>
 {
     public int CompareTo(JobPostingSearchResult? other)
     {

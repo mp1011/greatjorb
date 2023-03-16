@@ -26,4 +26,15 @@ public class StringExtensionTests
     {
         Assert.AreEqual(expectedValue, url.GetQuerystringOrHashValue(key));
     }
+
+    [TestCase(".net", ".net framework", true)]
+    [TestCase(".net", "xyz/.net/c#", true)]
+    [TestCase("java", "javascript", false)]
+    [TestCase("java", "javascript, java", true)]
+    [TestCase("ny", "many", false)]
+    [TestCase("ny", "states:ny,ca,pa", true)]
+    public void TestContainsWord(string word, string text, bool shouldContain)
+    {
+        Assert.AreEqual(shouldContain, text.ContainsWord(word));
+    }
 }

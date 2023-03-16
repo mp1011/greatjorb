@@ -16,13 +16,14 @@ public class ExtractKeywordLinesQueryTests
 
         var html = File.ReadAllText(TestContext.CurrentContext.TestDirectory + @$"\TestData\{file}");
 
-        var result = await serviceProvider.Mediator.Send(new ExtractKeywordLinesQuery(query, html));
+        var filter = new JobFilter { Query = query };
+        var result = await serviceProvider.Mediator.Send(new ExtractKeywordLinesQuery(filter, html));
 
         Assert.IsNotEmpty(result);
 
         foreach (var line in result)
         {
-            Assert.IsTrue(line.Contains(query, StringComparison.OrdinalIgnoreCase));
+            Assert.IsTrue(line.Line.Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
         if (firstExpected != null)
@@ -75,7 +76,7 @@ public class ExtractKeywordLinesQueryTests
             .GetDescriptionElement(page, new CancellationToken())
             .GetInnerHTML();
 
-        var result = await serviceProvider.Mediator.Send(new ExtractKeywordLinesQuery(query, html));
+        var result = await serviceProvider.Mediator.Send(new ExtractKeywordLinesQuery(new JobFilter {  Query=query }, html));
 
         Assert.AreEqual(firstExpected, result[0]);
     }

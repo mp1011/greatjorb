@@ -2,11 +2,11 @@
 
 namespace GreatJorb.Business.Features;
 
-public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<string[]>
+public record ExtractKeywordLinesQuery(JobFilter Filter, string Html) : IRequest<KeywordLine[]>
 {
-    public class Handler : IRequestHandler<ExtractKeywordLinesQuery, string[]>
+    public class Handler : IRequestHandler<ExtractKeywordLinesQuery, KeywordLine[]>
     {
-        public Task<string[]> Handle(ExtractKeywordLinesQuery request, CancellationToken cancellationToken)
+        public Task<KeywordLine[]> Handle(ExtractKeywordLinesQuery request, CancellationToken cancellationToken)
         {
             var html = new HtmlDocument();
             html.LoadHtml(request.Html);
@@ -17,18 +17,23 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
                 .Where(p => MayBeKeywordLine(p))
                 .ToArray();
 
-            var keywordLines = liTags
+            var lines = liTags
                 .Union(pTags)
                 .Union(divTags)
                 .Select(p => CleanUpLine(p.InnerText))
-                .Union(ExtractBullets(request.Html, request.Keyword))
+                .Union(ExtractBullets(request.Html))
                 .SelectMany(p => ExtractSentences(p))
-                .Where(p => p.Contains(request.Keyword, StringComparison.OrdinalIgnoreCase))
+                .Distinct()
+                .ToArray();
+
+            var keywordLines = lines
+                .Select(p=>ToKeywordLineOrDefault(p, request.Filter))
+                .Where(p => p != null)
                 .Distinct()
                 .ToArray();
 
             keywordLines = keywordLines
-                .Where(p => !keywordLines.Any(q => q != p && p.Contains(q, StringComparison.OrdinalIgnoreCase)))
+                .Where(p => !keywordLines.Any(q => q != p && p.Line.Contains(q.Line, StringComparison.OrdinalIgnoreCase)))
                 .ToArray();
 
             return Task.FromResult(keywordLines);
@@ -45,7 +50,7 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
             return nextBulletIndex == -1;
         }
 
-        private IEnumerable<string> ExtractBullets(string html, string keyword)
+        private IEnumerable<string> ExtractBullets(string html)
         {
             char bullet = '•';
 
@@ -86,11 +91,31 @@ public record ExtractKeywordLinesQuery(string Keyword, string Html) : IRequest<s
 
                 line = Regex.Replace(line, "<.*?>", "");
 
-                if (line.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                    yield return line;
+                yield return line;
 
                 index = endIndex;
             }
+        }
+
+        private KeywordLine? ToKeywordLineOrDefault(string line, JobFilter filter)
+        {
+            if (line.ContainsWord(filter.Query))
+                return new KeywordLine(line, KeywordLineType.Query);
+
+            foreach(var watchWord in filter.WatchWords)
+            {
+                if (line.ContainsWord(watchWord.Phrase))
+                {
+                    return new KeywordLine(line, watchWord.IsGood switch
+                    {
+                        true => KeywordLineType.PositiveKeyword,
+                        false => KeywordLineType.NegativeKeyword,
+                        _ => KeywordLineType.NeutralKeyword
+                    });
+                }
+            }
+
+            return null;
         }
 
         private IEnumerable<string> ExtractSentences(string input)

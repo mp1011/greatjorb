@@ -2,6 +2,38 @@
 
 public static class StringExtensions
 {
+    public static bool ContainsWord(this string text, string word)
+    {
+        var index = text.IndexOf(word);
+        while (index != -1)
+        {
+            bool validBefore = index == 0 || text[index - 1].IsBoundary();
+            bool validAfter = index + word.Length == text.Length || text[index + word.Length].IsBoundary();
+
+            if (validBefore && validAfter)
+                return true;
+
+            index = text.IndexOf(word, index+1);
+        }
+
+        return false;
+    }
+
+    public static bool IsBoundary(this char c)
+    {
+        return c switch
+        {
+            '.' => true,
+            ',' => true,
+            ' ' => true,
+            '?' => true,
+            ':' => true,
+            '/' => true,
+            '\\' => true,
+            _ => false
+        };
+    }
+
     public static bool IsWildcardMatch(this string text, string pattern)
     {
         var parts = pattern.Split('*', StringSplitOptions.RemoveEmptyEntries);
@@ -102,7 +134,10 @@ public static class StringExtensions
             text = text.Substring(0, text.Length - 1);
             multiply = 1000.0m;
         }
-        text = text.Replace("$", "");
+        text = text
+            .Replace("$", "")
+            .Replace("USD", "");
+
         decimal result;
         if (decimal.TryParse(text, out result))
             return result * multiply;

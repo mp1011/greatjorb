@@ -30,7 +30,7 @@ internal class JobPostingExtractorTests
         Assert.That(result.DescriptionHtml!.Contains("C#"));
 
         var keywordLines = await serviceProvider.Mediator.Send(
-                new ExtractKeywordLinesQuery("c#", result.DescriptionHtml ?? ""));
+                new ExtractKeywordLinesQuery(new JobFilter { Query = "c#" }, result.DescriptionHtml ?? ""));
 
         Assert.AreEqual("Expert (5 Years of recent hands on experience) in .Net, C# Expert (4 Years of recent hands on",
             keywordLines[0]);
@@ -76,9 +76,9 @@ internal class JobPostingExtractorTests
         }
 
         var keywordLines = await serviceProvider.Mediator.Send(
-               new ExtractKeywordLinesQuery("c#", result.DescriptionHtml ?? ""));
+               new ExtractKeywordLinesQuery(new JobFilter { Query = "c#" }, result.DescriptionHtml ?? ""));
 
-        Assert.IsNotEmpty(keywordLines.Where(p => p.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
+        Assert.IsNotEmpty(keywordLines.Where(p => p.Line.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
     }
 
     [TestCase("TestData/indeed_sample.html")]
@@ -109,9 +109,9 @@ internal class JobPostingExtractorTests
         Assert.AreEqual(WorkplaceType.Hybrid, result.WorkplaceType);
 
         var keywordLines = await serviceProvider.Mediator.Send(
-               new ExtractKeywordLinesQuery("c#", result.DescriptionHtml ?? ""));
+               new ExtractKeywordLinesQuery(new JobFilter{ Query = "c#"}, result.DescriptionHtml ?? ""));
 
-        Assert.IsNotEmpty(keywordLines.Where(p => p.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
+        Assert.IsNotEmpty(keywordLines.Where(p => p.Line.Contains("c#", StringComparison.OrdinalIgnoreCase)).ToArray());
     }
 
     [TestCase("TestData/samplehtml_monster.html")]

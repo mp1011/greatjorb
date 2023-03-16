@@ -32,12 +32,12 @@ public record SearchJobsFromSiteCachedQuery(WebSite Site, JobFilter Filter) : IR
             List<JobPostingSearchResult> results = new();
             foreach(var job in cachedJobs)
             {
-                var keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter.Query, job.DescriptionHtml ?? ""));
+                var keywordLines = await _mediator.Send(new ExtractKeywordLinesQuery(request.Filter, job.DescriptionHtml ?? ""));
 
                 var result = new JobPostingSearchResult(
                     Job: job,
                     Site: request.Site,
-                    FilterMatches: await _mediator.Send(new MatchJobFilterQuery(job, keywordLines.Any(), request.Filter)),
+                    FilterMatches: await _mediator.Send(new MatchJobFilterQuery(job, keywordLines, request.Filter)),
                     KeywordLines: keywordLines);
 
                 results.Add(result);

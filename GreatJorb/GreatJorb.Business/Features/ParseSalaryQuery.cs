@@ -20,13 +20,16 @@
                     salaryType = SalaryType.Hourly;
                 else if (request.Text.Contains("year", StringComparison.OrdinalIgnoreCase))
                     salaryType = SalaryType.Annual;
-                
+
                 var currencyRegex1 = @"\$\d+(\,)?\d+(K?)"; // $555K or $555
                 var currencyRegex2 = @"\d+(\,)?\d+(K)"; // 555k
+                var currencyRegex3 = @"USD\d+"; // USD55
+
                 var numberRegex = @"\d+(\,)?\d+(K?)";
 
                 var currencies = GetCurrencies(currencyRegex1, request.Text)
                     .Union(GetCurrencies(currencyRegex2, request.Text))
+                    .Union(GetCurrencies(currencyRegex3, request.Text))
                     .Distinct()
                     .ToArray();
 
@@ -67,7 +70,7 @@
                     return Task.FromResult(new Result(
                         Min: null,
                         Max: currencies[0],
-                        SalaryType: salaryType));
+                        SalaryType: GuessSalaryType(salaryType, currencies)));
                 }
                 else
                 {
@@ -75,8 +78,24 @@
                     return Task.FromResult(new Result(
                         Min: currencies.Min(),
                         Max: currencies.Max(),
-                        SalaryType: salaryType));
+                        SalaryType: GuessSalaryType(salaryType, currencies)));
                 }
+            }
+
+            private SalaryType GuessSalaryType(SalaryType calculated, decimal?[] currencies)
+            {
+                if(calculated != SalaryType.Unknown)
+                    return calculated;
+
+                currencies = currencies.Where(p => p != null).ToArray();
+
+                if (currencies.Length == 0)
+                    return SalaryType.Unknown;
+
+                if (currencies.All(p => p < 200))
+                    return SalaryType.Hourly;
+                else
+                    return SalaryType.Annual;
             }
       
             private IEnumerable<decimal?> GetCurrencies(string regex, string text)

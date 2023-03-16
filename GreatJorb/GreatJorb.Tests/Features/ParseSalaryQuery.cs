@@ -10,6 +10,8 @@ public class ParseSalaryQueryTests
     [TestCase("130K–150K a year", 130000, 150000, SalaryType.Annual)]
     [TestCase("$140,000/yr - $200,000/yr (from job description)", 140000, 200000, SalaryType.Annual)]
     [TestCase("$65.00 - $73.01 an hour", 65,73, SalaryType.Hourly)]
+    [TestCase("USD75 - USD85", 75,85, SalaryType.Hourly)]
+    [TestCase("contract position is $75-$85/hour. Our salary ranges", 75,85, SalaryType.Hourly)]
     public async Task CanParseSalary(string text, decimal min, decimal max, SalaryType salaryType)
     {
         using var serviceProvider = TestServiceProvider.CreateServiceProvider(includeMediator: true);

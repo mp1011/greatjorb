@@ -44,7 +44,7 @@
                 };
             }
 
-            if (!JobResult.KeywordLines.Any())                
+            if (!JobResult.KeywordLines.Any(p=>p.Type == KeywordLineType.Query))                
                 yield return new JobBadge("Description does not contain keywords", false, false);
         }
 

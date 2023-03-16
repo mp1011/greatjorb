@@ -1,6 +1,6 @@
 ﻿namespace GreatJorb.Business.Features;
 
-public record MatchJobFilterQuery(JobPosting Job, bool HasKeywordMatches, JobFilter Filter) : IRequest<FilterMatch[]>
+public record MatchJobFilterQuery(JobPosting Job, KeywordLine[] KeywordLines, JobFilter Filter) : IRequest<FilterMatch[]>
 {
     public class Handler : IRequestHandler<MatchJobFilterQuery, FilterMatch[]>
     {
@@ -47,10 +47,16 @@ public record MatchJobFilterQuery(JobPosting Job, bool HasKeywordMatches, JobFil
                     matches.Add(new FilterMatch(FilterMatchLevel.PositiveMatch, nameof(JobFilter.Salary)));
             }
 
-            if (!request.HasKeywordMatches)
+            if (!request.KeywordLines.Any(p=>p.Type == KeywordLineType.Query))
                 matches.Add(new FilterMatch(FilterMatchLevel.NegativeMatch, nameof(JobFilter.Query)));
             else
                 matches.Add(new FilterMatch(FilterMatchLevel.PositiveMatch, nameof(JobFilter.Query)));
+
+            if(request.KeywordLines.Any(p=>p.Type == KeywordLineType.PositiveKeyword))
+                matches.Add(new FilterMatch(FilterMatchLevel.PositiveMatch, nameof(JobFilter.WatchWords)));
+
+            if (request.KeywordLines.Any(p => p.Type == KeywordLineType.NegativeKeyword))
+                matches.Add(new FilterMatch(FilterMatchLevel.NegativeMatch, nameof(JobFilter.WatchWords)));
 
             return Task.FromResult(matches.ToArray());
         }
