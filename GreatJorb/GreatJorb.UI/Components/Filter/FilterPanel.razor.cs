@@ -23,10 +23,21 @@ public partial class FilterPanel
     public EventCallback<JobFilter> SearchRequested { get; set; }
 
     [Parameter]
+    public EventCallback SearchCancelRequested { get; set; }
+
+    [Parameter]
+    public bool IsSearching { get; set; }
+
+    [Parameter]
     public JobFilter Filter { get; set; }
 
     public async Task SearchButtonClicked()
     {
         await SearchRequested.InvokeAsync(Filter);
+    }
+
+    public async Task StopButtonClicked()
+    {
+        await SearchCancelRequested.InvokeAsync();
     }
 }

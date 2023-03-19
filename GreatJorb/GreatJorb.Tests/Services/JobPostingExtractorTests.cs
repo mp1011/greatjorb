@@ -33,7 +33,7 @@ internal class JobPostingExtractorTests
                 new ExtractKeywordLinesQuery(new JobFilter { Query = "c#" }, result.DescriptionHtml ?? ""));
 
         Assert.AreEqual("Expert (5 Years of recent hands on experience) in .Net, C# Expert (4 Years of recent hands on",
-            keywordLines[0]);
+            keywordLines[0].Line);
     }
 
     [TestCase("TestData/dice_sample.html")]

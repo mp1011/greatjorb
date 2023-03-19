@@ -3,7 +3,11 @@
 <div class="d-flex flex-column h-100">
 
     <div>
-        <FilterPanel Filter="CurrentFilter" SearchRequested="PerformSearch" />
+        <FilterPanel Filter="CurrentFilter" 
+            SearchRequested="PerformSearch"
+            SearchCancelRequested="CancelSearch"
+            IsSearching="IsSearching" 
+            />
     </div>
 
     <div class="flex-fill" style="max-height:100%; overflow:hidden;">

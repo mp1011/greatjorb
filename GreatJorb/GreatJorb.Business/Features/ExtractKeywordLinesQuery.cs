@@ -7,7 +7,7 @@ public record ExtractKeywordLinesQuery(JobFilter Filter, string Html) : IRequest
     public class Handler : IRequestHandler<ExtractKeywordLinesQuery, KeywordLine[]>
     {
         public Task<KeywordLine[]> Handle(ExtractKeywordLinesQuery request, CancellationToken cancellationToken)
-        {
+        {           
             var html = new HtmlDocument();
             html.LoadHtml(request.Html);
 
@@ -16,6 +16,7 @@ public record ExtractKeywordLinesQuery(JobFilter Filter, string Html) : IRequest
             var divTags = html.DocumentNode.Descendants("div")
                 .Where(p => MayBeKeywordLine(p))
                 .ToArray();
+
 
             var lines = liTags
                 .Union(pTags)
@@ -40,7 +41,7 @@ public record ExtractKeywordLinesQuery(JobFilter Filter, string Html) : IRequest
         }
 
         private bool MayBeKeywordLine(HtmlNode divTag)
-        {
+        {            
             var html = divTag.InnerHtml;
             var bulletIndex = html.IndexOf('•');
             if(bulletIndex == -1)
@@ -91,7 +92,8 @@ public record ExtractKeywordLinesQuery(JobFilter Filter, string Html) : IRequest
 
                 line = Regex.Replace(line, "<.*?>", "");
 
-                yield return line;
+                if(line.Length > 0)
+                    yield return line;
 
                 index = endIndex;
             }
@@ -129,9 +131,9 @@ public record ExtractKeywordLinesQuery(JobFilter Filter, string Html) : IRequest
 
         private string CleanUpLine(string line)
         {
-            line = line.Trim();
+            line = line.Replace("•", "");
             line = Regex.Replace(line, @"\s+", " ");
-            return line;
+            return line.Trim();
         }
     }
 }

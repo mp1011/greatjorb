@@ -22,6 +22,8 @@ public partial class Index : IDisposable
 
     private CancellationTokenSource? _cancellationTokenSource;
 
+    public bool IsSearching => _cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested;
+
     protected override void OnInitialized()
     {
         Courier.Subscribe<BrowserPageChanged>(OnNavigation);
@@ -67,6 +69,14 @@ public partial class Index : IDisposable
         }
     }
 
+    public void CancelSearch()
+    {
+        if (_cancellationTokenSource != null)
+        {
+            _cancellationTokenSource.Cancel();
+        }
+    }
+
     public async Task PerformSearch(JobFilter filter)
     {      
         CurrentFilter = filter;
@@ -80,6 +90,8 @@ public partial class Index : IDisposable
             new WatchWord("ny", isGood:null),
             new WatchWord("new york", isGood:null),
             new WatchWord("states", isGood:null),
+            new WatchWord("be located", isGood:null),
+
         };
 
         if (_cancellationTokenSource != null)

@@ -10,11 +10,6 @@ public record JobPostingSearchResult(JobPosting Job, WebSite Site, FilterMatch[]
             return other.MatchScore - MatchScore;
     }
 
-    public int MatchScore => FilterMatches.Sum(p => p.Level switch
-    {
-        FilterMatchLevel.PositiveMatch => 10,
-        FilterMatchLevel.NegativeMatch => -10,
-        _ => 0
-    });
+    public int MatchScore => FilterMatches.Sum(p => p.Score);
 }
 
