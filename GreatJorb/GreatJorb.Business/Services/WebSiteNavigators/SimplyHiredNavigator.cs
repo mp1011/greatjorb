@@ -30,8 +30,7 @@ public class SimplyHiredNavigator : IWebSiteNavigator
 
         if(filter.JobTypeFilter != JobType.Unknown)
         {
-            await page
-                .GetElementLabelledBy("Job Type Filter", cancellationToken)
+            await page.GetElementByInnerText("span", "Job Type", cancellationToken)
                 .ClickAsync();
 
             await Task.Delay(500);
@@ -44,9 +43,17 @@ public class SimplyHiredNavigator : IWebSiteNavigator
                 _ => "All Job Types"
             };
 
-            await page
-                .GetElementByInnerText("a", searchText, cancellationToken)
-                .ClickAsync();
+            var jobTypeOptions = await page.QuerySelectorAllAsync("button[data-testid='dropdown-option']");
+
+            foreach (var option in jobTypeOptions)
+            {
+                var optionText = await option.GetInnerText();
+                if(optionText.Equals(searchText))
+                { 
+                    await option.ClickAsync();
+                    break;
+                }
+            }
         }
 
         if(filter.Salary.HasValue)
